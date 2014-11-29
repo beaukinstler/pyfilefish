@@ -36,8 +36,10 @@ def get_md5(fileObjectToHash, block_size=2024):
 
 outfile = "out.txt"
 testfile = "test.mp3"
+
+
 if os.name == 'nt':
-  folder = "C:\\Users\\beau\\"
+  folder = "C:\\"
 else: #quit if not NT
   break
 
