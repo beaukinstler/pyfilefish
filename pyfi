@@ -36,8 +36,12 @@ def get_md5(fileObjectToHash, block_size=2024):
 
 outfile = "out.txt"
 testfile = "test.mp3"
-folder = "C:\\Users\\beau\\"
-print "All files ending with .txt in folder %s:" % folder
+if os.name == 'nt':
+  folder = "C:\\Users\\beau\\"
+else: #quit if not NT
+  break
+
+  print "All files ending with .txt in folder %s:" % folder
 file_list = []
 for file_type in filetypes:
   for (paths, dirs, files) in os.walk(folder):
