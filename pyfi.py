@@ -11,6 +11,7 @@ import time
 
 #TODO:  add code for excluding directories
   # http://stackoverflow.com/questions/19859840/excluding-directories-in-os-walk
+  # http://stackoverflow.com/questions/19859840/excluding-directories-in-os-wahttp://stackoverflow.com/questions/19859840/excluding-directories-in-os-walklk
 
 #Set properties
   
@@ -44,6 +45,7 @@ if os.name == 'nt':
 elif os.name == 'posix':
       print 'OS is Mac/Linux'
       folder = "/"
+      folder = "/Users/beau/"
 else: #quit if not NT
   exit()
 
