@@ -9,17 +9,19 @@ import datetime
 import traceback
 import time
 
-#TODO:  add code for excluding directories
-  # http://stackoverflow.com/questions/19859840/excluding-directories-in-os-wahttp://stackoverflow.com/questions/19859840/excluding-directories-in-os-walklk
+
 
 #Set properties
   
 #for multiple file types
-filetypes = ['.iso']
+filetypes = ['.iso','.mp3']
 min_file_size = 500000
 volume_name = raw_input("Name the volume you're searching (something distinct from other volumes): ")
 outfile = "_filefish_out.txt" 
 #testfile = "test.mp3"
+
+# Testing a way to ignore directories
+ignore = ['/Volumes/', '.Trash/']
 
 #
 def modification_date(filename):
@@ -43,12 +45,14 @@ if os.name == 'nt':
 
 elif os.name == 'posix':
       print 'OS is Mac/Linux'
-      folder = "/Users/beau/"
+      folder = "/"
 else: #quit if not NT
   exit()
 
   print "All files ending with .txt in folder %s:" % folder
 file_list = []
+
+# create output files if they don't exisit.
 for file_type in filetypes:
       # Make the outfile append with the file type.
       #   THis keeps the output file specific to file type.
@@ -66,16 +70,15 @@ for file_type in filetypes:
       startFile.write("Filename\tHash\tFileSize\tDate\tFileType\tVolumeName\n")
       startFile.close()
 
-  # Testing a way to ignor directories
-  ignore = ['/Volumes/MobileBackups', 'iso']
-   
-  for (paths, dirs, files) in os.walk(folder):
+# start the walking process.
+print "Start Time: " + str(datetime.datetime.now().time())
+for (paths, dirs, files) in os.walk(folder):
       # Testing section
       for idir in ignore:
         if idir in dirs:
           dirs.remove(idir)
       # Testing section end...
-      
+    
       for file in files:
           if file.endswith(file_type):
               out_put_file = open(temp_outfile,'a')
@@ -101,6 +104,7 @@ for file_type in filetypes:
 #debug
 #print out_put_file
 print "Thanks for using the filefinder.  We hope the hashes are helpful...."
+print "End Time: " + str(datetime.datetime.now().time())
 
 
 
