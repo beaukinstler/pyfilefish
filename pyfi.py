@@ -15,8 +15,11 @@ import time
 #Set properties
   
 #for multiple file types
-filetypes = ['.mp3','.wav']
-min_file_size = 100000
+filetypes = ['.mp3','.wav', '.iso']
+min_file_size = 500000
+volume_name = raw_input("Name the volume you're searching (something distinct from other volumes): ")
+outfile = "_filefish_out.txt" 
+#testfile = "test.mp3"
 
 #
 def modification_date(filename):
@@ -34,9 +37,6 @@ def get_md5(fileObjectToHash, block_size=2024):
         md5.update(data)
     return md5.hexdigest() # hex digest is better than digest, for standart use.
 
-outfile = "out.txt"
-testfile = "test.mp3"
-
 
 if os.name == 'nt':
   folder = "C:\\"
@@ -50,9 +50,23 @@ else: #quit if not NT
   print "All files ending with .txt in folder %s:" % folder
 file_list = []
 for file_type in filetypes:
+      # Make the outfile append with the file type.
+      #   THis keeps the output file specific to file type.
+      #   Strip out the '.' from the file type
+  file_type_no_period = file_type.translate(None,'.') 
+  temp_outfile = file_type_no_period + outfile
+  try: # check if the file exists already
+      blank=open(temp_outfile,'r')
+      blank.close()
+  except IOError, e:
+     # since the file doesn't exisit, create the file and add the header
+      startFile = open(temp_outfile,'a')
+      startFile.write("Filename\tHash\tFileSize\tDate\tFileType\tVolumeName\n")
+      startFile.close()
   for (paths, dirs, files) in os.walk(folder):
       for file in files:
           if file.endswith(file_type):
+              out_put_file = open(temp_outfile,'a')
               #print file
               filename = os.path.join(paths, file)
               #print filename
@@ -66,9 +80,8 @@ for file_type in filetypes:
               #print "File to hash " + str(file_to_hash)
               hash = get_md5(file_to_hash)
               file_stat = os.stat(filename)
-              out_put_file = open(outfile,'a')
               if file_stat.st_size > min_file_size: 
-                out_put_file.write(os.path.join(paths, file) + "," + hash+"," + str(file_stat.st_size)+"," + str(modification_date(filename)) + '\n')
+                out_put_file.write(os.path.join(paths, file) + "\t" + hash+"\t" + str(file_stat.st_size)+"\t" + str(modification_date(filename)) + "\t" + file_type_no_period + "\t"+ volume_name + '\n')
               out_put_file.close()
               # debug
               #print out_put_file
