@@ -10,13 +10,12 @@ import traceback
 import time
 
 #TODO:  add code for excluding directories
-  # http://stackoverflow.com/questions/19859840/excluding-directories-in-os-walk
   # http://stackoverflow.com/questions/19859840/excluding-directories-in-os-wahttp://stackoverflow.com/questions/19859840/excluding-directories-in-os-walklk
 
 #Set properties
   
 #for multiple file types
-filetypes = ['.mp3','.wav', '.iso']
+filetypes = ['.iso']
 min_file_size = 500000
 volume_name = raw_input("Name the volume you're searching (something distinct from other volumes): ")
 outfile = "_filefish_out.txt" 
@@ -44,7 +43,6 @@ if os.name == 'nt':
 
 elif os.name == 'posix':
       print 'OS is Mac/Linux'
-      folder = "/"
       folder = "/Users/beau/"
 else: #quit if not NT
   exit()
@@ -67,7 +65,17 @@ for file_type in filetypes:
       startFile = open(temp_outfile,'a')
       startFile.write("Filename\tHash\tFileSize\tDate\tFileType\tVolumeName\n")
       startFile.close()
+
+  # Testing a way to ignor directories
+  ignore = ['/Volumes/MobileBackups', 'iso']
+   
   for (paths, dirs, files) in os.walk(folder):
+      # Testing section
+      for idir in ignore:
+        if idir in dirs:
+          dirs.remove(idir)
+      # Testing section end...
+      
       for file in files:
           if file.endswith(file_type):
               out_put_file = open(temp_outfile,'a')
@@ -92,6 +100,7 @@ for file_type in filetypes:
               file_to_hash.close()
 #debug
 #print out_put_file
+print "Thanks for using the filefinder.  We hope the hashes are helpful...."
 
 
 
