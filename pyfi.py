@@ -58,8 +58,10 @@ for file_type in filetypes:
   try: # check if the file exists already
       blank=open(temp_outfile,'r')
       blank.close()
+      print "DEBUG: the file exisits and can be opened."   
   except IOError, e:
      # since the file doesn't exisit, create the file and add the header
+      print "DEBUG:  the file doesn't exisit"
       startFile = open(temp_outfile,'a')
       startFile.write("Filename\tHash\tFileSize\tDate\tFileType\tVolumeName\n")
       startFile.close()
