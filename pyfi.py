@@ -15,13 +15,14 @@ import time
   
 #for multiple file types
 filetypes = ['.iso','.mp3']
-min_file_size = 500000
+min_file_size = 0
 volume_name = raw_input("Name the volume you're searching (something distinct from other volumes): ")
 outfile = "_filefish_out.txt" 
+
 #testfile = "test.mp3"
 
 # Testing a way to ignore directories
-ignore = ['/Volumes/', '.Trash/']
+ignore = ['Volumes', '.Trash', '.MobileBackups', 'atest', 'Applications']
 
 #
 def modification_date(filename):
@@ -41,11 +42,19 @@ def get_md5(fileObjectToHash, block_size=2024):
 
 
 if os.name == 'nt':
-  folder = "C:\\"
+  folder = raw_input("Enter the drive letter you'd like to search: ")
+
+  if folder == '':
+    folder = "C:\\"
+  else:
+    folder = folder + ":\\"  
 
 elif os.name == 'posix':
-      print 'OS is Mac/Linux'
-      folder = "/"
+  print 'OS is Mac/Linux'
+  folder = raw_input("Enter the file path (Default is '/Users/': ")
+  if folder == '':
+    folder = "/Users/"
+          
 else: #quit if not NT
   exit()
 
@@ -72,14 +81,18 @@ for file_type in filetypes:
 
 # start the walking process.
 print "Start Time: " + str(datetime.datetime.now().time())
-for (paths, dirs, files) in os.walk(folder):
+for (paths, dirs, files) in os.walk(folder, topdown=True):
       # Testing section
       for idir in ignore:
         if idir in dirs:
           dirs.remove(idir)
+
+      dirs[:] = [d for d in dirs if d not in ignore]
       # Testing section end...
-    
       for file in files:
+        for file_type in filetypes:
+          file_type_no_period = file_type.translate(None,'.') 
+          temp_outfile = file_type_no_period + outfile    
           if file.endswith(file_type):
               out_put_file = open(temp_outfile,'a')
               #print file
