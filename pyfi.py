@@ -12,7 +12,8 @@ import time
 
 
 #Set properties
-  
+
+filetypes = ['.vhd']
 #for multiple file types
 filetypes = ['.iso','.mp3']
 min_file_size = 0
