@@ -15,7 +15,7 @@ import time
 
 filetypes = ['.vhd']
 #for multiple file types
-filetypes = ['.iso','.mp3']
+#filetypes = ['.iso','.mp3']
 min_file_size = 0
 volume_name = raw_input("Name the volume you're searching (something distinct from other volumes): ")
 outfile = "_filefish_out.txt" 
