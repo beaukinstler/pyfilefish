@@ -13,9 +13,18 @@ import time
 
 #Set properties
 
-filetypes = ['.vhd']
+
+filetypes = []
 #for multiple file types
-#filetypes = ['.iso','.mp3']
+#filetypes.push = ['.iso','.mp3']
+
+file_type_input = '.mp3'
+while file_type_input <> ".0":
+  filetypes.append(file_type_input)
+  prompt_text = "Please input file types to search for, but don't add the period.\n  Enter '0' if satisfied with - " + ','.join(filetypes) +"\n: "
+  file_type_input="."+raw_input(prompt_text)
+
+
 min_file_size = 0
 volume_name = raw_input("Name the volume you're searching (something distinct from other volumes): ")
 outfile = "_filefish_out.txt" 
