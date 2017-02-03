@@ -18,10 +18,11 @@ MongoClient.connect('mongodb://localhost:27017/pyfi', function(err, db) {
 
     var cursor = db.collection(options.collection).find(query);
     cursor.project(projection);
-    cursor.sort({Filename:1, Date:-1});
+    cursor.sort({Filename:1, Date:1});
 
     var numMatches = 0;
     var numOfDups = 0;
+    var numOfHashDups = 0;
     var mark_for_removal = [];
     var previous = {};
     var previous = { Filename:"" ,Hash:"", FileSize:"",Date:"" };
@@ -46,9 +47,24 @@ MongoClient.connect('mongodb://localhost:27017/pyfi', function(err, db) {
               console.log( previous);              
               numOfDups = numOfDups + 1;
               mark_for_removal.push(doc._id);
-
-
             }
+
+            if ( (doc.Filename != previous.Filename) &&
+                  (doc.Hash == previous.Hash) ){
+              console.log("Matcing Hash!!!!");
+              console.log( "CURRENT DOC:" );
+              console.log( doc );
+              console.log( "PREVIOUS: " );
+              console.log( previous);              
+              numOfHashDups = numOfHashDups + 1;
+
+              //TODO:  Add a field to the duplicated (older) file
+              //  to indicate that it should be removed
+              //  then implement another module to walk the db 
+              //  removing the files from the OS file system.
+
+            } 
+
             previous = doc;
         },
         function(err) {
@@ -56,7 +72,7 @@ MongoClient.connect('mongodb://localhost:27017/pyfi', function(err, db) {
             console.log("Our query was:" + JSON.stringify(query));
             console.log("Matching documents: " + numMatches);
             console.log("Number of duplicates: " + numOfDups);
-
+            console.log("Number of HASH duplicates: " + numOfHashDups);
             
             console.log("Marked for removal " + mark_for_removal[numOfDups]);
 
