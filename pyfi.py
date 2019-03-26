@@ -23,7 +23,7 @@ def get_file_types_from_user():
             "add the period.\n  Enter '0' if satisfied with - " + \
             ','.join(fileTypeList) + "\n: "
         prompt_text += "Or type 'new' to clear the list and start over\n"
-        file_type_input = raw_input(prompt_text)
+        file_type_input = input(prompt_text)
     return fileTypeList
 
 
@@ -44,16 +44,33 @@ def get_md5(fileObjectToHash, block_size=(2048*20)):
     # hex digest is better than digest, for standart use.
     return file_hash.hexdigest()
 
+def load_saved_file_list(json_file_path):
+    """
+    loads the json file that has previously found files
+    """
+    external_file_list = {}
+    try:
+        with open(json_file_path, 'r') as json_data:
+            external_file_list = json.load(json_data)
+    except FileNotFoundError as e:
+        print(f"Warning: {e.strerror}")
+        print(f"warning: Missing {json_file_path}")
+        print("Info: This is normal, if this is a first run of the program.")
+    return external_file_list
+
+
 
 # MAIN FUNCTION
 def main():
     # Set properties
     min_file_size = 0
-    volume_name = raw_input(
+    volume_name = input(
         "Name the volume you're searching" +
         "(something distinct from other volumes): ")
     data_dir = "logs"
-    outfile_suffix = "_filefish_out.txt"
+    outfile_suffix = "_filefish_out.log"
+    load_external=True
+    json_file_path='logs/json_data.json'
 
     # ignore directories
     ignore = ['Volumes', '.Trash', '.MobileBackups', 'atest', 'Applications',
@@ -81,10 +98,11 @@ def main():
               'lib64',
               'proc',
               'dev',
+              'local_dev',
               ]
 
     if os.name == 'nt':
-        folder = raw_input("Enter the drive letter you'd like to search: ")
+        folder = input("Enter the drive letter you'd like to search: ")
 
         if folder == '':
             folder = "C:\\"
@@ -92,39 +110,20 @@ def main():
             folder = folder + ":\\"
 
     elif os.name == 'posix':
-        print 'OS is Mac/Linux'
-        folder = raw_input("Enter the file path (Default is './test/': ")
+        print('OS is Mac/Linux')
+        folder = input("Enter the file path (Default is './test/': ")
         if folder == '':
             folder = "./test/"
 
     else:  # quit if not NT OR POSIX
         exit()
 
-    print "All files ending with .txt in folder %s:" % folder
-    file_list = {}
+    print (f"All files ending with .txt in folder {folder}:")
+    file_list = {} if not load_external else load_saved_file_list(json_file_path)
 
     file_types = get_file_types_from_user()
 
-    # create output files if they don't exist.
-    # for file_type in file_types:
-    #       # Make the outfile_suffix append with the file type.
-    #       #   THis keeps the output file specific to file type.
-    #       #   Strip out the '.' from the file type
-    #   file_type_no_period = file_type.translate(None,'.')
-    #   temp_outfile = file_type_no_period + outfile_suffix
-    #   try: # check if the file exists already
-    #       blank=open(temp_outfile,'r')
-    #       blank.close()
-    #       print "DEBUG: the file exists and can be opened."
-    #   except IOError, e:
-    #      # since the file doesn't exist, create the file and add the header
-    #       print "DEBUG:  the file doesn't exists"
-    #       startFile = open(temp_outfile,'a')
-    #       startFile.write("Filename\tHash\tFileSize\tDate\tFileType\tVolumeName\n")
-    #       startFile.close()
-
-    # start the walking process.
-    print "Start Time: " + str(datetime.datetime.now().time())
+    print(f"Start Time: {str(datetime.datetime.now().time())}")
     for (paths, dirs, files) in os.walk(folder, topdown=True):
         for ignore_dir in ignore:
             if ignore_dir in dirs:
@@ -150,27 +149,30 @@ def main():
                             "FileType\t"
                             "VolumeName\n")
                     startFile.close()
-                if file_to_check.endswith(file_type):
+                if (file_to_check.lower()).endswith(file_type):
                     with open(temp_outfile, 'a+') as out_put_file:
                         filename = os.path.join(paths, file_to_check)
                         with open(filename, 'rb') as file_to_hash:
                             file_hash = get_md5(file_to_hash)
                             file_stat = os.stat(filename)
+                            timestamp = str(modification_date(filename))
+                            file_size = str(file_stat.st_size)
                             if file_hash not in file_list.keys():
                                 file_list[file_hash] = []
-                            file_list[file_hash].append(
-                                    {'md5hash': file_hash,
-                                     'full_path': os.path.join(
-                                            paths,
-                                            file_to_check),
+                            file_list[file_hash].append({
+                                    'md5hash': file_hash,
+                                    'full_path': filename,
+                                    'volume': volume_name,
+                                    'file_size': file_size,
+                                    'timestamp': timestamp,
                                      })
                             if file_stat.st_size > min_file_size:
                                 out_put_file.writelines(
                                     "{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
                                         filename,
                                         file_hash,
-                                        str(file_stat.st_size),
-                                        str(modification_date(filename)),
+                                        file_size,
+                                        timestamp,
                                         file_type,
                                         volume_name,
 
@@ -178,17 +180,17 @@ def main():
                                 )
 
     # debug
-    print [
+    print([
         """\nhash: {}
         count: {}
         fileslist:
         __________
-        {}""".format(i, len(file_list[i]), file_list[i]) for i in file_list]
-    print "All done.... See {} folder for output files".format(data_dir)
-    print "End Time: " + str(datetime.datetime.now().time())
+        {}""".format(i, len(file_list[i]), file_list[i]) for i in file_list])
+    print(f"All done.... See {data_dir} folder for output files")
+    print(f"End Time: {str(datetime.datetime.now().time())}")
 
     with codecs.open(
-            'logs/json_result.json', 'a+', encoding='utf-8'
+            json_file_path, 'w+', encoding='utf-8'
             ) as json_out:
         json_out.write(
                 json.dumps(file_list, sort_keys=True, ensure_ascii=False))
