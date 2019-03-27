@@ -7,24 +7,36 @@ from hashlib import md5
 import datetime
 import json
 import codecs
+from filetypes import FileProperySet
 
 
 # Functions to move to another module or class
 def get_file_types_from_user():
     """prompt user for file types and return a list
     """
-    fileTypeList = ['png', 'jpeg', 'mp4', 'bmp', 'wav', 'jpg', ]
-    file_type_input = 'mp3'  # default
-    while file_type_input != "0":
+    # fileTypeList = ['png', 'jpeg', 'mp4', 'bmp', 'wav', 'jpg', ]
+    filePropList = FileProperySet()
+    file_type_input = ""
+    while True:
         if file_type_input == 'new':
-            fileTypeList = []
-        fileTypeList.append(file_type_input)
+            # fileTypeList = []
+            filePropList.clear()
+        # fileTypeList.append(file_type_input)
         prompt_text = "Please input file types to search for, but don't " + \
-            "add the period.\n  Enter '0' if satisfied with - " + \
-            ','.join(fileTypeList) + "\n: "
+            "add the period.\n  Enter 'done' if satisfied with - " + \
+            ', '.join([ prop.extension for prop in filePropList.ft_list]) + "\n: "
         prompt_text += "Or type 'new' to clear the list and start over\n"
         file_type_input = input(prompt_text)
-    return fileTypeList
+        if file_type_input == 'done':
+            break
+        if file_type_input != 'new':
+            print("Please enter a mininimum size in bytes."
+                    "(smaller files will be ignored.)")
+            min_size = input("mininmum size: ")
+            filePropList.add(filePropList.file_properties(file_type_input, min_size))
+
+    # return fileTypeList
+    return filePropList
 
 
 #
@@ -135,9 +147,8 @@ def main():
             # TODO: change this to check first if the file is the right size,
             #       do the checks.  Also use a "fancy" tuple with named values
             #       to store the min size per type instead of a global type
-            for file_type in file_types:
-                # file_type_no_period = file_type.translate(None,'.')
-                temp_outfile = file_type + outfile_suffix
+            for file_type in file_types.ft_list:
+                temp_outfile = file_type.extension + outfile_suffix
                 temp_outfile = os.path.join(data_dir, temp_outfile)
                 if not os.path.exists(temp_outfile):
                     startFile = open(temp_outfile, 'w+')
@@ -149,14 +160,14 @@ def main():
                             "FileType\t"
                             "VolumeName\n")
                     startFile.close()
-                if (file_to_check.lower()).endswith(file_type):
-                    with open(temp_outfile, 'a+') as out_put_file:
-                        filename = os.path.join(paths, file_to_check)
-                        with open(filename, 'rb') as file_to_hash:
-                            file_hash = get_md5(file_to_hash)
-                            file_stat = os.stat(filename)
-                            timestamp = str(modification_date(filename))
-                            file_size = str(file_stat.st_size)
+                if (file_to_check.lower()).endswith(file_type.extension):
+                    filename = os.path.join(paths, file_to_check)
+                    with open(filename, 'rb') as file_to_hash:
+                        file_hash = get_md5(file_to_hash)
+                        file_stat = os.stat(filename)
+                        timestamp = str(modification_date(filename))
+                        file_size = str(file_stat.st_size)
+                        if int(file_type.min_size) < int(file_size):
                             if file_hash not in file_list.keys():
                                 file_list[file_hash] = []
                             file_list[file_hash].append({
@@ -165,8 +176,9 @@ def main():
                                     'volume': volume_name,
                                     'file_size': file_size,
                                     'timestamp': timestamp,
-                                     })
-                            if file_stat.st_size > min_file_size:
+                                    })
+                            # if file_stat.st_size > min_file_size:
+                            with open(temp_outfile, 'a+') as out_put_file:
                                 out_put_file.writelines(
                                     "{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
                                         filename,
@@ -177,7 +189,7 @@ def main():
                                         volume_name,
 
                                             )
-                                )
+                            )
 
     # debug
     print([
