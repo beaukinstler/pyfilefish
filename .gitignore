@@ -1,5 +1,5 @@
 # custom ignore
-test/
+# test/
 logs/
 
 # IDE files
