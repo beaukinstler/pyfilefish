@@ -8,6 +8,7 @@ import datetime
 import json
 import codecs
 from filetypes import FileProperySet
+from pprint import pprint
 
 
 # Functions to move to another module or class
@@ -192,14 +193,27 @@ def main():
                             )
 
     # debug
-    print([
-        """\nhash: {}
-        count: {}
-        fileslist:
-        __________
-        {}""".format(i, len(file_list[i]), file_list[i]) for i in file_list])
-    print(f"All done.... See {data_dir} folder for output files")
+    # print([
+    #     """\nhash: {}
+    #     count: {}
+    #     fileslist:
+    #     __________
+    #     {}""".format(i, len(file_list[i]), file_list[i]) for i in file_list])
     print(f"End Time: {str(datetime.datetime.now().time())}")
+    print(f"All done.... See {data_dir} folder for output files")
+    print(f"All done.... See {json_file_path} folder"
+            "accumlated json from all sources")
+    
+    stats = {}
+    for key in file_list:
+        stats[key] = stats.pop(key, None)
+        if stats[key] is None:
+            stats[key] = {}
+        stats[key]['files'] = file_list[key]
+        stats[key]['copies'] = len(file_list[key])
+        stats[key]['md5'] = key
+    
+    pprint(stats)
 
     with codecs.open(
             json_file_path, 'w+', encoding='utf-8'

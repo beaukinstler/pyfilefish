@@ -26,12 +26,12 @@ class FileProperySet(object):
         # add defaults
         file_properties = self.file_properties
         self.add([
-            file_properties('png', 5000),
+            file_properties('png', 500000),
             file_properties('iso', 50000000),
-            file_properties('bmp', 5000),
-            file_properties('gif', 5000),
-            file_properties('jpg', 5000),
-            file_properties('jpeg', 5000),
+            file_properties('bmp', 500000),
+            file_properties('gif', 500000),
+            file_properties('jpg', 500000),
+            file_properties('jpeg', 500000),
             file_properties('mp3', 500000),
             file_properties('wav', 5000000),
             file_properties('mp4', 5000000),
