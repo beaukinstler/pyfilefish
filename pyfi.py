@@ -84,6 +84,7 @@ def main():
     outfile_suffix = "_filefish_out.log"
     load_external=True
     json_file_path='logs/json_data.json'
+    json_stats_path='logs/json_stats.json'
 
     # ignore directories
     ignore = ['Volumes', '.Trash', '.MobileBackups', 'atest', 'Applications',
@@ -213,7 +214,10 @@ def main():
         stats[key]['copies'] = len(file_list[key])
         stats[key]['md5'] = key
     
-    pprint(stats)
+    # pprint(stats)
+
+    """re-save the data to a file
+    """
 
     with codecs.open(
             json_file_path, 'w+', encoding='utf-8'
@@ -221,6 +225,14 @@ def main():
         json_out.write(
                 json.dumps(file_list, sort_keys=True, ensure_ascii=False))
 
+    """dump out the stats to a file
+    """
+
+    with codecs.open(
+            json_stats_path, 'w+', encoding='utf-8'
+            ) as json_out:
+        json_out.write(
+                json.dumps(stats, sort_keys=True, ensure_ascii=False))
 
 if __name__ == '__main__':
     main()
