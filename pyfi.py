@@ -169,10 +169,13 @@ def main():
                         file_stat = os.stat(filename)
                         timestamp = str(modification_date(filename))
                         file_size = str(file_stat.st_size)
+                        path_tags = [tag for tag in filter(None,filename.split("/"))]
                         if int(file_type.min_size) < int(file_size):
                             if file_hash not in file_list.keys():
                                 file_list[file_hash] = []
                             file_list[file_hash].append({
+                                    'tags': path_tags,
+                                    'filename': str(path_tags[-1]),
                                     'md5hash': file_hash,
                                     'full_path': filename,
                                     'volume': volume_name,
@@ -182,7 +185,8 @@ def main():
                             # if file_stat.st_size > min_file_size:
                             with open(temp_outfile, 'a+') as out_put_file:
                                 out_put_file.writelines(
-                                    "{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
+                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
+                                        str(path_tags[-1]),
                                         filename,
                                         file_hash,
                                         file_size,
@@ -233,6 +237,17 @@ def main():
             ) as json_out:
         json_out.write(
                 json.dumps(stats, sort_keys=True, ensure_ascii=False))
+
+    mulitple_files_collection = [
+            stats[dups] for dups in stats if stats[dups]['copies'] > 1
+        ]
+
+    with codecs.open(
+            json_stats_path, 'a+', encoding='utf-8'
+            ) as json_out:
+        json_out.writelines("\n \\\\***MORE THAN ONE***\n")
+        json_out.write(
+                json.dumps(mulitple_files_collection[0], sort_keys=True, ensure_ascii=False))    
 
 if __name__ == '__main__':
     main()
