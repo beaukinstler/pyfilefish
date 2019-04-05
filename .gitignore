@@ -117,3 +117,4 @@ db/*
 node_modules/*
 
 mdb.log.2017*
+test/subfolder_testing/small_mp3
