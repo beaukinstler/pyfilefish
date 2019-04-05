@@ -9,7 +9,70 @@ import json
 import codecs
 from filetypes import FileProperySet
 from pprint import pprint
+import logging
 
+LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
+logging.basicConfig( filename='./logs/app_log.txt', level=logging.DEBUG,
+        format=LOG_FORMAT)
+logger = logging.getLogger()
+
+
+
+
+def select_volume_from_list(previous_volumes:list):
+    """present a list of volumes to choose from and over to enter a new one
+    
+    Arguments:
+        previous_volumes {list} -- a list of volume names found in the saved 
+        data
+    
+    Returns:
+        str -- either a new volume name, or one from the list
+    """
+
+    select_list = [ (key, previous_volumes[key-1]) for key in range(1,len(previous_volumes)+1) ]
+    result = ''
+    confirm = 'n'
+    new_volume_prompt = "HINT: Names should be unique, and help you know where the volume is.\n"
+    new_volume_prompt += "i.e: 'Macbook Lucy/ HD01'\n"
+    new_volume_prompt += "Please enter a new name, but it should not match an existing name: "
+    # we'll loop the prompt until the user is sure of their selection
+    while confirm[0].lower() != 'y':
+        if previous_volumes:
+            print("You can choose a volume/location found in the saved data\n")
+            for key,volume in select_list:
+                print(f"press '{key}' for '{volume}'")
+            print(f"Enter '0' to type in a new name for a new volume\n")
+
+        entry = input("Type the name of the computer volume and press 'Enter': ")
+        try:
+            entry = int(entry)
+        except:
+            if not entry:
+                entry = 0
+        entry = str(input(new_volume_prompt)) if str(entry) == '0' else entry
+        prompt_entry = entry if type(entry) is str else previous_volumes[entry-1]
+        confirm = input(f"\nYou entered '{prompt_entry}'. Is that correct? (yes,no,cancel): ") if entry else 'n'
+        confirm = 'y' if confirm == '' else confirm
+        if confirm[0].lower() == 'c':
+            print("You have canceled. Existing")
+            exit()
+        # get the text name if a previous volume slected.
+        if type(entry) == int:
+            result = previous_volumes[entry-1]
+        else:
+            result = entry
+            if result in previous_volumes:
+                print("SORRY, you can't use a name that's been used already\n")
+                confirm = 'n'
+                result = ''
+        # reset confirm if blank
+        if not confirm:
+            confirm = 'n'
+
+    # return the volume name to use
+    return str(result)
+    
 
 # Functions to move to another module or class
 def get_file_types_from_user():
@@ -24,11 +87,11 @@ def get_file_types_from_user():
             filePropList.clear()
         # fileTypeList.append(file_type_input)
         prompt_text = "Please input file types to search for, but don't " + \
-            "add the period.\n  Enter 'done' if satisfied with - " + \
+            "add the period.\n  Or just press enter or type 'done' if satisfied with...\n" + \
             ', '.join([ prop.extension for prop in filePropList.ft_list]) + "\n: "
         prompt_text += "Or type 'new' to clear the list and start over\n"
         file_type_input = input(prompt_text)
-        if file_type_input == 'done':
+        if file_type_input in ['done', '']:
             break
         if file_type_input != 'new':
             print("Please enter a mininimum size in bytes."
@@ -65,10 +128,12 @@ def load_saved_file_list(json_file_path):
     try:
         with open(json_file_path, 'r') as json_data:
             external_file_list = json.load(json_data)
+            logger.info(f"found the json file and loaded saved data from {json_file_path}")
     except FileNotFoundError as e:
         print(f"Warning: {e.strerror}")
         print(f"warning: Missing {json_file_path}")
         print("Info: This is normal, if this is a first run of the program.")
+        logger.info(f"{json_file_path} was not found. A new file will be created")
     return external_file_list
 
 
@@ -77,9 +142,11 @@ def load_saved_file_list(json_file_path):
 def main():
     # Set properties
     min_file_size = 0
+    previous_volumes = []
+    volume = select_volume_from_list(previous_volumes)
     volume_name = input(
         "Name the volume you're searching" +
-        "(something distinct from other volumes): ")
+        "(something distinct from other volumes): ") if not volume else volume
     data_dir = "logs"
     outfile_suffix = "_filefish_out.log"
     load_external=True
@@ -114,7 +181,6 @@ def main():
               'dev',
               'local_dev',
               ]
-
     if os.name == 'nt':
         folder = input("Enter the drive letter you'd like to search: ")
 
@@ -134,9 +200,7 @@ def main():
 
     print (f"All files ending with .txt in folder {folder}:")
     file_list = {} if not load_external else load_saved_file_list(json_file_path)
-
     file_types = get_file_types_from_user()
-
     print(f"Start Time: {str(datetime.datetime.now().time())}")
     for (paths, dirs, files) in os.walk(folder, topdown=True):
         for ignore_dir in ignore:
@@ -168,20 +232,28 @@ def main():
                         file_hash = get_md5(file_to_hash)
                         file_stat = os.stat(filename)
                         timestamp = str(modification_date(filename))
-                        file_size = str(file_stat.st_size)
-                        path_tags = [tag for tag in filter(None,filename.split("/"))]
-                        if int(file_type.min_size) < int(file_size):
+                        file_size = str(file_stat.st_size/1000000.0)
+                        full_path = os.path.realpath(file_to_hash.name)
+                        path_tags = [tag for tag in filter(None,full_path.split("/"))]
+                        if float(file_type.min_size/1000000.0) < int(file_size):
                             if file_hash not in file_list.keys():
                                 file_list[file_hash] = []
-                            file_list[file_hash].append({
-                                    'tags': path_tags,
-                                    'filename': str(path_tags[-1]),
-                                    'md5hash': file_hash,
-                                    'full_path': filename,
-                                    'volume': volume_name,
-                                    'file_size': file_size,
-                                    'timestamp': timestamp,
-                                    })
+                            file_ref = file_list[file_hash]
+                            # filter if the same tags are found on same volume.
+                            # indicating same file
+                            existing =  [  (i['tags'],i['volume']) for i in file_ref ]
+                            matches = [ tags for tags, volume in existing if path_tags == tags and volume_name == volume ]
+                            if not matches:
+                            # if file_list[file_hash]['tags'] != path_tags and file_list[file_hash]['volume'] == volume_name:
+                                file_ref.append({
+                                        'tags': path_tags,
+                                        'filename': str(path_tags[-1]),
+                                        'md5hash': file_hash,
+                                        'full_path': full_path,
+                                        'volume': volume_name,
+                                        'file_size': file_size,
+                                        'timestamp': timestamp,
+                                        })
                             # if file_stat.st_size > min_file_size:
                             with open(temp_outfile, 'a+') as out_put_file:
                                 out_put_file.writelines(
@@ -217,6 +289,7 @@ def main():
         stats[key]['files'] = file_list[key]
         stats[key]['copies'] = len(file_list[key])
         stats[key]['md5'] = key
+        
     
     # pprint(stats)
 
@@ -241,13 +314,14 @@ def main():
     mulitple_files_collection = [
             stats[dups] for dups in stats if stats[dups]['copies'] > 1
         ]
-
-    with codecs.open(
-            json_stats_path, 'a+', encoding='utf-8'
-            ) as json_out:
-        json_out.writelines("\n \\\\***MORE THAN ONE***\n")
-        json_out.write(
-                json.dumps(mulitple_files_collection[0], sort_keys=True, ensure_ascii=False))    
+    if mulitple_files_collection:
+        with codecs.open(
+                json_stats_path, 'a+', encoding='utf-8'
+                ) as json_out:
+            json_out.writelines("\n //***MORE THAN ONE***\n")
+            json_out.write(
+                    json.dumps(mulitple_files_collection, sort_keys=True, ensure_ascii=False))    
 
 if __name__ == '__main__':
+    logger.info(f"{__name__} has started. Logging to {logger.name}")
     main()
