@@ -26,15 +26,15 @@ class FileProperySet(object):
         # add defaults
         file_properties = self.file_properties
         self.add([
-            file_properties('png', 5000000),
-            file_properties('iso', 500000000),
-            file_properties('bmp', 5000000),
-            file_properties('gif', 5000000),
-            file_properties('jpg', 5000000),
-            file_properties('jpeg', 5000000),
-            file_properties('mp3', 5000000),
-            file_properties('wav', 50000000),
-            file_properties('mp4', 5000000),
+            file_properties('png', 1000000),
+            file_properties('iso', 100000000),
+            file_properties('bmp', 1000000),
+            file_properties('gif', 1000000),
+            file_properties('jpg', 1000000),
+            file_properties('jpeg', 1000000),
+            file_properties('mp3', 100000),
+            file_properties('wav', 10000000),
+            file_properties('mp4', 1000000),
             file_properties('vhd', 500000000),
             file_properties('vdi', 500000000),
             file_properties('img', 500000000),
@@ -42,7 +42,8 @@ class FileProperySet(object):
             file_properties('msi', 500000000),
             file_properties('pkg', 500000000),
             file_properties('app', 500000000),
-            file_properties('oog', 5000000),
+            file_properties('oog', 1000000),
+            file_properties('flac', 1000000),
         ])
     
     def get_all(self):
