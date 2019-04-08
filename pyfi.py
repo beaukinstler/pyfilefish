@@ -175,6 +175,10 @@ def get_info_only():
 
 # MAIN FUNCTION
 def main():
+
+    if get_info_only():
+        exit()
+
     # Set properties
 
     min_file_size = 0
@@ -216,10 +220,8 @@ def main():
               'proc',
               'dev',
               'local_dev',
+              'dotfiles',
               ]
-
-    if get_info_only():
-        exit()
 
     if os.name == 'nt':
         folder = input("Enter the drive letter you'd like to search: ")
