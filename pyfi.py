@@ -10,6 +10,7 @@ import codecs
 from filetypes import FileProperySet
 from pprint import pprint
 import logging
+from s3_integration import pyfish_util as pfu
 
 JSON_FILE_PATH='logs/json_data.json'
 JSON_STATS_PATH='logs/json_stats.json'
@@ -139,13 +140,45 @@ def load_saved_file_list(json_file_path):
         logger.info(f"{json_file_path} was not found. A new file will be created")
     return external_file_list
 
+def get_info_only():
+    """sub routine to report on previous data
+    """
+
+    prompt = "Would you like to see finding on previous data. Choose 0 for 'no' to just run the scanner?"
+    print(
+        """
+        1) see unique file size totals. This roughly show the amount of disk space required to store all the files in the data
+        2) see the volumes currentinly captured in the data
+        0) move on to the file scanner
+        """)
+    try:
+        choice = int(input(prompt))
+    except Exception as e:
+        print(f"'not a valid choice': {e}")
+        choice = 0
+
+    if choice:
+        if choice == 1:
+            print(pfu.get_unique_files_totalsize())
+        elif choice == 2:
+            print(pfu.get_current_volumes())
+        return 1
+    else:
+        return 0
+    
+
+
+
+    
+
 
 
 # MAIN FUNCTION
 def main():
     # Set properties
+
     min_file_size = 0
-    previous_volumes = []
+    previous_volumes = [ vol for vol in pfu.get_current_volumes() ]
     volume = select_volume_from_list(previous_volumes)
     volume_name = input(
         "Name the volume you're searching" +
@@ -184,6 +217,10 @@ def main():
               'dev',
               'local_dev',
               ]
+
+    if get_info_only():
+        exit()
+
     if os.name == 'nt':
         folder = input("Enter the drive letter you'd like to search: ")
 
@@ -235,10 +272,10 @@ def main():
                         file_hash = get_md5(file_to_hash)
                         file_stat = os.stat(filename)
                         timestamp = str(modification_date(filename))
-                        file_size = str(file_stat.st_size/1000000.0)
+                        file_size = str(file_stat.st_size/(1024*1024.0))
                         full_path = os.path.realpath(file_to_hash.name)
                         path_tags = [tag for tag in filter(None,full_path.split("/"))]
-                        if float(file_type.min_size/1000000.0) < int(float(file_size)):
+                        if float(file_type.min_size/(1024*1024.0)) < int(float(file_size)):
                             if file_hash not in file_list.keys():
                                 file_list[file_hash] = []
                             file_ref = file_list[file_hash]

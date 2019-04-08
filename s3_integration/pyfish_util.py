@@ -7,6 +7,17 @@ def load_pyfish_data():
     return file_list
 
 
+def get_current_volumes():
+    file_list = load_pyfish_data()
+    volumes = set()
+    for md5 in file_list:
+        for item in file_list[md5]:
+            volumes.add(item['volume'])
+    return volumes
+
+
+
+
 def get_unique_files_totalsize(filelist=None):
     """return the sum of MB stored in a pyfish file list
     
