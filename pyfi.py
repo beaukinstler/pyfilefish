@@ -11,6 +11,9 @@ from filetypes import FileProperySet
 from pprint import pprint
 import logging
 
+JSON_FILE_PATH='logs/json_data.json'
+JSON_STATS_PATH='logs/json_stats.json'
+
 LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
 logging.basicConfig( filename='./logs/app_log.txt', level=logging.DEBUG,
         format=LOG_FORMAT)
@@ -235,7 +238,7 @@ def main():
                         file_size = str(file_stat.st_size/1000000.0)
                         full_path = os.path.realpath(file_to_hash.name)
                         path_tags = [tag for tag in filter(None,full_path.split("/"))]
-                        if float(file_type.min_size/1000000.0) < int(file_size):
+                        if float(file_type.min_size/1000000.0) < int(float(file_size)):
                             if file_hash not in file_list.keys():
                                 file_list[file_hash] = []
                             file_ref = file_list[file_hash]
