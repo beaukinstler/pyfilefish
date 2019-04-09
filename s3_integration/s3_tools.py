@@ -9,6 +9,7 @@ class S3Connection:
         self.s3 = "" # intended to store a boto3.client
         self.s3Resource = "" # intedted to store a boto3.resource, as an alternative
         self.cached_bucket_names = "" # store bucket names so calls to AWS aren't always needed.
+        self.cached_bucket_objects = {}
         
 
     def connect(self):
@@ -28,9 +29,9 @@ class S3Connection:
         else:
             print('already initialized the s3 resource.  No new value needed')
 
-    def get_buckets(self):
-        self.connect()
-        if not self.cached_bucket_names:
+    def get_buckets(self, update_from_aws=False):
+        if (not self.cached_bucket_names) or update_from_aws:
+            self.connect()
             bucket_names = [ bucket['Name'] for bucket in self.s3.list_buckets()['Buckets'] ]
             self.cached_bucket_names = bucket_names
         return self.cached_bucket_names
@@ -39,11 +40,20 @@ class S3Connection:
         self.connect_resource()
         return self.s3Resource.buckets.all()
 
-    def get_objects_from_bucket(self, bucket_name=""):
+    def get_objects_from_bucket(self, bucket_name="", update_from_aws=True):
         if not bucket_name:
             bucket_name = self.active_bucket_name
-        objects = self.s3.list_objects(bucket_name)
-        return objects
+            
+        if (('Name', bucket_name) not in self.cached_bucket_objects.items()) \
+                    or update_from_aws:
+            self.connect()
+            objects = self.s3.list_objects(Bucket=bucket_name)
+            self.cached_bucket_objects = objects
+        return self.cached_bucket_objects
+
+    def get_keynames_from_objects(self, bucket_name=""):
+        obs = self.get_objects_from_bucket(bucket_name)
+        return [ item['Key'] for item in obs['Contents'] ]
 
     def print_all_buckets(self):
         buckets = self.get_buckets()
