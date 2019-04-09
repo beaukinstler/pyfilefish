@@ -180,8 +180,6 @@ def main():
         exit()
 
     # Set properties
-
-    min_file_size = 0
     previous_volumes = [ vol for vol in pfu.get_current_volumes() ]
     volume = select_volume_from_list(previous_volumes)
     volume_name = input(
@@ -296,6 +294,7 @@ def main():
                                         'file_size': file_size,
                                         'timestamp': timestamp,
                                         })
+                            pfu.sync_file_to_s3(file_ref[-1]) # use the file just added, since it's likely accessible
                             # if file_stat.st_size > min_file_size:
                             with open(temp_outfile, 'a+') as out_put_file:
                                 out_put_file.writelines(
