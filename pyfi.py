@@ -187,7 +187,7 @@ def main():
     if run_mode == 3:
         sync_to_s3 == True
     elif run_mode >= 1:
-        exit()
+        exit(0)
 
     # Set properties
     previous_volumes = [ vol for vol in pfu.get_current_volumes() ]
@@ -304,6 +304,7 @@ def main():
                                         'volume': volume_name,
                                         'file_size': file_size,
                                         'timestamp': timestamp,
+                                        'filetype': file_type[0],
                                         })
                             if sync_to_s3:
                                 # sync to s3 if option was selected.
@@ -325,7 +326,7 @@ def main():
                                         file_hash,
                                         file_size,
                                         timestamp,
-                                        file_type,
+                                        file_type[0],
                                         volume_name,
 
                                             )
@@ -340,8 +341,8 @@ def main():
     #     {}""".format(i, len(file_list[i]), file_list[i]) for i in file_list])
     print(f"End Time: {str(datetime.datetime.now().time())}")
     print(f"All done.... See {data_dir} folder for output files")
-    print(f"All done.... See {json_file_path} folder"
-            "accumlated json from all sources")
+    print(f"All done.... See {json_file_path} folder\n"
+            " for accumlated json data from all sources")
     
     stats = {}
     for key in file_list:
