@@ -140,7 +140,7 @@ def load_saved_file_list(json_file_path):
         logger.info(f"{json_file_path} was not found. A new file will be created")
     return external_file_list
 
-def get_info_only():
+def promt_user_for_run_mode():
     """sub routine to report on previous data
     """
 
@@ -149,7 +149,9 @@ def get_info_only():
         """
         1) see unique file size totals. This roughly show the amount of disk space required to store all the files in the data
         2) see the volumes currentinly captured in the data
-        0) move on to the file scanner
+        3) Scan and find files, as well as sync to AWS S3 bucket.
+            (Note: you must already have your cli and bucket configured for this to work)
+        0) Scan and find files for data, but do not sync to another location
         """)
     try:
         choice = int(input(prompt))
@@ -162,9 +164,11 @@ def get_info_only():
             print(pfu.get_unique_files_totalsize())
         elif choice == 2:
             print(pfu.get_current_volumes())
-        return 1
+        elif choice > 3:
+            choice = 0
+        return choice
     else:
-        return 0
+        return choice
     
 
 
@@ -176,7 +180,13 @@ def get_info_only():
 # MAIN FUNCTION
 def main():
 
-    if get_info_only():
+    sync_to_s3 = False
+    sync_to_another_drive = False
+    run_mode = promt_user_for_run_mode()
+    
+    if run_mode == 3:
+        sync_to_s3 == True
+    elif run_mode >= 1:
         exit()
 
     # Set properties
@@ -190,6 +200,7 @@ def main():
     load_external=True
     json_file_path='logs/json_data.json'
     json_stats_path='logs/json_stats.json'
+    json_multi_summary_file = 'logs/json_multi.json'
 
     # ignore directories
     ignore = ['Volumes', '.Trash', '.MobileBackups', 'atest', 'Applications',
@@ -294,7 +305,17 @@ def main():
                                         'file_size': file_size,
                                         'timestamp': timestamp,
                                         })
-                            pfu.sync_file_to_s3(file_ref[-1]) # use the file just added, since it's likely accessible
+                            if sync_to_s3:
+                                # sync to s3 if option was selected.
+                                # use the file just added, since it's likely accessible
+                                pfu.sync_file_to_s3(file_ref[-1]) 
+                            if sync_to_another_drive:
+                                # TODO
+                                # 
+                                # 
+                                # Add a sync to another drive here
+                                #
+                                pass
                             # if file_stat.st_size > min_file_size:
                             with open(temp_outfile, 'a+') as out_put_file:
                                 out_put_file.writelines(
@@ -357,9 +378,8 @@ def main():
         ]
     if mulitple_files_collection:
         with codecs.open(
-                json_stats_path, 'a+', encoding='utf-8'
+                json_multi_summary_file, 'w+', encoding='utf-8'
                 ) as json_out:
-            json_out.writelines("\n //***MORE THAN ONE***\n")
             json_out.write(
                     json.dumps(mulitple_files_collection, sort_keys=True, ensure_ascii=False))    
 
