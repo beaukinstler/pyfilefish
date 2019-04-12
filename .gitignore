@@ -1,6 +1,7 @@
 # custom ignore
 # test/
 logs/
+temp/
 
 # IDE files
 .vscode
