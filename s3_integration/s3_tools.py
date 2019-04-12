@@ -1,4 +1,5 @@
 import boto3
+from os.path import join
 
 
 
@@ -114,7 +115,7 @@ class S3Connection:
         else:
             self.choose_bucket()
     
-    def upload_file(self, filepath, s3_file_name_key):
+    def upload_file(self, filepath, s3_file_name_key, metadata=None):
         """upload a file in the active bucket. If there isn't an active bucket
         selected, prompt for a choice
         
@@ -124,10 +125,46 @@ class S3Connection:
         """
 
         if self.active_bucket_name:
-            self.s3.upload_file(filepath, self.active_bucket_name, s3_file_name_key)
+            self.s3.upload_file(filepath, self.active_bucket_name, s3_file_name_key,
+                    ExtraArgs=metadata)
         else:
             print("Sorry, you need to activate a bucket first.  Afterwards, please redo the last attempt.")
             self.choose_bucket()
+
+    def download_file_to_temp(self, filepath, s3_file_name_key, temp_location='temp/'):
+        """Use s3.client.download_fileobj to get a binary file like ojbect.
+        
+        Arguments:
+            filepath {string} -- name of dest file
+            s3_file_name_key {string} -- key in s3 bucket
+        
+        Keyword Arguments:
+            temp_location {string} -- temp folder location (default: {'temp/'})
+        """
+        try:
+            self.s3.download_file(self.active_bucket_name, s3_file_name_key, join(temp_location,filepath))
+        except Exception as e:
+            print('File not found')
+            print(e.args) 
+
+    def download_file_obj(self, file, s3_file_name_key):
+        """Use s3.client.download_fileobj to get a binary file like ojbect.
+        
+        Arguments:
+            filepath {string} -- name of dest file
+            s3_file_name_key {string} -- key in s3 bucket
+        
+        Keyword Arguments:
+            temp_location {string} -- temp folder location (default: {'temp/'})
+        """
+        data = None
+        self.s3.client.download_fileobj(self.active_bucket_name, s3_file_name_key, data)
+        return data
+
+        
+
+
+
         
 
 
