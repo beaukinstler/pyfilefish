@@ -185,7 +185,7 @@ def main():
     run_mode = promt_user_for_run_mode()
     
     if run_mode == 3:
-        sync_to_s3 == True
+        sync_to_s3 = True
     elif run_mode >= 1:
         exit(0)
 
@@ -249,9 +249,15 @@ def main():
     else:  # quit if not NT OR POSIX
         exit()
 
-    print (f"All files ending with .txt in folder {folder}:")
-    file_list = {} if not load_external else load_saved_file_list(json_file_path)
     file_types = get_file_types_from_user()
+
+    # TODO start a function here.
+    # def scan_for_files(load_external=load_external):
+    """
+
+    """
+    # print (f"All files ending with .txt in folder {folder}:")
+    file_list = {} if not load_external else load_saved_file_list(json_file_path)
     print(f"Start Time: {str(datetime.datetime.now().time())}")
     for (paths, dirs, files) in os.walk(folder, topdown=True):
         for ignore_dir in ignore:
@@ -309,6 +315,7 @@ def main():
                             if sync_to_s3:
                                 # sync to s3 if option was selected.
                                 # use the file just added, since it's likely accessible
+                                # meta = pfu.parse_location_metadata(file_ref)
                                 pfu.sync_file_to_s3(file_ref[-1]) 
                             if sync_to_another_drive:
                                 # TODO
