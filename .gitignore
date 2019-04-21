@@ -2,6 +2,8 @@
 # test/
 logs/
 temp/
+log*.bak
+log*.test
 
 # IDE files
 .vscode
