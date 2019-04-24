@@ -5,6 +5,7 @@ temp/
 log*.bak
 log*.test
 
+tsv*
 # IDE files
 .vscode
 
