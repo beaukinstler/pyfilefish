@@ -41,7 +41,7 @@ class S3Connection:
         self.connect_resource()
         return self.s3Resource.buckets.all()
 
-    def get_objects_from_bucket(self, bucket_name="", update_from_aws=True):
+    def _get_objects_from_bucket(self, bucket_name="", update_from_aws=True):
         if not bucket_name:
             bucket_name = self.active_bucket_name
             
@@ -53,7 +53,7 @@ class S3Connection:
         return self.cached_bucket_objects
 
     def get_keynames_from_objects(self, bucket_name=""):
-        obs = self.get_objects_from_bucket(bucket_name)
+        obs = self._get_objects_from_bucket(bucket_name)
         return [ item['Key'] for item in obs['Contents'] ]
 
     def print_all_buckets(self):
@@ -66,7 +66,7 @@ class S3Connection:
         for bucket in buckets:
             print(f"{bucket}-{bucket.name}")
 
-    def set_active_bucket(self, bucket_name ):
+    def set_active_bucket(self, bucket_name="" ):
         if bucket_name:
             self.active_bucket_name = bucket_name
         else:
