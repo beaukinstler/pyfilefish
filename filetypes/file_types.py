@@ -77,7 +77,7 @@ class FileProperySet(object):
 
     def list_all(self):
         for f in self.ft_list:
-            print(f"extention: {f.extension}, minsize: {f.min_size}")
+            print(f"extension: {f.extension}, minsize: {f.min_size}")
     
     def clear(self):
         self.ft_list = []
@@ -90,4 +90,17 @@ class FileProperySet(object):
                 self.ft_list.append(_)
         else:
             self.ft_list.append(properties)
+
+    def find_extension(self, ext:str):
+        """input an extension, or a filename with an extention, and return 
+        the file type in the property set, with it's min size, if it exists.
         
+        Arguments:
+            ext {string} -- a file name 'test.mp3' or an ext 'mp3'
+
+        Returns:
+            file_propeties {named_tuple} -- a nameed tuple (extension, min_size)
+        """
+
+        result =  [ file_prop for file_prop in self.get_all() if file_prop.extension == ext.lower().split(".")[-1] ]
+        return result[0] if result else result # should only need the first one in the list, since there should be only one file type in the set
