@@ -5,7 +5,7 @@ import logging
 load_dotenv()
 
 LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
-logging.basicConfig( filename='./logs/app_log.txt', level=logging.WARNING,
+logging.basicConfig( filename='./logs/app_log.txt', level=logging.INFO,
         format=LOG_FORMAT)
 logger = logging.getLogger()
 
@@ -13,10 +13,11 @@ logger = logging.getLogger()
 LOAD_EXTERNAL=True
 SYNC_TO_LOCAL=False
 SYNC_TO_S3=False
-ALL_SIZES=True
+ALL_SIZES=False
 
 # local file paths from .env settings
 JSON_FILE_PATH = getenv('JSON_FILE_PATH')
+JSON_FILE_PATH_TEMP = getenv('JSON_FILE_PATH_TEMP')
 JSON_STATS_PATH = getenv('JSON_STATS_PATH')
 JSON_MULTI_SUMMARY_FILE = getenv('JSON_MULTI_SUMMARY_FILE')
 FLAT_FILE_DATA_DIR = getenv('FLAT_FILE_DATA_DIR')
@@ -26,6 +27,8 @@ FLAT_FILE_SUFFIX = getenv('FLAT_FILE_SUFFIX')
 
 # ignore directories
 IGNORE_DIRS = ['Volumes', '.Trash', '.MobileBackups', 'atest', 'Applications',
+            'Library', 'System', 'User Information', 'usr', 
+            'opt', 'var',
             '.git',
             '.gitignore',
             '.docker',

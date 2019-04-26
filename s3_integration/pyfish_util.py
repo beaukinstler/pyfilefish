@@ -12,6 +12,7 @@ import datetime
 from filetypes.file_types import FileProperySet
 from shutil import copyfile
 from pathlib import Path
+import codecs
 
 ignore_dirs = IGNORE_DIRS
 # LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
@@ -337,11 +338,31 @@ def only_sync_file( local_target="temp", volume_name="", file_types=[] ):
 def build_file_reference():
     pass
 
+def write_data_to_json_log(pyfi_file_list:list, json_file_path=JSON_FILE_PATH_TEMP):
+    """dump the file list to a file
+    
+    Arguments:
+        pyfi_file_list {list} -- list of files and details
+    
+    Keyword Arguments:
+        json_file_path {string} -- path defaults to the temp location.
+        so that if the app stops while writing, the primary json data
+        will not be lost (default: {JSON_FILE_PATH_TEMP})
+    """
+    with codecs.open(
+            json_file_path, 'w+', encoding='utf-8'
+            ) as json_out:
+        json_out.write(
+                json.dumps(pyfi_file_list, sort_keys=True, ensure_ascii=False))
 
 def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volume_name, sync_to_s3, sync_to_local_drive, load_external:bool=LOAD_EXTERNAL, local_target=None):
         
         print(f"Start Time: {str(datetime.datetime.now().time())}")
+        file_list_changed = False
         for (paths, dirs, files) in os.walk(folder, topdown=True):
+            if file_list_changed:
+                write_data_to_json_log(pyfi_file_list=pyfi_file_list)
+                file_list_changed = False
             for ignore_dir in ignore_dirs:
                 if ignore_dir in dirs:
                     dirs.remove(ignore_dir)
@@ -375,6 +396,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                             if float(file_type.min_size/(1024*1024.0)) < int(float(file_size)) or ALL_SIZES:
                                 if file_hash not in pyfi_file_list.keys():
                                     pyfi_file_list[file_hash] = []
+                                    file_list_changed = True
                                 file_ref = pyfi_file_list[file_hash]
                                 # filter if the same tags are found on same volume.
                                 # indicating same file
@@ -382,6 +404,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                 matches = [ tags for tags, volume in existing if path_tags == tags and volume_name == volume ]
                                 if not matches:
                                 # if file_list[file_hash]['tags'] != path_tags and file_list[file_hash]['volume'] == volume_name:
+                                    # file_list_changed = True
                                     file_ref.append({
                                             'tags': path_tags,
                                             'filename': str(path_tags[-1]),
@@ -405,16 +428,16 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                     #
                                     sync_to_another_drive(file_ref[-1], local_target)
                                 # if file_stat.st_size > min_file_size:
-                                with open(temp_outfile, 'a+') as out_put_file:
-                                    out_put_file.writelines(
-                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
-                                            str(path_tags[-1]),
-                                            filename,
-                                            file_hash,
-                                            file_size,
-                                            timestamp,
-                                            file_type[0],
-                                            volume_name,
+                                # with open(temp_outfile, 'a+') as out_put_file:
+                                #     out_put_file.writelines(
+                                #         "{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
+                                #             str(path_tags[-1]),
+                                #             filename,
+                                #             file_hash,
+                                #             file_size,
+                                #             timestamp,
+                                #             file_type[0],
+                                #             volume_name,
 
-                                                )
-                                )
+                                #                 )
+                                # )
