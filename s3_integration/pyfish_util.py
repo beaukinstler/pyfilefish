@@ -358,7 +358,12 @@ def write_data_to_json_log(pyfi_file_list:list, json_file_path=JSON_FILE_PATH_TE
 def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volume_name, sync_to_s3, sync_to_local_drive, load_external:bool=LOAD_EXTERNAL, local_target=None):
         
         print(f"Start Time: {str(datetime.datetime.now().time())}")
+
+        ## setup some environment stuff
+        os.makedirs(FLAT_FILE_DATA_DIR, exist_ok=True)
         file_list_changed = False
+
+        # loop over the designated folder, and but stop to remove dirs that are not to be searched.
         for (paths, dirs, files) in os.walk(folder, topdown=True):
             if file_list_changed:
                 write_data_to_json_log(pyfi_file_list=pyfi_file_list)
