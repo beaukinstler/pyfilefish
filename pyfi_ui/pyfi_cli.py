@@ -64,7 +64,7 @@ def get_file_types_from_user():
 
 
 
-def _select_volume_from_list(previous_volumes:list):
+def _select_volume_from_list(previous_volumes:list, existing_only=False):
     """present a list of volumes to choose from and over to enter a new one
     
     Arguments:
@@ -87,9 +87,10 @@ def _select_volume_from_list(previous_volumes:list):
             print("You can choose a volume/location found in the saved data\n")
             for key,volume in select_list:
                 print(f"press '{key}' for '{volume}'")
-            print(f"Enter '0' to type in a new name for a new volume\n")
-
-        entry = input("Type the name of the computer volume and press 'Enter': ")
+            if not existing_only:   
+                entry = input("Type the number, or '0' to add a new volume and press Enter': ")
+            else:
+                entry = input("Type the number computer volume and press 'Enter': ")
         try:
             entry = int(entry)
         except:
@@ -118,13 +119,23 @@ def _select_volume_from_list(previous_volumes:list):
     # return the volume name to use
     return str(result)
 
-def prompt_for_volume():
+def prompt_for_volume(existing_only=False):
     previous_volumes = [ vol for vol in get_current_volumes() ]
-    volume = _select_volume_from_list(previous_volumes)
-    volume_name = input(
-        "Name the volume you're searching" +
-        "(something distinct from other volumes): ") if not volume else volume
+    volume = _select_volume_from_list(previous_volumes,existing_only)
+    if not existing_only:
+        volume_name = input(
+            "Name the volume you're searching" +
+            "(something distinct from other volumes): ") if not volume else volume
+    else:
+        volume_name = volume
     return volume_name
+
+def prompt_user_for_size_one_volume():
+    print("Please choose a volume name to search for size")
+    vol = prompt_for_volume(existing_only=True)
+    size = get_unique_files_totalsize(None,vol)
+    print(f"\nVolume: {vol}\n")
+    print(f"Size  : {size}\n")
 
 def promt_user_for_run_mode():
     """sub routine to report on previous data
@@ -139,6 +150,8 @@ def promt_user_for_run_mode():
             (Note: you must already have your cli and bucket configured for this to work)
         4) Scan and find files, and simultaneously copy them to a local target.
         5) Sync previously scanned files to local target
+        6) Get the size of one volume, based on data previously captured.
+        7) TODO: Print Stats after scanning.
         0) Scan and find files for data, but do not sync to another location
         """)
     try:
@@ -156,7 +169,10 @@ def promt_user_for_run_mode():
             print("local destination needed")
         elif choice == 5:
             print("local destination needed")
-        elif choice > 5:
+        elif choice ==6:
+            print("Getting Volume name...\n\n")
+            prompt_user_for_size_one_volume()
+        elif choice > 6:
             choice = 0
         return choice
     else:
