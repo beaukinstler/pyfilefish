@@ -44,5 +44,14 @@
             "timestamp": "2019-03-26 23:19:03",
             "volume": "test3"
         }
+    ],
+    "notrealhash": [
+        {
+            "file_size": "1",
+            "full_path": "./test/not_real.jpg",
+            "md5hash": "notrealhash",
+            "timestamp": "2019-03-26 23:00:00",
+            "volume": "test"
+        }
     ]
 }
