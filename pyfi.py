@@ -36,7 +36,8 @@ def main():
         sync_to_another_drive = True
         target = pui.prompt_for_local_dest()
         # shouldn't scan the destination
-        IGNORE_DIRS.append(target)
+        dir_to_ignore = target.split('/')[-1]
+        IGNORE_DIRS.append(dir_to_ignore)
     elif run_mode == 5:
         volume_name = pui.prompt_for_volume()
         file_types = pui.get_file_types_from_user()
