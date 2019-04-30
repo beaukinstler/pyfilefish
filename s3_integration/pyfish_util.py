@@ -393,7 +393,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                             file_size = str(file_stat.st_size/(1024*1024.0))
                             full_path = os.path.realpath(file_to_hash.name)
                             path_tags = [tag for tag in filter(None,full_path.split("/"))]
-                            if float(file_type.min_size/(1024*1024.0)) < int(float(file_size)) or ALL_SIZES:
+                            if float(file_type.min_size)/(1024*1024.0) < int(float(file_size)) or ALL_SIZES:
                                 if file_hash not in pyfi_file_list.keys():
                                     pyfi_file_list[file_hash] = []
                                     file_list_changed = True
