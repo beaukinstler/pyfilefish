@@ -13,7 +13,6 @@ def test_create_multiples_finds_copies(file_list):
     multi = pfu.build_multiple_dict(file_list)
     print(multi[0])
     assert multi[0]['copies'] > 1
-    # assert multi['notrealhash']['copies'] == 1
 
 def test_create_multiples_filters_out_singles(file_list):
     multi = pfu.build_multiple_dict(file_list)
@@ -22,4 +21,13 @@ def test_create_multiples_filters_out_singles(file_list):
         if _['md5'] == 'notrealhash':
             found_single = True
     assert not found_single
-    
+
+def test_sum_file_size(file_list):
+    value = pfu.get_unique_files_totalsize(file_list,vol="test2")
+    val_in_MB = value / 1024 / 1024
+    assert val_in_MB == 1
+
+def test_sum_file_size_wrong_volume(file_list):
+    value = pfu.get_unique_files_totalsize(file_list,vol="")
+    val_in_MB = value / 1024 / 1024
+    assert val_in_MB > 20
