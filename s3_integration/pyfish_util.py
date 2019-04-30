@@ -22,16 +22,16 @@ ignore_dirs = IGNORE_DIRS
 utilLogger = logger
 
 def get_all_files_from_target(target_folder="test"):
-    """A new method of gathering all the files, instead of os.walk. Will only 
+    """A new method of gathering all the files, instead of os.walk. Will only
     find names of files with a period in the name.
     TODO: find a way to use this to speed up the scan functions
-    
+
     Keyword Arguments:
         target_folder {str} -- a folder on a volume to start from (default: {"test"})
-    
+
     Returns:
         list -- list of Path based objects. of full path names.
-        NOTE: str(result[x]) will reveal a string of the file's name for 
+        NOTE: str(result[x]) will reveal a string of the file's name for
         each file found.
     """
     if not target_folder:
@@ -39,7 +39,7 @@ def get_all_files_from_target(target_folder="test"):
     result = []
     result = list(Path(target_folder).glob('**/*.*'))
     return result
-        
+
 
 def _load_saved_file_list(json_file_path):
     """
@@ -65,7 +65,7 @@ def load_pyfish_data():
 def build_stats_dict(file_list):
     """function to take the pyfi data and return a dict grouped on
     elements, mainly the md5 sum
-    
+
     Arguments:
         file_list {dict} -- the primary json-like dict that pyfy creates
 
@@ -84,18 +84,19 @@ def build_stats_dict(file_list):
 
 def build_multiple_dict(file_list):
     """Filter the stats data, so that only hashes with multiple locations are found
-    
+
     Arguments:
         file_list {dict} -- the primary json-like dict that pyfy creates
-    
+
     Returns:
         stats file with only duplicates.
     """
     stats = build_stats_dict(file_list)
     multi = [
             stats[dups] for dups in stats if stats[dups]['copies'] > 1
-        ] 
+        ]
     return multi
+
 
 def get_files_missing_from_a_volume(file_list:dict, vol:str):
     data = file_list if file_list else load_pyfish_data()
@@ -103,11 +104,26 @@ def get_files_missing_from_a_volume(file_list:dict, vol:str):
     set_minus_volume = [ i for i in unique_set if str(vol) not in i[1] ]
     return set_minus_volume
 
+def get_files_from_one_vol(file_list:dict, vol:str):
+    new_data = {}
+    data = file_list if file_list else load_pyfish_data()
+    for md5 in data:
+        for i in range(0,len(data[md5])):
+            if data[md5][i]['volume'] == vol:
+                try:
+                    new_data[md5].append(data[md5][i])
+                except KeyError:
+                    new_data[md5] = []
+                    new_data[md5].append(data[md5][i])
+
+
+    return new_data
+
 
 def get_current_volumes(data=None):
     """From a File-list, parse and look for volumes that have been
     used.
-    
+
     Returns:
         set -- a set of unique strings of names of volumes
     """
@@ -117,11 +133,11 @@ def get_current_volumes(data=None):
 
 def parse_location_metadata(file_ref):
     """get the meta location data from the file_ref
-    
+
     Arguments:
-        file_ref {dict} -- complex dict, based on the pyfish 
+        file_ref {dict} -- complex dict, based on the pyfish
         file_list items
-    
+
     Returns:
         dict -- converted defaultdict, grouped by voulme. Will have at least one
         full path name for the file on the volume, but could be a list of them per
@@ -137,7 +153,7 @@ def parse_location_metadata(file_ref):
             [ i.encode('utf-8') for i in files_grouped_by_volume ]
             locations = dict(files_grouped_by_volume.items())
             result = {'Metadata' : { 'Locations': locations }}
-            
+
     except KeyError as e:
         utilLogger.error(f"Encountered error parsing location metadata. Error: {e}")
         result = None
@@ -145,10 +161,10 @@ def parse_location_metadata(file_ref):
 
 def build_relative_destination_path(pyfish_file_ref):
     """form the path used to store the file, including shared sub
-    directories based on file_type. The files being synced from any 
+    directories based on file_type. The files being synced from any
     volume should be able to use this path to see if the file, named
-    as <md5hashOfFile>.<extension> exists already. 
-    
+    as <md5hashOfFile>.<extension> exists already.
+
     Arguments:
         pyfish_file_ref {[type]} -- [description]
     """
@@ -160,22 +176,22 @@ def build_relative_destination_path(pyfish_file_ref):
 
 def sync_to_another_drive(most_recent_file_added, target):
     """Copy file to a local drive.
-    
+
     Arguments:
-        most_recent_file_added {dict} -- a referecne to a record (dict) 
+        most_recent_file_added {dict} -- a referecne to a record (dict)
         from the pyfile_file lsit.  This will be used to referece the file
         that must be coppied
     """
     # set the variables
-    
+
     # make sure the target is the real path, not a symlink
     # BUG: the target is getting tranlated to the relative temp folder, not the "temp" folder
-    # that I passed it.  
+    # that I passed it.
     target = os.path.realpath(target)
 
     # relative path on destination, ./type/hash/
     # sub_path = build_relative_destination_path(most_recent_file_added)
-    
+
     # get all paths in the file ref record to add to manifest.
     all_paths = sorted([ i['full_path'] for i in most_recent_file_added ])
     # just choose one of the paths to sync
@@ -191,7 +207,7 @@ def sync_to_another_drive(most_recent_file_added, target):
     relative_manifest_file = f"{os.path.join(sub_path, manifest_file_name)}"
     full_path_mainfest = f"{os.path.join(target, relative_manifest_file)}"
     full_path_dest_file  = f"{os.path.join(target, relative_dst_file)}"
-    
+
     # make the dir, incase is doesn't exists.
     os.makedirs(os.path.join(target,sub_path), exist_ok=True)
 
@@ -200,7 +216,7 @@ def sync_to_another_drive(most_recent_file_added, target):
         logger.debug(f"{name_to_store} already exists.  Not updating")
     else:
         copyfile(os.path.realpath(full_path), full_path_dest_file)
-        
+
     if os.path.exists(full_path_mainfest):
         utilLogger.debug("file mainifest exists. will copy to local temp, update the paths, and copy back to destination")
         copyfile(full_path_mainfest, os.path.join(temp_folder, manifest_file_name))
@@ -217,10 +233,10 @@ def sync_file_to_s3(most_recent_file_added, meta=None):
     """take the object used by pyfish, and translate for S3 upload
 
     Arguments:
-        file_ref {dict} -- dictionary with details of the file 
+        file_ref {dict} -- dictionary with details of the file
         that will need to checked and possibly uploaded
     """
-    
+
     file_path = most_recent_file_added['full_path']
 
     sub_path,extention,name_to_store = build_relative_destination_path(most_recent_file_added)
@@ -241,7 +257,7 @@ def sync_file_to_s3(most_recent_file_added, meta=None):
         utilLogger.warning(msg="key found in objects already. Will not upload by default")
     else:
         try:
-            s3client.upload_file(file_path, s3_key, 
+            s3client.upload_file(file_path, s3_key,
                     metadata=meta)
         except Exception as e:
             utilLogger.error(e)
@@ -280,7 +296,7 @@ def create_manifest(volume_name:str, locations, path=""):
 def add_location_to_file_manifest(
         manifest_file_name, location_volume, location_paths):
     """take details of a file, the location of it's manifest, download it,
-    update the details, and reupload it. 
+    update the details, and reupload it.
     """
     manifest_file_data = manifest_file_name
     all_paths = list(location_paths)
@@ -294,7 +310,7 @@ def add_location_to_file_manifest(
         try:
             for location_path in all_paths:
                 files = manifest['locations'][location_volume]
-                try: 
+                try:
                     files.remove(location_path)
                 except ValueError as e:
                     # path doesn't already exists
@@ -305,14 +321,14 @@ def add_location_to_file_manifest(
 
         except KeyError as e:
             manifest['locations'][location_volume] = [location_path]
-        
+
         # after the key for the volume has been updated, write the file over again
         with open(manifest_file_data, 'w+') as temp_out:
             json.dump(manifest, temp_out)
-        
+
     except FileExistsError as e:
         print(e)
-    
+
 
 
 
@@ -320,12 +336,12 @@ def add_location_to_file_manifest(
 
 def get_unique_volumes_from_data(data:list=None):
     """Get all the volume names stored in a data_set
-    
+
     Arguments:
         file_list {list of dict} -- pyfi data from json store
-    
+
     Returns:
-        list -- list of string names of volumes found.  
+        list -- list of string names of volumes found.
     """
     file_list = data if data else load_pyfish_data()
     volumes = set()
@@ -336,35 +352,42 @@ def get_unique_volumes_from_data(data:list=None):
     return volumes
 
 
-def get_unique_files_totalsize(filelist=None):
+def get_unique_files_totalsize(data=None, vol=""):
     """return the sum of MB stored in a pyfish file list
 
     Arguments:
         filelist {dict} -- file_list as created by pyfish.
-        may also be loaded form a json_data.json that is 
+        may also be loaded form a json_data.json that is
         created and loaded by pyfish
 
     Returns:
         float -- sum of only the first instace for each unique
         file.
     """
-    if not filelist:
-        filelist = load_pyfish_data()
+
+    if not data:
+        data = load_pyfish_data()
+
+    filelist = []
+    if vol:
+        filelist = get_files_from_one_vol(data,vol)
+    else:
+        filelist = data
 
     return sum([ float(filelist[i][0]['file_size']) for i in filelist ])
 
 
 def get_md5(fileObjectToHash, block_size=40960):
-    """A wrapper around the hashlib md5 functions. This is 
-    used to read and hash a block at a time, in the event of 
-    a very large file being checked. 
-    
+    """A wrapper around the hashlib md5 functions. This is
+    used to read and hash a block at a time, in the event of
+    a very large file being checked.
+
     Arguments:
         fileObjectToHash {fp} -- File-like object data.
-    
+
     Keyword Arguments:
         block_size {int} -- [description] (default: {2048*20})
-    
+
     Returns:
         str -- md5 sum of the file as a string
     """
@@ -392,12 +415,12 @@ def only_sync_file( local_target="temp", volume_name="", file_types=[] ):
             temp_list = list(filter(lambda x: x['filetype'] in file_type_list, file_list[ref]))
             if temp_list:
                 new_file_list[ref] = temp_list
-    
+
     if volume_name:
         for ref in file_list:
             temp_list = list(filter(lambda x: x['volume'] == volume_name, file_list[ref]))
             if temp_list:
-                new_file_list[ref] = temp_list   
+                new_file_list[ref] = temp_list
 
     for file_ref in new_file_list:
         # for each item in new_file_list, git pass only the first file, since only one copy is needed
@@ -413,10 +436,10 @@ def build_file_reference():
 
 def write_data_to_json_log(pyfi_file_list:list, json_file_path=JSON_FILE_PATH_TEMP):
     """dump the file list to a file
-    
+
     Arguments:
         pyfi_file_list {list} -- list of files and details
-    
+
     Keyword Arguments:
         json_file_path {string} -- path defaults to the temp location.
         so that if the app stops while writing, the primary json data
@@ -435,7 +458,7 @@ def get_match_details(file_ref):
     , so this accounts for a KeyError, and returns a -1 if there is no key.
     Also, contains the index for the data, so that it can be updated.
     TODO: ensure this works on Windows OS.
-    
+
     Arguments:
         file_ref {list of dict} -- file data loaded from pyfi json files
 
@@ -449,7 +472,7 @@ def get_match_details(file_ref):
             existing.append((i['tags'],i['volume'],i['inode'], file_ref.index(i)))
         except KeyError:
             existing.append((i['tags'],i['volume'],-1, file_ref.index(i)))
-            
+
     if not existing:
         existing = [([],"",-1, 0)]
     return existing
@@ -457,7 +480,7 @@ def get_match_details(file_ref):
 
 
 def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volume_name, sync_to_s3, sync_to_local_drive, load_external:bool=LOAD_EXTERNAL, local_target=None):
-        
+
         print(f"Start Time: {str(datetime.datetime.now().time())}")
 
         ## setup some environment stuff
@@ -509,7 +532,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                 # indicating same file
                                 if file_ref:
                                     existing = get_match_details(file_ref)
-                                    
+
                                     matches = [ tags for tags, volume, inode, index in existing if path_tags == tags and volume_name == volume and inode == file_inode  ]
                                     missing_inode_indexes = [ index for tags,volume,inode,index in existing if path_tags == tags and volume_name == volume ]
                                 else:
@@ -518,7 +541,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                     matches = []
                                     missing_inode_indexes = []
                                 if not matches and missing_inode_indexes:
-                                    # update the file where indexes are found for matching volumes and tags but 
+                                    # update the file where indexes are found for matching volumes and tags but
                                     # the inode wasn't stored.  Assmuming a lot about the user, and the knowledge here.
                                     # this should be removed in the future, since it shouldn't be needed.
                                     # just  patch for fixing old data that's already been generated, so I don't need
@@ -542,11 +565,11 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                     # sync to s3 if option was selected.
                                     # use the file just added, since it's likely accessible
                                     # meta = pfu.parse_location_metadata(file_ref)
-                                    sync_file_to_s3(file_ref[-1]) 
+                                    sync_file_to_s3(file_ref[-1])
                                 if sync_to_local_drive:
                                     # TODO
-                                    # 
-                                    # 
+                                    #
+                                    #
                                     # Add a sync to another drive here
                                     #
                                     sync_to_another_drive(file_ref[-1], local_target)
