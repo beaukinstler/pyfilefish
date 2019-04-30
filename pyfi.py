@@ -43,7 +43,7 @@ def main():
         target = pui.prompt_for_local_dest()
         pfu.only_sync_file(local_target=target, volume_name=volume_name, file_types=file_types)
         exit(0)
-        
+
 
 
 
@@ -87,7 +87,7 @@ def main():
             json_out.write(
                     json.dumps(stats, sort_keys=True, ensure_ascii=False))
 
-    mulitple_files_collection = pfu.build_multiple_dict(file_list())
+    mulitple_files_collection = pfu.build_multiple_dict(file_list)
     if WRITE_OUT_MULTI:
         if mulitple_files_collection:
             with codecs.open(
