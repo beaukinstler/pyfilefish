@@ -21,6 +21,26 @@ ignore_dirs = IGNORE_DIRS
 # utilLogger = utilLogger.getLogger()
 utilLogger = logger
 
+def get_all_files_from_target(target_folder="test"):
+    """A new method of gathering all the files, instead of os.walk. Will only 
+    find names of files with a period in the name.
+    TODO: find a way to use this to speed up the scan functions
+    
+    Keyword Arguments:
+        target_folder {str} -- a folder on a volume to start from (default: {"test"})
+    
+    Returns:
+        list -- list of Path based objects. of full path names.
+        NOTE: str(result[x]) will reveal a string of the file's name for 
+        each file found.
+    """
+    if not target_folder:
+        target_folder = 'test'
+    result = []
+    result = list(Path(target_folder).glob('**/*.*'))
+    return result
+        
+
 def _load_saved_file_list(json_file_path):
     """
     loads the json file that has previously found files
@@ -355,6 +375,34 @@ def write_data_to_json_log(pyfi_file_list:list, json_file_path=JSON_FILE_PATH_TE
         json_out.write(
                 json.dumps(pyfi_file_list, sort_keys=True, ensure_ascii=False))
 
+
+def get_match_details(file_ref):
+    """gernate a list of tuples to use to check against a file being checked
+    to see if it has already been added.  inode was added in a later version
+    , so this accounts for a KeyError, and returns a -1 if there is no key.
+    Also, contains the index for the data, so that it can be updated.
+    TODO: ensure this works on Windows OS.
+    
+    Arguments:
+        file_ref {list of dict} -- file data loaded from pyfi json files
+
+    Returns:
+        tuple -- tags(represending a file path), volume the file is found on,
+        and if available in the data, the inode. -1 if inode key isn't in the dict.
+    """
+    existing = []
+    for i in file_ref:
+        try:
+            existing.append((i['tags'],i['volume'],i['inode'], file_ref.index(i)))
+        except KeyError:
+            existing.append((i['tags'],i['volume'],-1, file_ref.index(i)))
+            
+    if not existing:
+        existing = [([],"",-1, 0)]
+    return existing
+
+
+
 def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volume_name, sync_to_s3, sync_to_local_drive, load_external:bool=LOAD_EXTERNAL, local_target=None):
         
         print(f"Start Time: {str(datetime.datetime.now().time())}")
@@ -396,6 +444,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                             file_stat = os.stat(filename)
                             timestamp = str(modification_date(filename))
                             file_size = str(file_stat.st_size/(1024*1024.0))
+                            file_inode = str(file_stat.st_ino)
                             full_path = os.path.realpath(file_to_hash.name)
                             path_tags = [tag for tag in filter(None,full_path.split("/"))]
                             if float(file_type.min_size/(1024*1024.0)) < int(float(file_size)) or ALL_SIZES:
@@ -405,11 +454,26 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                 file_ref = pyfi_file_list[file_hash]
                                 # filter if the same tags are found on same volume.
                                 # indicating same file
-                                existing =  [  (i['tags'],i['volume']) for i in file_ref ]
-                                matches = [ tags for tags, volume in existing if path_tags == tags and volume_name == volume ]
-                                if not matches:
-                                # if file_list[file_hash]['tags'] != path_tags and file_list[file_hash]['volume'] == volume_name:
-                                    # file_list_changed = True
+                                if file_ref:
+                                    existing = get_match_details(file_ref)
+                                    
+                                    matches = [ tags for tags, volume, inode, index in existing if path_tags == tags and volume_name == volume and inode == file_inode  ]
+                                    missing_inode_indexes = [ index for tags,volume,inode,index in existing if path_tags == tags and volume_name == volume ]
+                                else:
+                                    # don't bother if no data in file_ref
+                                    existing = []
+                                    matches = []
+                                    missing_inode_indexes = []
+                                if not matches and missing_inode_indexes:
+                                    # update the file where indexes are found for matching volumes and tags but 
+                                    # the inode wasn't stored.  Assmuming a lot about the user, and the knowledge here.
+                                    # this should be removed in the future, since it shouldn't be needed.
+                                    # just  patch for fixing old data that's already been generated, so I don't need
+                                    # to go back and rescan volumes for now.
+                                    for index in missing_inode_indexes:
+                                        file_ref[index]['inode'] = file_inode
+                                elif not matches:
+                                    # assume that the file locations is brand new, and add it to the list.
                                     file_ref.append({
                                             'tags': path_tags,
                                             'filename': str(path_tags[-1]),
@@ -419,6 +483,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                             'file_size': file_size,
                                             'timestamp': timestamp,
                                             'filetype': file_type[0],
+                                            'inode': file_inode,
                                             })
                                 if sync_to_s3:
                                     # sync to s3 if option was selected.
