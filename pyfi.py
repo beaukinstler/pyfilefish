@@ -65,47 +65,36 @@ def main():
     print(f"End Time: {str(pfu.datetime.datetime.now().time())}")
     print(f"All done.... See {flat_file_data_dir} folder for output files")
     print(f"All done.... See {json_file_path} folder\n"
-            " for accumlated json data from all sources")
+            " for accumulated json data from all sources")
 
-    stats = {}
-    for key in file_list:
-        stats[key] = stats.pop(key, None)
-        if stats[key] is None:
-            stats[key] = {}
-        stats[key]['files'] = file_list[key]
-        stats[key]['copies'] = len(file_list[key])
-        stats[key]['md5'] = key
-
-
-    # pprint(stats)
+    stats = pfu.build_stats_dict(file_list)
 
     """re-save the data to a file
     """
-
-    with codecs.open(
-            json_file_path, 'w+', encoding='utf-8'
-            ) as json_out:
-        json_out.write(
-                json.dumps(file_list, sort_keys=True, ensure_ascii=False))
+    if WRITE_OUT_DATA:
+        with codecs.open(
+                json_file_path, 'w+', encoding='utf-8'
+                ) as json_out:
+            json_out.write(
+                    json.dumps(file_list, sort_keys=True, ensure_ascii=False))
 
     """dump out the stats to a file
     """
-
-    with codecs.open(
-            json_stats_path, 'w+', encoding='utf-8'
-            ) as json_out:
-        json_out.write(
-                json.dumps(stats, sort_keys=True, ensure_ascii=False))
-
-    mulitple_files_collection = [
-            stats[dups] for dups in stats if stats[dups]['copies'] > 1
-        ]
-    if mulitple_files_collection:
+    if WRITE_OUT_STATS:
         with codecs.open(
-                json_multi_summary_file, 'w+', encoding='utf-8'
+                json_stats_path, 'w+', encoding='utf-8'
                 ) as json_out:
             json_out.write(
-                    json.dumps(mulitple_files_collection, sort_keys=True, ensure_ascii=False))
+                    json.dumps(stats, sort_keys=True, ensure_ascii=False))
+
+    mulitple_files_collection = pfu.build_multiple_dict(file_list())
+    if WRITE_OUT_MULTI:
+        if mulitple_files_collection:
+            with codecs.open(
+                    json_multi_summary_file, 'w+', encoding='utf-8'
+                    ) as json_out:
+                json_out.write(
+                        json.dumps(mulitple_files_collection, sort_keys=True, ensure_ascii=False))
 
 if __name__ == '__main__':
     logger.info(f"{__name__} has started. Logging to {logger.name}")

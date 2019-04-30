@@ -14,6 +14,9 @@ LOAD_EXTERNAL=True
 SYNC_TO_LOCAL=False
 SYNC_TO_S3=False
 ALL_SIZES=False
+WRITE_OUT_DATA=False
+WRITE_OUT_STATS=False
+WRITE_OUT_MULTI=False
 
 # local file paths from .env settings
 JSON_FILE_PATH = getenv('JSON_FILE_PATH')
