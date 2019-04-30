@@ -63,7 +63,7 @@ def load_pyfish_data():
 
 
 def build_stats_dict(file_list):
-    """funtion to take the pyfi data and return a dict grouped on
+    """function to take the pyfi data and return a dict grouped on
     elements, mainly the md5 sum
     
     Arguments:
@@ -72,7 +72,15 @@ def build_stats_dict(file_list):
     Returns:
         dict - a dictionary of stats for each md5 sum
     """
-    pass
+    stats = {}
+    for key in file_list:
+        stats[key] = stats.pop(key, None)
+        if stats[key] is None:
+            stats[key] = {}
+        stats[key]['files'] = file_list[key]
+        stats[key]['copies'] = len(file_list[key])
+        stats[key]['md5'] = key
+    return stats
 
 def build_multiple_dict(file_list):
     """Filter the stats data, so that only hashes with multiple locations are found
@@ -81,8 +89,13 @@ def build_multiple_dict(file_list):
         file_list {dict} -- the primary json-like dict that pyfy creates
     
     Returns:
-        stats
+        stats file with only duplicates.
     """
+    stats = build_stats_dict(file_list)
+    multi = [
+            stats[dups] for dups in stats if stats[dups]['copies'] > 1
+        ] 
+    return multi
 
 def get_files_missing_from_a_volume(file_list:dict, vol:str):
     data = file_list if file_list else load_pyfish_data()
@@ -99,7 +112,7 @@ def get_current_volumes(data=None):
         set -- a set of unique strings of names of volumes
     """
 
-    return get_unique_volumes_from_data()
+    return get_unique_volumes_from_data(data)
 
 
 def parse_location_metadata(file_ref):
