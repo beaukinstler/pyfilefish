@@ -9,17 +9,10 @@
         },
         {
             "file_size": "20000000",
-            "full_path": "./test/big_mp3",
+            "full_path": "./test/not_real_mp3",
             "md5hash": "10e4462c9d0b08e7f0b304c4fbfeafa3",
             "timestamp": "2019-03-26 23:18:09",
             "volume": "test"
-        },
-        {
-            "file_size": "20000000",
-            "full_path": "./test/not_real_mp3",
-            "md5hash": "10e4462c9d0b08e7f0b304c4fbfeafa3",
-            "timestamp": "2019-03-26 23:19:03",
-            "volume": "test3"
         }
     ],
     "b6d81b360a5672d80c27430f39153e2c": [
@@ -29,20 +22,6 @@
             "md5hash": "b6d81b360a5672d80c27430f39153e2c",
             "timestamp": "2019-03-26 23:19:03",
             "volume": "test"
-        },
-        {
-            "file_size": "1048576",
-            "full_path": "./test/small_mp3",
-            "md5hash": "b6d81b360a5672d80c27430f39153e2c",
-            "timestamp": "2019-03-26 23:19:03",
-            "volume": "test2"
-        },
-        {
-            "file_size": "1048576",
-            "full_path": "./test/small_mp3",
-            "md5hash": "b6d81b360a5672d80c27430f39153e2c",
-            "timestamp": "2019-03-26 23:19:03",
-            "volume": "test3"
         }
     ]
 }
