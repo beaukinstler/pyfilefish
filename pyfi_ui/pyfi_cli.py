@@ -1,6 +1,6 @@
 
 import os
-from filetypes import FileProperySet
+from filetypes import FilePropertySet
 from s3_integration.pyfish_util import get_current_volumes, get_unique_files_totalsize
 
 def prompt_for_local_dest():
@@ -25,9 +25,9 @@ def prompt_folder_to_scan():
 
     elif os.name == 'posix':
         print('OS is Mac/Linux')
-        folder = input("Enter the file path (Default is './test/test_files': ")
+        folder = input("Enter the file path (Default is './tests/test_files': ")
         if folder == '':
-            folder = "./test/test_files"
+            folder = "./tests/test_files"
 
     else:
         folder = None
@@ -39,7 +39,7 @@ def get_file_types_from_user():
     """prompt user for file types and return a FilePropertySet()
     """
     # fileTypeList = ['png', 'jpeg', 'mp4', 'bmp', 'wav', 'jpg', ]
-    filePropList = FileProperySet()
+    filePropList = FilePropertySet()
     file_type_input = ""
     while True:
         if file_type_input == 'new':

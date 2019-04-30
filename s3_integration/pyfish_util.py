@@ -9,7 +9,7 @@ import json
 from settings import *
 from hashlib import md5
 import datetime
-from filetypes.file_types import FileProperySet
+from filetypes.file_types import FilePropertySet
 from shutil import copyfile
 from pathlib import Path
 import codecs
@@ -174,11 +174,11 @@ def build_relative_destination_path(pyfish_file_ref):
     return (path, pyfish_file_ref['filetype'], pyfish_file_ref['md5hash'])
 
 
-def sync_to_another_drive(most_recent_file_added, target):
+def sync_to_another_drive(file_ref_to_add, target):
     """Copy file to a local drive.
 
     Arguments:
-        most_recent_file_added {dict} -- a referecne to a record (dict)
+        file_ref_to_add {dict} -- a referecne to a record (dict)
         from the pyfile_file lsit.  This will be used to referece the file
         that must be coppied
     """
@@ -189,13 +189,12 @@ def sync_to_another_drive(most_recent_file_added, target):
     # that I passed it.
     target = os.path.realpath(target)
 
-    # relative path on destination, ./type/hash/
-    # sub_path = build_relative_destination_path(most_recent_file_added)
+    # just choose one of the paths to sync
+    data_file_ref = file_ref_to_add[-1]
 
     # get all paths in the file ref record to add to manifest.
-    all_paths = sorted([ i['full_path'] for i in most_recent_file_added ])
-    # just choose one of the paths to sync
-    data_file_ref = most_recent_file_added[0]
+    all_paths = sorted([ i['full_path'] for i in file_ref_to_add ])
+
     sub_path,extention,md5hash = build_relative_destination_path(data_file_ref)
     temp_folder = 'temp/'
     os.makedirs(temp_folder, exist_ok=True)
@@ -215,7 +214,11 @@ def sync_to_another_drive(most_recent_file_added, target):
     if os.path.exists(full_path_dest_file):
         logger.debug(f"{name_to_store} already exists.  Not updating")
     else:
-        copyfile(os.path.realpath(full_path), full_path_dest_file)
+        try:
+            copyfile(os.path.realpath(full_path), full_path_dest_file)
+        except FileNotFoundError:
+            logger.warn(f"The file '{full_path}' could not be found.  Skipping the sync to local drive")
+            pass
 
     if os.path.exists(full_path_mainfest):
         utilLogger.debug("file mainifest exists. will copy to local temp, update the paths, and copy back to destination")
@@ -479,7 +482,7 @@ def get_match_details(file_ref):
 
 
 
-def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volume_name, sync_to_s3, sync_to_local_drive, load_external:bool=LOAD_EXTERNAL, local_target=None):
+def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volume_name, sync_to_s3, sync_to_local_drive, load_external:bool=LOAD_EXTERNAL, local_target=None):
 
         print(f"Start Time: {str(datetime.datetime.now().time())}")
 
@@ -572,7 +575,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                                     #
                                     # Add a sync to another drive here
                                     #
-                                    sync_to_another_drive(file_ref[-1], local_target)
+                                    sync_to_another_drive(file_ref, local_target)
                                 # if file_stat.st_size > min_file_size:
                                 # with open(temp_outfile, 'a+') as out_put_file:
                                 #     out_put_file.writelines(

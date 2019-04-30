@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-class FileProperySet(object):
+class FilePropertySet(object):
     """
     A list of file types and their min size for relevance
     in searching and storing.  
@@ -31,6 +31,7 @@ class FileProperySet(object):
             file_properties('gif', 5000),
             file_properties('jpg', 5000),
             file_properties('jpeg', 5000),
+            file_properties('pdf', 1000000),
 
 
             # file_properties('mp3', 100),
