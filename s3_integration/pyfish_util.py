@@ -62,7 +62,36 @@ def load_pyfish_data():
     return file_list
 
 
-def get_current_volumes():
+def build_stats_dict(file_list):
+    """funtion to take the pyfi data and return a dict grouped on
+    elements, mainly the md5 sum
+    
+    Arguments:
+        file_list {dict} -- the primary json-like dict that pyfy creates
+
+    Returns:
+        dict - a dictionary of stats for each md5 sum
+    """
+    pass
+
+def build_multiple_dict(file_list):
+    """Filter the stats data, so that only hashes with multiple locations are found
+    
+    Arguments:
+        file_list {dict} -- the primary json-like dict that pyfy creates
+    
+    Returns:
+        stats
+    """
+
+def get_files_missing_from_a_volume(file_list:dict, vol:str):
+    data = file_list if file_list else load_pyfish_data()
+    unique_set = [ (i, set([v['volume'] for v in data[i] ])) for i in data ]
+    set_minus_volume = [ i for i in unique_set if str(vol) not in i[1] ]
+    return set_minus_volume
+
+
+def get_current_volumes(data=None):
     """From a File-list, parse and look for volumes that have been
     used.
     
@@ -70,12 +99,7 @@ def get_current_volumes():
         set -- a set of unique strings of names of volumes
     """
 
-    file_list = load_pyfish_data()
-    volumes = set()
-    for md5 in file_list:
-        for item in file_list[md5]:
-            volumes.add(item['volume'])
-    return volumes
+    return get_unique_volumes_from_data()
 
 
 def parse_location_metadata(file_ref):
@@ -281,6 +305,22 @@ def add_location_to_file_manifest(
 
 
 
+def get_unique_volumes_from_data(data:list=None):
+    """Get all the volume names stored in a data_set
+    
+    Arguments:
+        file_list {list of dict} -- pyfi data from json store
+    
+    Returns:
+        list -- list of string names of volumes found.  
+    """
+    file_list = data if data else load_pyfish_data()
+    volumes = set()
+    for md5 in file_list:
+        for item in file_list[md5]:
+            volumes.add(item['volume'])
+
+    return volumes
 
 
 def get_unique_files_totalsize(filelist=None):
@@ -447,7 +487,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FileProperySet, volum
                             file_inode = str(file_stat.st_ino)
                             full_path = os.path.realpath(file_to_hash.name)
                             path_tags = [tag for tag in filter(None,full_path.split("/"))]
-                            if float(file_type.min_size/(1024*1024.0)) < int(float(file_size)) or ALL_SIZES:
+                            if float(file_type.min_size)/(1024*1024.0) < int(float(file_size)) or ALL_SIZES:
                                 if file_hash not in pyfi_file_list.keys():
                                     pyfi_file_list[file_hash] = []
                                     file_list_changed = True

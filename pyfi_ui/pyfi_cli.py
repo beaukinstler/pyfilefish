@@ -151,7 +151,7 @@ def promt_user_for_run_mode():
         if choice == 1:
             print(f"Total size of files stored in MB: {get_unique_files_totalsize()}")
         elif choice == 2:
-            print([ i[0] for i in get_current_volumes() ] )
+            print([ i for i in get_current_volumes() ] )
         elif choice == 4:
             print("local destination needed")
         elif choice == 5:
