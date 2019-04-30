@@ -25,9 +25,9 @@ def prompt_folder_to_scan():
 
     elif os.name == 'posix':
         print('OS is Mac/Linux')
-        folder = input("Enter the file path (Default is './test/test_files': ")
+        folder = input("Enter the file path (Default is './tests/test_files': ")
         if folder == '':
-            folder = "./test/test_files"
+            folder = "./tests/test_files"
 
     else:
         folder = None
