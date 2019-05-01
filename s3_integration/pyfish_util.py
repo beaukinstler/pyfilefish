@@ -505,18 +505,6 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
                 # for file_type in file_types.ft_list:
                 if file_type:
                     if (file_to_check.lower()).endswith(f".{file_type.extension}"):
-                        temp_outfile = file_type.extension + FLAT_FILE_SUFFIX
-                        temp_outfile = os.path.join(FLAT_FILE_DATA_DIR, temp_outfile)
-                        if not os.path.exists(temp_outfile):
-                            startFile = open(temp_outfile, 'w+')
-                            startFile.write(
-                                    "Filename\t"
-                                    "Hash\t"
-                                    "FileSize\t"
-                                    "Date\t"
-                                    "FileType\t"
-                                    "VolumeName\n")
-                            startFile.close()
                         filename = os.path.join(paths, file_to_check)
                         with open(filename, 'rb') as file_to_hash:
                             file_hash = get_md5(file_to_hash)
@@ -577,16 +565,34 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
                                     #
                                     sync_to_another_drive(file_ref, local_target)
                                 # if file_stat.st_size > min_file_size:
-                                # with open(temp_outfile, 'a+') as out_put_file:
-                                #     out_put_file.writelines(
-                                #         "{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
-                                #             str(path_tags[-1]),
-                                #             filename,
-                                #             file_hash,
-                                #             file_size,
-                                #             timestamp,
-                                #             file_type[0],
-                                #             volume_name,
-
-                                #                 )
-                                # )
+                            
+                                if WRITE_OUT_FLAT:
+                                    temp_outfile = file_type.extension + FLAT_FILE_SUFFIX
+                                    temp_outfile = os.path.join(FLAT_FILE_DATA_DIR, temp_outfile)
+                                    if not os.path.exists(temp_outfile):
+                                        """create a header row if file doesn't exist
+                                        """
+                                        startFile = open(temp_outfile, 'w+')
+                                        startFile.write(
+                                                "Filename\t"
+                                                "Hash\t"
+                                                "FileSize\t"
+                                                "Date\t"
+                                                "FileType\t"
+                                                "inode\t"
+                                                "VolumeName\n")
+                                        startFile.close()
+                                    
+                                    with open(temp_outfile, 'a+') as out_put_file:
+                                        out_put_file.writelines(
+                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
+                                                str(path_tags[-1]),
+                                                filename,
+                                                file_hash,
+                                                file_size,
+                                                timestamp,
+                                                file_type[0],
+                                                file_inode,
+                                                volume_name,
+                                                    )
+                                        )
