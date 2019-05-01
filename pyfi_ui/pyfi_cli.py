@@ -82,6 +82,7 @@ def _select_volume_from_list(previous_volumes:list, existing_only=False):
     new_volume_prompt += "i.e: 'Macbook Lucy/ HD01'\n"
     new_volume_prompt += "Please enter a new name, but it should not match an existing name: "
     # we'll loop the prompt until the user is sure of their selection
+    entry = 0
     while confirm[0].lower() != 'y':
         if previous_volumes:
             print("You can choose a volume/location found in the saved data\n")
