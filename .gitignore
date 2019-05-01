@@ -6,6 +6,7 @@ log*.bak
 log*.test
 log*.mac
 logs.*/
+data/
 
 tsv*
 # IDE files
