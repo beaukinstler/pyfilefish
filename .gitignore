@@ -5,6 +5,7 @@ temp/
 log*.bak
 log*.test
 log*.mac
+log*.old
 logs.*/
 data/
 
