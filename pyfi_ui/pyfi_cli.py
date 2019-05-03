@@ -2,6 +2,7 @@
 import os
 from filetypes import FilePropertySet
 from s3_integration.pyfish_util import get_current_volumes, get_unique_files_totalsize
+from pathlib import Path
 
 def prompt_for_local_dest():
     prompt = """
@@ -12,6 +13,47 @@ def prompt_for_local_dest():
     dest = input(prompt)
     return dest
 
+def prompt_windows_folder(drive_ui:str='', folder_ui:str=''):
+    print("Enter a drive leter and sub folder that you'd like to search.\n")
+    print('ie. "C:\\"')
+    konch = False
+    drive = Path(drive_ui + ":/")
+    folder = ""
+    while konch == False:
+        if not drive_ui:
+            drive =input("Enter the drive letter you'd like to search: ")
+            drive = Path(str(drive) + ":/")
+        else:
+            konch = True
+        try:
+            if drive.exists():
+                konch = True
+            else:
+                print("That drive isn't mounted.  Please choose a drive that is available")
+        except OSError:
+                print("That file system doens't seem to be valid. \
+                        Please ensure you can access the file system. Perhaps remount the drive if not.")
+                if drive_ui:
+                    raise ValueError
+
+    konch = False
+    temp_folder = ""
+    while konch == False:
+        if drive_ui:
+            folder = drive.joinpath(folder_ui)
+            break
+        else:
+            temp_folder = input('Please enter a subfolder (i.e "Users/sue"),\n \
+                            or just press [Enter] to use the whole drive: ')
+            folder = drive.joinpath(temp_folder)
+        
+        if folder.exists():
+            konch = True
+        else:
+            print("\nSorry, that is not a valid path.  Please try again.")
+    
+    return str(folder)
+     
 
 def prompt_folder_to_scan():
 
