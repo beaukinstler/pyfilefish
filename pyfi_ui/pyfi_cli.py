@@ -57,16 +57,13 @@ def prompt_windows_folder(drive_ui:str='', folder_ui:str=''):
 
 def prompt_folder_to_scan():
 
-    if os.name == 'nt':
-        folder = input("Enter the drive letter you'd like to search: ")
-
-        if folder == '':
-            folder = "C:\\"
-        else:
-            folder = folder + ":\\"
-
-    elif os.name == 'posix':
-        print('OS is Mac/Linux')
+    # if os.name == 'nt':
+    #     folder = prompt_windows_folder()
+    
+    # elif os.name == 'posix':
+    
+    if os.name in ['posix', 'nt']:
+        print('OS is Mac/Linux or Windows NT')
         folder = input("Enter the file path (Default is './tests/test_files': ")
         if folder == '':
             folder = "./tests/test_files"
