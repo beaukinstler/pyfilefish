@@ -10,8 +10,8 @@ SYNC_TO_LOCAL=False
 SYNC_TO_S3=False
 ALL_SIZES=True
 WRITE_OUT_DATA=True
-WRITE_OUT_STATS=False
-WRITE_OUT_MULTI=False
+WRITE_OUT_STATS=True
+WRITE_OUT_MULTI=True
 WRITE_OUT_FLAT=True
 
 # local file paths from .env 
