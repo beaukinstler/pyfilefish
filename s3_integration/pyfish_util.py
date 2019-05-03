@@ -13,6 +13,7 @@ from filetypes.file_types import FilePropertySet
 from shutil import copyfile
 from pathlib import Path
 import codecs
+from pyfy_util.system_check import is_fs_case_sensitive
 
 ignore_dirs = IGNORE_DIRS
 # LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
@@ -489,7 +490,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
         ## setup some environment stuff
         os.makedirs(FLAT_FILE_DATA_DIR, exist_ok=True)
         file_list_changed = False
-
+        case_sensitive = is_fs_case_sensitive()
         # loop over the designated folder, and but stop to remove dirs that are not to be searched.
         for (paths, dirs, files) in os.walk(folder, topdown=True):
             if file_list_changed:
@@ -512,8 +513,11 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
                             timestamp = str(modification_date(filename))
                             file_size = str(file_stat.st_size/(1024*1024.0))
                             file_inode = str(file_stat.st_ino)
-                            full_path = os.path.realpath(file_to_hash.name)
-                            path_tags = [tag for tag in filter(None,full_path.split("/"))]
+                            # account for slopy case sesitivity practices in windows
+                            full_path_for_parts = str(os.path.realpath(file_to_hash.name)).lower() if not case_sensitive else str(os.path.realpath(file_to_hash.name))
+                            full_path = str(os.path.realpath(file_to_hash.name))
+                            # path_tags = [tag for tag in filter(None,full_path.split("/"))]
+                            path_tags = [ tag for tag in filter(None, Path(full_path_for_parts).parts)]
                             if float(file_type.min_size)/(1024*1024.0) < int(float(file_size)) or ALL_SIZES:
                                 if file_hash not in pyfi_file_list.keys():
                                     pyfi_file_list[file_hash] = []
