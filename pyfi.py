@@ -10,7 +10,7 @@ import codecs
 # from filetypes import FileProperySet
 from pprint import pprint
 import logging
-from s3_integration import pyfish_util as pfu
+from pyfi_util import pyfish_util as pfu
 from settings import *
 import pyfi_ui as pui
 

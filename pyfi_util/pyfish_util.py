@@ -13,7 +13,7 @@ from filetypes.file_types import FilePropertySet
 from shutil import copyfile
 from pathlib import Path
 import codecs
-from pyfy_util.system_check import is_fs_case_sensitive
+from pyfi_util.system_check import is_fs_case_sensitive
 
 ignore_dirs = IGNORE_DIRS
 # LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"

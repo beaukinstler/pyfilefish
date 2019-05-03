@@ -1,5 +1,5 @@
 import s3_integration
-from s3_integration import pyfish_util as pfu
+from pyfi_util import pyfish_util as pfu
 import pytest
 from pyfi_ui import pyfi_cli as pui
 

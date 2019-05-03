@@ -1,4 +1,4 @@
-from s3_integration import pyfish_util as pfu
+from pyfi_util import pyfish_util as pfu
 import pytest
 
 def test_get_volumes_from_data(file_list):
