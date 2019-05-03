@@ -1,7 +1,7 @@
 
 import os
 from filetypes import FilePropertySet
-from s3_integration.pyfish_util import get_current_volumes, get_unique_files_totalsize
+from pyfi_util.pyfish_util import get_current_volumes, get_unique_files_totalsize
 from pathlib import Path
 
 def prompt_for_local_dest():
