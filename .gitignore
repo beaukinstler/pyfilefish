@@ -129,3 +129,5 @@ test/subfolder_testing/small_mp3
 .env
 restats
 pyfistats
+tests/test_files/small_mp4.mp3
+.vs/
