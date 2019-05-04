@@ -226,11 +226,13 @@ def sync_to_another_drive(file_ref_to_add, target):
         copyfile(full_path_mainfest, os.path.join(temp_folder, manifest_file_name))
         add_location_to_file_manifest(os.path.join(temp_folder, manifest_file_name),volume_name, all_paths)
         copyfile(os.path.join(temp_folder, manifest_file_name), full_path_mainfest)
+        os.remove(os.path.join(temp_folder, manifest_file_name))
     else:
         temp_manifest = create_manifest(volume_name, all_paths)
         with open(os.path.join(temp_folder,manifest_file_name), 'w+') as temp_json:
             json.dump(temp_manifest, temp_json)
         copyfile(os.path.join(temp_folder, manifest_file_name), full_path_mainfest)
+        os.remove(os.path.join(temp_folder, manifest_file_name))
 
 
 def sync_file_to_s3(most_recent_file_added, meta=None):
