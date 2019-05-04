@@ -416,23 +416,19 @@ def only_sync_file( local_target="temp", volume_name="", file_types=[] ):
     new_file_list = {}
     file_type_list = [ i.extension for i in file_types.ft_list ]
 
-    if file_type_list:
-        for ref in file_list:
-            temp_list = list(filter(lambda x: x['filetype'] in file_type_list, file_list[ref]))
-            if temp_list:
-                new_file_list[ref] = temp_list
+    # fill a new  file list with only records with the chosen volume and types
+    for md5 in file_list:
+        for record in file_list[md5]:
+            if record['volume'] == volume_name and record['filetype'] in file_type_list:
+                try:
+                    new_file_list[md5].append(record)
+                except KeyError:
+                    new_file_list[md5] = [record]
 
-    if volume_name:
-        for ref in file_list:
-            temp_list = list(filter(lambda x: x['volume'] == volume_name, file_list[ref]))
-            if temp_list:
-                new_file_list[ref] = temp_list
 
-    for file_ref in new_file_list:
-        # for each item in new_file_list, git pass only the first file, since only one copy is needed
-        # of a file with copies found.  The manifest, however, will show all the copies
-        # found on the volume.
-        sync_to_another_drive(new_file_list[file_ref], local_target)
+    for md5 in new_file_list:
+        # for each item in new_file_list, sync to the target
+        sync_to_another_drive(new_file_list[md5], local_target)
 
 
 
