@@ -131,3 +131,7 @@ restats
 pyfistats
 tests/test_files/small_mp4.mp3
 .vs/
+tests/test_files/test.wav_un-encrypted
+tests/test_files/test.wav.encrypted
+tests/test_files/big_mp3_un-encrypted
+tests/test_files/big_mp3.encrypted
