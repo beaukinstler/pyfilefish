@@ -15,6 +15,7 @@ from pathlib import Path
 import codecs
 from pyfi_util.system_check import is_fs_case_sensitive
 
+from pyfi_util import pyfi_crypto as cr
 ignore_dirs = IGNORE_DIRS
 # LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
 # utilLogger.basicConfig( filename='./logs/pyfi_util_log.txt', level=utilLogger.DEBUG,

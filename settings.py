@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from os import getenv
 import os
 import logging
+from hashlib import md5
 
 load_dotenv()
 # set whether the app attempts to import previously stored json data from the JSON_FILE_PATH
@@ -23,6 +24,9 @@ JSON_STATS_PATH = os.path.join(DATA_FOLDER,getenv('JSON_STATS_PATH'))
 JSON_MULTI_SUMMARY_FILE = os.path.join(DATA_FOLDER, getenv('JSON_MULTI_SUMMARY_FILE'))
 FLAT_FILE_DATA_DIR = getenv('FLAT_FILE_DATA_DIR')
 FLAT_FILE_SUFFIX = getenv('FLAT_FILE_SUFFIX')
+
+PYFI_S3_SALT = bytes.fromhex(md5(bytearray(getenv('PYFI_S3_SALT'),'utf-8')).hexdigest())
+PYFI_S3_ENCRYPTION_KEY = bytearray(getenv('PYFI_S3_ENCRYPTION_KEY'),'utf-8')
 
 os.makedirs(DATA_FOLDER, exist_ok=True)
 os.makedirs(LOG_FOLDER, exist_ok=True)
