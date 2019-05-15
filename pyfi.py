@@ -7,7 +7,6 @@ import os
 # import datetime
 import json
 import codecs
-# from filetypes import FileProperySet
 from pprint import pprint
 import logging
 from pyfi_util import pyfish_util as pfu
@@ -28,7 +27,7 @@ def main():
     # flat_file_suffix = "_filefish_out.log"
     target = None
     # get cli user input
-    run_mode = pui.promt_user_for_run_mode()
+    run_mode = pui.prompt_user_for_run_mode()
 
     if run_mode == 3:
         sync_to_s3 = True
@@ -88,14 +87,14 @@ def main():
             json_out.write(
                     json.dumps(stats, sort_keys=True, ensure_ascii=False))
 
-    mulitple_files_collection = pfu.build_multiple_dict(file_list)
+    multiple_files_collection = pfu.build_multiple_dict(file_list)
     if WRITE_OUT_MULTI:
-        if mulitple_files_collection:
+        if multiple_files_collection:
             with codecs.open(
                     json_multi_summary_file, 'w+', encoding='utf-8'
                     ) as json_out:
                 json_out.write(
-                        json.dumps(mulitple_files_collection, sort_keys=True, ensure_ascii=False))
+                        json.dumps(multiple_files_collection, sort_keys=True, ensure_ascii=False))
 
 if __name__ == '__main__':
     logger.info(f"{__name__} has started. Logging to {logger.name}")
