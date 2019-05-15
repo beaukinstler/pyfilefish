@@ -14,6 +14,7 @@ from shutil import copyfile
 from pathlib import Path
 import codecs
 from pyfi_util.system_check import is_fs_case_sensitive
+from pyfi_filestore.pyfish_file import PyfishFile, PyfishFileSet
 
 from pyfi_util import pyfi_crypto as cr
 ignore_dirs = IGNORE_DIRS
@@ -236,7 +237,7 @@ def sync_to_another_drive(file_ref_to_add, target):
         os.remove(os.path.join(temp_folder, manifest_file_name))
 
 
-def sync_file_to_s3(most_recent_file_added, meta=None):
+def sync_file_to_s3(file_record:dict, meta=None):
     """take the object used by pyfish, and translate for S3 upload
 
     Arguments:
@@ -244,14 +245,15 @@ def sync_file_to_s3(most_recent_file_added, meta=None):
         that will need to checked and possibly uploaded
     """
 
-    file_path = most_recent_file_added['full_path']
 
-    sub_path,extention,name_to_store = build_relative_destination_path(most_recent_file_added)
+    file_path = file_record['full_path']
+
+    sub_path,extention,name_to_store = build_relative_destination_path(file_record)
     temp_folder = 'temp/'
-    volume_name = f"{most_recent_file_added['volume']}"
-    full_path = f"{most_recent_file_added['full_path']}"
-    # name_to_store = f"{most_recent_file_added['md5hash']}"
-    # extention = f"{most_recent_file_added['filetype']}"
+    volume_name = f"{file_record['volume']}"
+    full_path = f"{file_record['full_path']}"
+    # name_to_store = f"{file_record['md5hash']}"
+    # extention = f"{file_record['filetype']}"
     s3_key = f"{sub_path}{name_to_store}.{extention}"
     s3_manifest_file = f"{name_to_store}.manifest.json"
     s3_key_manifest = f"{sub_path}{s3_manifest_file}"
@@ -284,6 +286,91 @@ def sync_file_to_s3(most_recent_file_added, meta=None):
     # in either case, upload the file
     s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
 
+def sync_file_to_s3_new(file_record:PyfishFile, meta=None):
+    """take the object used by pyfish, and translate for S3 upload
+
+    Arguments:
+        file_ref {dict} -- dictionary with details of the file
+        that will need to checked and possibly uploaded
+    """
+    use_encryption = False
+    try:
+        use_encryption = file_record.encrypt_remote
+        logger.info('Encrypting the remote file was requested')
+    except KeyError as e:
+        logger.info("File record doesn't have a 'encrypt_remote' directive")
+    
+    temp_folder = 'temp/'
+    volume_name = file_record.volume
+    
+    if use_encryption:
+        pass
+    else:
+        file_path = file_record.full_path
+        # sub_path,extention,name_to_store = build_relative_destination_path(file_record)
+        
+        extention = f"{file_record.file_type}"
+        name_to_store = f"{file_record.md5Name}"
+        sub_path = f"{extention}/{name_to_store}"
+    
+    
+    
+    
+    # name_to_store = f"{file_record['md5hash']}"
+    # extention = f"{file_record['filetype']}"
+    s3_key = f"{sub_path}{name_to_store}.{extention}"
+    s3_manifest_file = f"{name_to_store}.manifest.json"
+    s3_key_manifest = f"{sub_path}{s3_manifest_file}"
+
+    # make sure the files is there, or upload it if not
+    s3client = S3Connection()
+    bucket_name = os.getenv("ACTIVE_BUCKET_NAME")
+    s3client.set_active_bucket(bucket_name)
+    if s3_key in s3client.get_keynames_from_objects(bucket_name):
+        utilLogger.warning(msg="key found in objects already. Will not upload by default")
+    else:
+        try:
+            s3client.upload_file(file_path, s3_key,
+                    metadata=meta)
+        except Exception as e:
+            utilLogger.error(e)
+
+    # update or create a manifest to store as well
+    if s3_key_manifest in s3client.get_keynames_from_objects(bucket_name):
+        utilLogger.info(msg="manifest files exists. Will download, update, and upload")
+        s3client.download_file_to_temp(s3_manifest_file, s3_key_manifest, temp_folder)
+        decrypt_manifest(s3_manifest_file, temp_folder)
+        add_location_to_file_manifest(os.path.join(
+                temp_folder, s3_manifest_file),volume_name, file_record.full_path)
+        # s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
+    else:
+        # no manifest found.  Create and upload it
+        temp_manifest = create_manifest(volume_name, file_record.full_path)
+        with open(os.path.join(temp_folder,s3_manifest_file), 'w+') as temp_json:
+            json.dump(temp_manifest, temp_json)
+        # s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
+    # in either case, upload the file
+    s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
+
+def decrypt_file(file, source_folder, compression=True):
+    path = Path(source_folder).absolute()
+    full_path = path.joinpath(f"{file}.encrypted")
+    out_file = path.joinpath(file)
+    dcrypt_data = cr.convert_encrypted_file_into_decrypted_data(full_path, compression=compression)
+    with open(out_file, 'wb+') as manifest:
+        manifest.write(dcrypt_data)
+    os.remove(full_path)
+
+def encrypt_file(file, dest_folder, compression=True):
+    path = Path(dest_folder).absolute()
+    full_path = path.joinpath(file)
+    out_file = path.joinpath(f"{file}.encrypted")
+    ncrypt_data = cr.convert_file_into_encrypted_data(full_path, compression=compression)
+    with open(out_file, 'wb+') as manifest:
+        manifest.write(ncrypt_data)
+    
+
+
 def create_manifest(volume_name:str, locations, path=""):
     """make a file that contains all known locations of a file.
     To be stored with the file.
@@ -303,7 +390,7 @@ def create_manifest(volume_name:str, locations, path=""):
 def add_location_to_file_manifest(
         manifest_file_name, location_volume, location_paths):
     """take details of a file, the location of it's manifest, download it,
-    update the details, and reupload it.
+    update the details, and re-upload it.
     """
     manifest_file_data = manifest_file_name
     all_paths = list(location_paths)
