@@ -12,6 +12,8 @@ pylint = "*"
 boto3 = "*"
 python-dotenv = "*"
 pytest = "*"
+encryption = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.7"
