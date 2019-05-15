@@ -177,7 +177,7 @@ def prompt_user_for_size_one_volume():
     print(f"\nVolume: {vol}\n")
     print(f"Size  : {size}\n")
 
-def promt_user_for_run_mode():
+def prompt_user_for_run_mode():
     """sub routine to report on previous data
     """
 
