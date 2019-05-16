@@ -1,26 +1,51 @@
 import boto3
 from os.path import join
+import pyfi_util
+from settings import logger
+import sys
+import threading
+import os
 
+class ProgressMonitor:
 
+    def __init__(self, filename):
+        self.progress = 0
+        self.filename = filename.name
+        self._lock = threading.Lock()
+        self.size = os.stat(self.filename).st_size / 1024 / 1024
+
+    def __call__(self,num:float):
+        """used for callback of S3 boto3 client operations
+
+        Arguments:
+            data {float} -- number of bytes transferred to be periodically called during the operation
+        """
+        with self._lock:
+            self.progress += num
+            sys.stdout.write(f"S3 Progress: {round(self.progress/1024/1024,3)} of {round(self.size)}  MBs")
+            logger.debug(f"S3 Progress: {self.progress} bytes")
+            sys.stdout.write("\r\n")
+            sys.stdout.flush()
 
 class S3Connection:
 
     def __init__(self):
         self.active_bucket_name = ""
         self.s3 = "" # intended to store a boto3.client
-        self.s3Resource = "" # intedted to store a boto3.resource, as an alternative
+        self.s3Resource = "" # intended to store a boto3.resource, as an alternative
         self.cached_bucket_names = "" # store bucket names so calls to AWS aren't always needed.
         self.cached_bucket_objects = {}
-        
+        self.connect()
+        self.upload_progress = 0
 
     def connect(self):
         if not self.s3:
             self.s3 = boto3.client('s3')
         else:
             print('already initialized the s3 client.  No new value needed')
-    
+
     def connect_resource(self):
-        """original way I tried.  Might still have value, but eaiser to 
+        """original way I tried.  Might still have value, but easier to
         use the "connect" method instead for basic upload command, listing
         objects, and listing buckets.
         """
@@ -44,7 +69,7 @@ class S3Connection:
     def _get_objects_from_bucket(self, bucket_name="", update_from_aws=True):
         if not bucket_name:
             bucket_name = self.active_bucket_name
-            
+
         if (('Name', bucket_name) not in self.cached_bucket_objects.items()) \
                     or update_from_aws:
             self.connect()
@@ -71,9 +96,9 @@ class S3Connection:
             self.active_bucket_name = bucket_name
         else:
             self.choose_bucket()
-    
+
     def choose_bucket(self):
-        """print list of bucktes and ask for selected 
+        """print list of buckets and ask for selected
         index number from user
         """
         prompt = "Please choose a bucket to make your active bucket: "
@@ -81,7 +106,7 @@ class S3Connection:
         buckets_list = self.get_buckets()
         for i in range(len(buckets_list)):
             print(f"{str(i+1)} - {buckets_list[i]}")
-        
+
         # get choice and make sure its valid before using the name
         choice = int(input(prompt))
         choice = choice if choice > 0 and choice <= len(buckets_list) \
@@ -101,7 +126,7 @@ class S3Connection:
     def put_file(self, filepath, s3_file_name_key):
         """put a file in the active bucket. If there isn't an active bucket
         selected, prompt for a choice
-        
+
         Arguments:
             filepath {string} -- full or relative path from the current working directory
             s3_file_name_key {string} -- name that the file will have in the bucket
@@ -114,11 +139,11 @@ class S3Connection:
                         Key=s3_file_name_key,Body=data)
         else:
             self.choose_bucket()
-    
+
     def upload_file(self, filepath, s3_file_name_key, metadata=None):
         """upload a file in the active bucket. If there isn't an active bucket
         selected, prompt for a choice
-        
+
         Arguments:
             filepath {string} -- full or relative path from the current working directory
             s3_file_name_key {string} -- name that the file will have in the bucket
@@ -126,18 +151,35 @@ class S3Connection:
 
         if self.active_bucket_name:
             self.s3.upload_file(filepath, self.active_bucket_name, s3_file_name_key,
-                    ExtraArgs=metadata)
+                    ExtraArgs=metadata, Callback=ProgressMonitor(filepath), Config=None)
         else:
             print("Sorry, you need to activate a bucket first.  Afterwards, please redo the last attempt.")
             self.choose_bucket()
 
+    def upload_fileobj(self, fileobj, s3_file_name_key="", metadata=None):
+        """upload a fileobj in the active bucket. If there isn't an active bucket
+        selected, prompt for a choice
+
+        Arguments:
+            filepath {string} -- full or relative path from the current working directory
+            s3_file_name_key {string} -- name that the file will have in the bucket
+        """
+        response = ""
+        if self.active_bucket_name:
+            response = self.s3.upload_fileobj(fileobj, self.active_bucket_name, s3_file_name_key,
+                    ExtraArgs=metadata, Callback=ProgressMonitor(fileobj), Config=None)
+        else:
+            print("Sorry, you need to activate a bucket first.  Afterwards, please redo the last attempt.")
+            self.choose_bucket()
+        return response
+
     def download_file_to_temp(self, filepath, s3_file_name_key, temp_location='temp/'):
-        """Use s3.client.download_fileobj to get a binary file like ojbect.
-        
+        """Use s3.client.download_fileobj to get a binary file like object.
+
         Arguments:
             filepath {string} -- name of dest file
             s3_file_name_key {string} -- key in s3 bucket
-        
+
         Keyword Arguments:
             temp_location {string} -- temp folder location (default: {'temp/'})
         """
@@ -145,15 +187,17 @@ class S3Connection:
             self.s3.download_file(self.active_bucket_name, s3_file_name_key, join(temp_location,filepath))
         except Exception as e:
             print('File not found')
-            print(e.args) 
+            print(e.args)
+
+
 
     def download_file_obj(self, file, s3_file_name_key):
-        """Use s3.client.download_fileobj to get a binary file like ojbect.
-        
+        """Use s3.client.download_fileobj to get a binary file like object.
+
         Arguments:
             filepath {string} -- name of dest file
             s3_file_name_key {string} -- key in s3 bucket
-        
+
         Keyword Arguments:
             temp_location {string} -- temp folder location (default: {'temp/'})
         """
@@ -161,11 +205,11 @@ class S3Connection:
         self.s3.client.download_fileobj(self.active_bucket_name, s3_file_name_key, data)
         return data
 
-        
 
 
 
-        
+
+
 
 
 
