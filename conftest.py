@@ -5,11 +5,16 @@ from pyfi_ui import pyfi_cli as pui
 from dotenv import load_dotenv
 from os import getenv
 from collections import namedtuple
+from s3_integration.s3_tools import S3Connection
 
 
 ACTIVE_BUCKET_NAME='backups.beaukinstler.com' ## TODO: create a test bucket and change this
 PYFI_S3_SALT='test'
 PYFI_S3_ENCRYPTION_KEY='T3stK3yF04Fun'
+SMALL_TEST_FILE='tests/test_files/test2.mp3'
+SMALL_TEST_FILE_KEY='tests/test.mp3'
+MED_TEST_FILE='tests/test_files/test.wav'
+MED_TEST_FILE_KEY='tests/test.wav'
 
 
 @pytest.fixture()
@@ -34,8 +39,37 @@ def file_list_only_one_volume():
 
 @pytest.fixture()
 def test_env():
-    EnvBuilder = namedtuple("env", ['ACTIVE_BUCKET_NAME','PYFI_S3_SALT','PYFI_S3_ENCRYPTION_KEY' ])
-    env = EnvBuilder._make([ACTIVE_BUCKET_NAME,PYFI_S3_SALT,PYFI_S3_ENCRYPTION_KEY])
+    EnvBuilder = namedtuple(
+            "env", 
+            ['ACTIVE_BUCKET_NAME','PYFI_S3_SALT','PYFI_S3_ENCRYPTION_KEY',
+             'SMALL_TEST_FILE', 'SMALL_TEST_FILE_KEY', 'MED_TEST_FILE',
+             'MED_TEST_FILE_KEY']
+        )
+    env = EnvBuilder._make(
+            [ACTIVE_BUCKET_NAME,PYFI_S3_SALT,PYFI_S3_ENCRYPTION_KEY,
+             SMALL_TEST_FILE, SMALL_TEST_FILE_KEY, MED_TEST_FILE, MED_TEST_FILE_KEY]
+        )
 
     return env
-    
+
+@pytest.fixture()
+def s3conn():
+    s3conn = S3Connection()
+    s3conn.connect()
+    s3conn.active_bucket_name = ACTIVE_BUCKET_NAME
+    return s3conn
+
+
+@pytest.fixture()
+def test_sm_fileobj():
+    data = None
+    with open(SMALL_TEST_FILE, 'rb') as file_to_get:
+        yield file_to_get
+
+
+@pytest.fixture()
+def test_med_fileobj():
+    data = None
+    with open(MED_TEST_FILE, 'rb') as file_to_get:
+        yield file_to_get
+
