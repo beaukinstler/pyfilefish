@@ -73,3 +73,7 @@ def test_med_fileobj():
     with open(MED_TEST_FILE, 'rb') as file_to_get:
         yield file_to_get
 
+@pytest.fixture()
+def pyfishfile():
+    return pfu.PyfishFile('test', 'tests/test_files/test.wav')
+

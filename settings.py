@@ -15,7 +15,9 @@ WRITE_OUT_STATS=True
 WRITE_OUT_MULTI=True
 WRITE_OUT_FLAT=True
 
-# local file paths from .env 
+# local file paths from .env
+USER_PYFI_FILE_HASH_KEY = getenv('USER_PYFI_FILE_HASH_KEY') ## Set this string to something you will use for all files.  It will be used to match duplicate files, so it must be reused anytime this is being run, and any machine for volume that is writing to the same file storage location, to ensure duplicates are stored, but only logged in the manifests
+HASH_KEY = USER_PYFI_FILE_HASH_KEY or 'DEFAULT_KEY' ##
 DATA_FOLDER = getenv('DATA_FOLDER')
 LOG_FOLDER = getenv("LOG_FOLDER")
 JSON_FILE_PATH = os.path.join(DATA_FOLDER, getenv('JSON_FILE_PATH'))
@@ -39,7 +41,7 @@ logger = logging.getLogger()
 
 # ignore directories
 IGNORE_DIRS = ['Volumes', '.Trash', '.MobileBackups', 'atest', 'Applications',
-            'Library', 'System', 'User Information', 'usr', 
+            'Library', 'System', 'User Information', 'usr',
             'opt', 'var',
             '.git',
             '.gitignore',

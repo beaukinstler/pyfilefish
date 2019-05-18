@@ -60,6 +60,75 @@ def _load_saved_file_list(json_file_path):
         utilLogger.info(f"{json_file_path} was not found. A new file will be created")
     return external_file_list
 
+
+def pyfi_file_builder(dict_record:dict):
+    result = None
+    try:
+        md5Filehash = dict_record['md5FileHash']
+        md5Name = dict_record['md5hash']
+    except KeyError as e:
+        print('File hash keys not present or not named correctly')
+        md5Filehash = ""
+        md5Name = ""
+
+    try:
+        full_path = Path(dict_record['full_path']).absolute()
+        newPifiFile = PyfishFile(str(dict_record['volume']), str(full_path))
+        clsAttributes = get_class_var_attributes(PyfishFile)
+        for item in dict_record:
+            try:
+                if item in clsAttributes:
+                    newPifiFile.__setattr__(str(item), dict_record[item])
+            except KeyError as e:
+                print(f"Key not found.  Will skip :{e}")
+            except TypeError as e:
+                print(f"Type in dictionary doesn't match the type the PyfishFile wants.  Will skip :{e}")
+        if not newPifiFile.md5FileHash or not newPifiFile.md5Name:
+            newPifiFile.open_and_get_info()
+        result = newPifiFile
+    except KeyError as e:
+        print("required fields weren't provided.  Will return a type of None")
+
+    return None if result is None else result
+
+# def pyfi_file_builder(dict_record:dict):
+#     try:
+#         md5Filehash = dict_record['md5FileHash']
+#         md5Name = dict_record['md5hash']
+#     except KeyError as e:
+#         print('File hash keys not present or not named correctly')
+#         md5Filehash = ""
+#         md5Name = ""
+
+#     if md5Filehash:
+#         try:
+#             pfile = PyfishFile(
+#                     volume=dict_record['volume'],
+#                     full_path=dict_record['full_path'],
+#                     md5FileHash=dict_record['md5FileHash'],
+#                     md5Name=dict_record['md5Name'],
+#                     file_type=dict_record['file_type'],
+#                     known_name=dict_record['filename'],
+#                     size_in_MB=dict_record['file_size'],
+#                     inode=dict_record['inode'],
+#                     tags=dict_record['tags'],
+#                     timestamp=dict_record['timestamp'],
+#             )
+#         except KeyError as e:
+#             print("Format of dictionary isn't compatible")
+#     else:
+#         try:
+#             pfile = PyfishFile(
+#                     volume=dict_record['volume'],
+#                     full_path=dict_record['full_path'],
+#                     md5FileHash=dict_record['md5FileHash']
+#             )
+#         except KeyError as e:
+#             print(e)
+#             print("Format of dictionary isn't compatible")
+            
+
+
 def load_pyfish_data():
     file_list = _load_saved_file_list(JSON_FILE_PATH)
     return file_list
@@ -339,7 +408,7 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None):
     if s3_key_manifest in s3client.get_keynames_from_objects(bucket_name):
         utilLogger.info(msg="manifest files exists. Will download, update, and upload")
         s3client.download_file_to_temp(s3_manifest_file, s3_key_manifest, temp_folder)
-        decrypt_manifest(s3_manifest_file, temp_folder)
+        decrypt_file(s3_manifest_file, temp_folder)
         add_location_to_file_manifest(os.path.join(
                 temp_folder, s3_manifest_file),volume_name, file_record.full_path)
         # s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
@@ -686,3 +755,9 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
                                                 volume_name,
                                                     )
                                         )
+
+
+def get_class_var_attributes(cls:object):
+    clsItems = cls._attributes
+    # filtered_attributes = [ i[0] for i in clsItems if not i[0].startswith('__') and not callable(i[1]) ]
+    return clsItems
