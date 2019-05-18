@@ -5,6 +5,27 @@ from hashlib import md5
 
 
 class PyfishFile():
+
+    # implemented attributes
+    _attributes = [
+            'volume',
+            'full_path',
+            'md5FileHash',
+            'md5Name',
+            'file_type',
+            'known_name',
+            'size_in_MB',
+            'keep',
+            'encrypt_remote',
+            'inode',
+            'timestamp',
+            'tags',
+            'drive',
+            'repr_cache',
+            'refresh_repr',
+        ]
+
+
     def __init__(self, volume, full_path,
                  md5FileHash:str="", file_type:str="", known_name="",
                  size_in_MB=0, keep=True, encrypt_remote=True, 
@@ -37,7 +58,7 @@ class PyfishFile():
                     'encrypt_remote': self.encrypt_remote}
 
     def __repr__(self):
-        if self.repr_cache == {} or self.refresh_repr is True:
+        if self.repr_cache == None or self.refresh_repr is True:
             self.open_and_get_info()
             self.repr_cache = {'filename': self.known_name, 
                     'md5FileHash': self.md5FileHash,
