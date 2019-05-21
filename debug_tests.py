@@ -13,6 +13,9 @@ import pyfi_ui as pui
 from tests.func import test_pyfile
 
 from conftest import pyfishfile
+from conftest import file_list
 
-test_pyfile.test_pyfishfile_builder_valid_dict(pyfishfile)
-test_pyfile.test_pyfishfile_builder_file_not_accessible(pyfishfile)
+test_pyfile.test_pyfishfile_builder_valid_dict()
+test_pyfile.test_pyfishfile_builder_file_not_accessible()
+test_pyfile.test_add_pyfishfile_to_pfy_set()
+test_pyfile.test_add_pyfishfile_twice_not_duplicated()
