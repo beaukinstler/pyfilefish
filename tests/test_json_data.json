@@ -1,57 +1,210 @@
 {
-    "10e4462c9d0b08e7f0b304c4fbfeafa3": [
+    "3b01b3abec70519b00b9738b1336cddc": [
         {
-            "file_size": "20000000",
-            "full_path": "./test/big_mp3",
-            "md5hash": "10e4462c9d0b08e7f0b304c4fbfeafa3",
-            "timestamp": "2019-03-26 23:18:09",
+            "file_size": "94.8852",
+            "filename": "test.wav",
+            "filetype": "wav",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/test.wav",
+            "inode": "3569854",
+            "md5hash": "3b01b3abec70519b00b9738b1336cddc",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "test.wav"
+            ],
+            "timestamp": "2005-05-07 13:38:20",
             "volume": "test"
         },
         {
-            "file_size": "20000000",
-            "full_path": "./test/big_mp3",
-            "md5hash": "10e4462c9d0b08e7f0b304c4fbfeafa3",
-            "timestamp": "2019-03-26 23:18:09",
-            "volume": "test"
-        },
-        {
-            "file_size": "20000000",
-            "full_path": "./test/not_real_mp3",
-            "md5hash": "10e4462c9d0b08e7f0b304c4fbfeafa3",
-            "timestamp": "2019-03-26 23:19:03",
-            "volume": "test3"
+            "file_size": "94.8852",
+            "filename": "test.wav",
+            "filetype": "wav",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/test.wav",
+            "inode": "3569854",
+            "md5hash": "3b01b3abec70519b00b9738b1336cddc",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "test.wav"
+            ],
+            "timestamp": "2005-05-07 13:38:20",
+            "volume": "test2"
         }
     ],
     "b6d81b360a5672d80c27430f39153e2c": [
         {
-            "file_size": "1048576",
-            "full_path": "./test/small_mp3",
+            "file_size": "1.0",
+            "filename": "small.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/small.mp3",
+            "inode": "3572079",
             "md5hash": "b6d81b360a5672d80c27430f39153e2c",
-            "timestamp": "2019-03-26 23:19:03",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "small.mp3"
+            ],
+            "timestamp": "2019-05-20 15:37:59.045000",
             "volume": "test"
         },
         {
-            "file_size": "1048576",
-            "full_path": "./test/small_mp3",
+            "file_size": "1.0",
+            "filename": "small2.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/small2.mp3",
+            "inode": "3572081",
             "md5hash": "b6d81b360a5672d80c27430f39153e2c",
-            "timestamp": "2019-03-26 23:19:03",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "small2.mp3"
+            ],
+            "timestamp": "2019-05-20 15:39:50.045000",
+            "volume": "test"
+        },
+        {
+            "file_size": "1.0",
+            "filename": "small_mp3.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/subfolder_testing/small_mp3.mp3",
+            "inode": "3553709",
+            "md5hash": "b6d81b360a5672d80c27430f39153e2c",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "subfolder_testing",
+                "small_mp3.mp3"
+            ],
+            "timestamp": "2019-04-30 15:53:51.181611",
+            "volume": "test"
+        },
+        {
+            "file_size": "1.0",
+            "filename": "small.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/small.mp3",
+            "inode": "3572079",
+            "md5hash": "b6d81b360a5672d80c27430f39153e2c",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "small.mp3"
+            ],
+            "timestamp": "2019-05-20 15:37:59.045000",
             "volume": "test2"
         },
         {
-            "file_size": "1048576",
-            "full_path": "./test/small_mp3",
+            "file_size": "1.0",
+            "filename": "small2.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/small2.mp3",
+            "inode": "3572081",
             "md5hash": "b6d81b360a5672d80c27430f39153e2c",
-            "timestamp": "2019-03-26 23:19:03",
-            "volume": "test3"
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "small2.mp3"
+            ],
+            "timestamp": "2019-05-20 15:39:50.045000",
+            "volume": "test2"
+        },
+        {
+            "file_size": "1.0",
+            "filename": "small_mp3.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/subfolder_testing/small_mp3.mp3",
+            "inode": "3553709",
+            "md5hash": "b6d81b360a5672d80c27430f39153e2c",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "subfolder_testing",
+                "small_mp3.mp3"
+            ],
+            "timestamp": "2019-04-30 15:53:51.181611",
+            "volume": "test2"
         }
     ],
-    "notrealhash": [
+    "d41d8cd98f00b204e9800998ecf8427e": [
         {
-            "file_size": "1",
-            "full_path": "./test/not_real.jpg",
-            "md5hash": "notrealhash",
-            "timestamp": "2019-03-26 23:00:00",
+            "file_size": "0.0",
+            "filename": "test.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/test.mp3",
+            "inode": "3559211",
+            "md5hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "test.mp3"
+            ],
+            "timestamp": "2019-04-30 15:53:51.181611",
             "volume": "test"
+        },
+        {
+            "file_size": "0.0",
+            "filename": "test.mp3",
+            "filetype": "mp3",
+            "full_path": "/home/cloud_files/github/pyfilefish/tests/test_files/test.mp3",
+            "inode": "3559211",
+            "md5hash": "d41d8cd98f00b204e9800998ecf8427e",
+            "tags": [
+                "/",
+                "home",
+                "cloud_files",
+                "github",
+                "pyfilefish",
+                "tests",
+                "test_files",
+                "test.mp3"
+            ],
+            "timestamp": "2019-04-30 15:53:51.181611",
+            "volume": "test2"
         }
     ]
 }
