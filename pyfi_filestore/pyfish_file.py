@@ -133,19 +133,105 @@ class PyfishFileSet():
         if file_record:
             self.list[file_record.md5hash] = [file_record]
 
-
-    def add(self, file_record:PyfishFile):
+    def add(self, file_record:PyfishFile, volume=None):
+        """add the file. If a volume is provided, first check if its a duplicate inode on the same volume
         
-        try:
-            for i in self.list[file_record.md5FileHash]:
-                if i.inode == file_record.inode and i.volume == file_record.volume:
-                    print('duplicate file, will not add')
-                else:
-                    i.append(file_record)
-        except KeyError as e:
-            print(e)
-            print("New item found, will add to the set")
-            self.list[file_record.md5FileHash] = [file_record]
+        Arguments:
+            file_record {PyfishFile} -- A file-representation in the form a PyfishFile
+        """
+        md5hash = file_record.md5hash
+        # locations = self.get_list_of_a_file_location(md5hash)
+
+        # if a volume is provided, check to make sure the file isn't already on it using the inode
+        # if a volume isn't provided, assume just load it into the list, and do not check for duplicated
+        # entries. 
+        if volume:
+            inodes_found = self.get_list_inodes_of_a_file_location_for_one_volume(file_record, volume)
+            if inodes_found:
+                print('duplicate file, will not add')
+                logger.info("duplicate file found, will not any data to the dictionary")
+            else:
+                print('file not found on volume, so add it')
+                self.list[file_record.md5hash].append(file_record)
+        else:
+            try:
+                self.list[file_record.md5hash].append(file_record)
+            except KeyError as e:
+                print("New item found, will add to the set")
+                self.list[file_record.md5hash] = [file_record]
     
-    def add_from_dict(self, external_dict):
-        self.list = external_dict
+    def load_from_dict(self, external_dict):
+        # clear the list
+        self.list = {}
+
+        # loop through the external dict (probably from json)
+        for md5 in external_dict:
+            # loop over the list of files for each key
+            for file_item in external_dict[md5]:
+                # if already there, append else make a new list
+                # if type(self.list[md5]) is list:
+                #     self.list[md5].append(file_item)
+                # else:
+                #     self.list[md5] = [file_item]
+                temp  = pfu.pyfi_file_builder(file_item)
+                self.add(temp)
+
+    def get_list_of_a_file_location(self, md5hash:str):
+        if md5hash in self.list.keys():
+            return [ i for i in self.list[md5hash] ]
+        else:
+            return None
+
+    def get_list_of_a_file_location_for_one_volume(self, file_record:PyfishFile, volume):
+        files = self.generate_cached_files_list_from_one_vol(volume)
+        if file_record.md5hash in files.keys():
+            return [ i for i in files[file_record.md5hash] ]
+        else:
+            return None
+
+    def get_list_inodes_of_a_file_location_for_one_volume(self, file_record:PyfishFile, volume):
+        files = self.generate_cached_files_list_from_one_vol(volume)
+        if file_record.md5hash in files.keys():
+            return [ i.inode for i in files[file_record.md5hash] ]
+        else:
+            return None
+
+
+    def get_list_of_a_file_volumes(self, md5hash:str):
+        file_refs = self.get_list_of_a_file_location(md5hash)
+        if file_refs:
+            return list(set([ i.volume for i in file_refs ])), file_refs
+        else:
+            return [], None
+
+    def __iter__(self):
+        return iter(self.list)
+
+    def generate_cached_files_list_from_one_vol(self, volume:str):
+        new_data = {}
+        try:
+            new_data = self.__getattribute__(f"cache_{volume}")
+        except AttributeError as e:
+            print(e)
+            print("no existing cache was found")
+
+        
+        if new_data:
+            return new_data
+        else:
+            data = self.list if self.list else self.load_from_dict(pfu.load_pyfish_data())
+            for md5 in data:
+                for i in range(0,len(data[md5])):
+                    if data[md5][i].volume == volume:
+                        try:
+                            new_data[md5].append(data[md5][i])
+                        except KeyError:
+                            new_data[md5] = []
+                            new_data[md5].append(data[md5][i])
+        self.__setattr__(f"cache_{volume}",new_data)
+        return new_data
+
+
+    
+
+    
