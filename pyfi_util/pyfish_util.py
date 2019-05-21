@@ -64,12 +64,12 @@ def _load_saved_file_list(json_file_path):
 def pyfi_file_builder(dict_record:dict):
     result = None
     try:
-        md5Filehash = dict_record['md5FileHash']
-        md5Name = dict_record['md5hash']
+        md5hash = dict_record['md5hash']
+        remote_name_hash = dict_record['remote_name_hash']
     except KeyError as e:
         print('File hash keys not present or not named correctly')
-        md5Filehash = ""
-        md5Name = ""
+        md5hash = ""
+        remote_name_hash = ""
 
     try:
         full_path = Path(dict_record['full_path']).absolute()
@@ -83,7 +83,7 @@ def pyfi_file_builder(dict_record:dict):
                 print(f"Key not found.  Will skip :{e}")
             except TypeError as e:
                 print(f"Type in dictionary doesn't match the type the PyfishFile wants.  Will skip :{e}")
-        if not newPifiFile.md5FileHash or not newPifiFile.md5Name:
+        if not newPifiFile.md5hash or not newPifiFile.remote_name_hash:
             newPifiFile.open_and_get_info()
         result = newPifiFile
     except KeyError as e:
@@ -93,20 +93,20 @@ def pyfi_file_builder(dict_record:dict):
 
 # def pyfi_file_builder(dict_record:dict):
 #     try:
-#         md5Filehash = dict_record['md5FileHash']
-#         md5Name = dict_record['md5hash']
+#         md5hash = dict_record['md5hash']
+#         remote_name_hash = dict_record['remote_name_hash']
 #     except KeyError as e:
 #         print('File hash keys not present or not named correctly')
-#         md5Filehash = ""
-#         md5Name = ""
+#         md5hash = ""
+#         remote_name_hash = ""
 
-#     if md5Filehash:
+#     if md5hash:
 #         try:
 #             pfile = PyfishFile(
 #                     volume=dict_record['volume'],
 #                     full_path=dict_record['full_path'],
-#                     md5FileHash=dict_record['md5FileHash'],
-#                     md5Name=dict_record['md5Name'],
+#                     md5hash=dict_record['md5hash'],
+#                     remote_name_hash=dict_record['remote_name_hash'],
 #                     file_type=dict_record['file_type'],
 #                     known_name=dict_record['filename'],
 #                     size_in_MB=dict_record['file_size'],
@@ -121,7 +121,7 @@ def pyfi_file_builder(dict_record:dict):
 #             pfile = PyfishFile(
 #                     volume=dict_record['volume'],
 #                     full_path=dict_record['full_path'],
-#                     md5FileHash=dict_record['md5FileHash']
+#                     md5hash=dict_record['md5hash']
 #             )
 #         except KeyError as e:
 #             print(e)
@@ -235,15 +235,15 @@ def build_relative_destination_path(pyfish_file_ref):
     """form the path used to store the file, including shared sub
     directories based on file_type. The files being synced from any
     volume should be able to use this path to see if the file, named
-    as <md5hashOfFile>.<extension> exists already.
+    as <remote_name_hashOfFile>.<extension> exists already.
 
     Arguments:
         pyfish_file_ref {[type]} -- [description]
     """
 
-    path = f"{pyfish_file_ref['filetype']}/{pyfish_file_ref['md5hash']}/"
+    path = f"{pyfish_file_ref['filetype']}/{pyfish_file_ref['remote_name_hash']}/"
 
-    return (path, pyfish_file_ref['filetype'], pyfish_file_ref['md5hash'])
+    return (path, pyfish_file_ref['filetype'], pyfish_file_ref['remote_name_hash'])
 
 
 def sync_to_another_drive(file_ref_to_add, target):
@@ -267,14 +267,14 @@ def sync_to_another_drive(file_ref_to_add, target):
     # get all paths in the file ref record to add to manifest.
     all_paths = sorted([ i['full_path'] for i in file_ref_to_add ])
 
-    sub_path,extention,md5hash = build_relative_destination_path(data_file_ref)
+    sub_path,extention,remote_name_hash = build_relative_destination_path(data_file_ref)
     temp_folder = 'temp/'
     os.makedirs(temp_folder, exist_ok=True)
     volume_name = f"{data_file_ref['volume']}"
     full_path = f"{data_file_ref['full_path']}"
-    name_to_store = f"{md5hash}.{extention}"
+    name_to_store = f"{remote_name_hash}.{extention}"
     relative_dst_file = os.path.join(sub_path, name_to_store)
-    manifest_file_name = f"{md5hash}.manifest.json"
+    manifest_file_name = f"{remote_name_hash}.manifest.json"
     relative_manifest_file = f"{os.path.join(sub_path, manifest_file_name)}"
     full_path_mainfest = f"{os.path.join(target, relative_manifest_file)}"
     full_path_dest_file  = f"{os.path.join(target, relative_dst_file)}"
@@ -321,7 +321,7 @@ def sync_file_to_s3(file_record:dict, meta=None):
     temp_folder = 'temp/'
     volume_name = f"{file_record['volume']}"
     full_path = f"{file_record['full_path']}"
-    # name_to_store = f"{file_record['md5hash']}"
+    # name_to_store = f"{file_record['remote_name_hash']}"
     # extention = f"{file_record['filetype']}"
     s3_key = f"{sub_path}{name_to_store}.{extention}"
     s3_manifest_file = f"{name_to_store}.manifest.json"
@@ -379,13 +379,13 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None):
         # sub_path,extention,name_to_store = build_relative_destination_path(file_record)
         
         extention = f"{file_record.file_type}"
-        name_to_store = f"{file_record.md5Name}"
+        name_to_store = f"{file_record.remote_name_hash}"
         sub_path = f"{extention}/{name_to_store}"
     
     
     
     
-    # name_to_store = f"{file_record['md5hash']}"
+    # name_to_store = f"{file_record['remote_name_hash']}"
     # extention = f"{file_record['filetype']}"
     s3_key = f"{sub_path}{name_to_store}.{extention}"
     s3_manifest_file = f"{name_to_store}.manifest.json"
@@ -639,122 +639,124 @@ def get_match_details(file_ref):
 
 
 def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volume_name, sync_to_s3, sync_to_local_drive, load_external:bool=LOAD_EXTERNAL, local_target=None):
+    """
+    scan a drive and location for files 
+    """
+    print(f"Start Time: {str(datetime.datetime.now().time())}")
 
-        print(f"Start Time: {str(datetime.datetime.now().time())}")
+    ## setup some environment stuff
+    os.makedirs(FLAT_FILE_DATA_DIR, exist_ok=True)
+    file_list_changed = False
+    case_sensitive = is_fs_case_sensitive()
+    # loop over the designated folder, and but stop to remove dirs that are not to be searched.
+    for (paths, dirs, files) in os.walk(folder, topdown=True):
+        if file_list_changed:
+            write_data_to_json_log(pyfi_file_list=pyfi_file_list)
+            file_list_changed = False
+        for ignore_dir in ignore_dirs:
+            if ignore_dir in dirs:
+                dirs.remove(ignore_dir)
 
-        ## setup some environment stuff
-        os.makedirs(FLAT_FILE_DATA_DIR, exist_ok=True)
-        file_list_changed = False
-        case_sensitive = is_fs_case_sensitive()
-        # loop over the designated folder, and but stop to remove dirs that are not to be searched.
-        for (paths, dirs, files) in os.walk(folder, topdown=True):
-            if file_list_changed:
-                write_data_to_json_log(pyfi_file_list=pyfi_file_list)
-                file_list_changed = False
-            for ignore_dir in ignore_dirs:
-                if ignore_dir in dirs:
-                    dirs.remove(ignore_dir)
+        # dirs[:] = [d for d in dirs if d not in ignore_dirs]
+        for file_to_check in files:
+            file_type = file_types.find_extension(file_to_check)
+            # for file_type in file_types.ft_list:
+            if file_type:
+                if (file_to_check.lower()).endswith(f".{file_type.extension}"):
+                    filename = os.path.join(paths, file_to_check)
+                    with open(filename, 'rb') as file_to_hash:
+                        file_hash = get_md5(file_to_hash)
+                        file_stat = os.stat(filename)
+                        timestamp = str(modification_date(filename))
+                        file_size = str(round(file_stat.st_size/(1024*1024.0),5))
+                        file_inode = str(file_stat.st_ino)
+                        # account for slopy case sesitivity practices in windows
+                        full_path_for_parts = str(os.path.realpath(file_to_hash.name)).lower() if not case_sensitive else str(os.path.realpath(file_to_hash.name))
+                        full_path = str(os.path.realpath(file_to_hash.name))
+                        # path_tags = [tag for tag in filter(None,full_path.split("/"))]
+                        path_tags = [ tag for tag in filter(None, Path(full_path_for_parts).parts)]
+                        if float(file_type.min_size)/(1024*1024.0) < int(float(file_size)) or ALL_SIZES:
+                            if file_hash not in pyfi_file_list.keys():
+                                pyfi_file_list[file_hash] = []
+                                file_list_changed = True
+                            file_ref = pyfi_file_list[file_hash]
+                            # filter if the same tags are found on same volume.
+                            # indicating same file
+                            if file_ref:
+                                existing = get_match_details(file_ref)
 
-            # dirs[:] = [d for d in dirs if d not in ignore_dirs]
-            for file_to_check in files:
-                file_type = file_types.find_extension(file_to_check)
-                # for file_type in file_types.ft_list:
-                if file_type:
-                    if (file_to_check.lower()).endswith(f".{file_type.extension}"):
-                        filename = os.path.join(paths, file_to_check)
-                        with open(filename, 'rb') as file_to_hash:
-                            file_hash = get_md5(file_to_hash)
-                            file_stat = os.stat(filename)
-                            timestamp = str(modification_date(filename))
-                            file_size = str(file_stat.st_size/(1024*1024.0))
-                            file_inode = str(file_stat.st_ino)
-                            # account for slopy case sesitivity practices in windows
-                            full_path_for_parts = str(os.path.realpath(file_to_hash.name)).lower() if not case_sensitive else str(os.path.realpath(file_to_hash.name))
-                            full_path = str(os.path.realpath(file_to_hash.name))
-                            # path_tags = [tag for tag in filter(None,full_path.split("/"))]
-                            path_tags = [ tag for tag in filter(None, Path(full_path_for_parts).parts)]
-                            if float(file_type.min_size)/(1024*1024.0) < int(float(file_size)) or ALL_SIZES:
-                                if file_hash not in pyfi_file_list.keys():
-                                    pyfi_file_list[file_hash] = []
-                                    file_list_changed = True
-                                file_ref = pyfi_file_list[file_hash]
-                                # filter if the same tags are found on same volume.
-                                # indicating same file
-                                if file_ref:
-                                    existing = get_match_details(file_ref)
-
-                                    matches = [ tags for tags, volume, inode, index in existing if path_tags == tags and volume_name == volume and inode == file_inode  ]
-                                    missing_inode_indexes = [ index for tags,volume,inode,index in existing if path_tags == tags and volume_name == volume ]
-                                else:
-                                    # don't bother if no data in file_ref
-                                    existing = []
-                                    matches = []
-                                    missing_inode_indexes = []
-                                if not matches and missing_inode_indexes:
-                                    # update the file where indexes are found for matching volumes and tags but
-                                    # the inode wasn't stored.  Assmuming a lot about the user, and the knowledge here.
-                                    # this should be removed in the future, since it shouldn't be needed.
-                                    # just  patch for fixing old data that's already been generated, so I don't need
-                                    # to go back and rescan volumes for now.
-                                    for index in missing_inode_indexes:
-                                        file_ref[index]['inode'] = file_inode
-                                elif not matches:
-                                    # assume that the file locations is brand new, and add it to the list.
-                                    file_ref.append({
-                                            'tags': path_tags,
-                                            'filename': str(path_tags[-1]),
-                                            'md5hash': file_hash,
-                                            'full_path': full_path,
-                                            'volume': volume_name,
-                                            'file_size': file_size,
-                                            'timestamp': timestamp,
-                                            'filetype': file_type[0],
-                                            'inode': file_inode,
-                                            })
-                                if sync_to_s3:
-                                    # sync to s3 if option was selected.
-                                    # use the file just added, since it's likely accessible
-                                    # meta = pfu.parse_location_metadata(file_ref)
-                                    sync_file_to_s3(file_ref[-1])
-                                if sync_to_local_drive:
-                                    # TODO
-                                    #
-                                    #
-                                    # Add a sync to another drive here
-                                    #
-                                    sync_to_another_drive(file_ref, local_target)
-                                # if file_stat.st_size > min_file_size:
-                            
-                                if WRITE_OUT_FLAT:
-                                    temp_outfile = file_type.extension + FLAT_FILE_SUFFIX
-                                    temp_outfile = os.path.join(FLAT_FILE_DATA_DIR, temp_outfile)
-                                    if not os.path.exists(temp_outfile):
-                                        """create a header row if file doesn't exist
-                                        """
-                                        startFile = open(temp_outfile, 'w+')
-                                        startFile.write(
-                                                "Filename\t"
-                                                "Hash\t"
-                                                "FileSize\t"
-                                                "Date\t"
-                                                "FileType\t"
-                                                "inode\t"
-                                                "VolumeName\n")
-                                        startFile.close()
-                                    
-                                    with open(temp_outfile, 'a+') as out_put_file:
-                                        out_put_file.writelines(
-                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
-                                                str(path_tags[-1]),
-                                                filename,
-                                                file_hash,
-                                                file_size,
-                                                timestamp,
-                                                file_type[0],
-                                                file_inode,
-                                                volume_name,
-                                                    )
-                                        )
+                                matches = [ tags for tags, volume, inode, index in existing if path_tags == tags and volume_name == volume and inode == file_inode  ]
+                                missing_inode_indexes = [ index for tags,volume,inode,index in existing if path_tags == tags and volume_name == volume ]
+                            else:
+                                # don't bother if no data in file_ref
+                                existing = []
+                                matches = []
+                                missing_inode_indexes = []
+                            if not matches and missing_inode_indexes:
+                                # update the file where indexes are found for matching volumes and tags but
+                                # the inode wasn't stored.  Assmuming a lot about the user, and the knowledge here.
+                                # this should be removed in the future, since it shouldn't be needed.
+                                # just  patch for fixing old data that's already been generated, so I don't need
+                                # to go back and rescan volumes for now.
+                                for index in missing_inode_indexes:
+                                    file_ref[index]['inode'] = file_inode
+                            elif not matches:
+                                # assume that the file locations is brand new, and add it to the list.
+                                file_ref.append({
+                                        'tags': path_tags,
+                                        'filename': str(path_tags[-1]),
+                                        'md5hash': file_hash,
+                                        'full_path': full_path,
+                                        'volume': volume_name,
+                                        'file_size': file_size,
+                                        'timestamp': timestamp,
+                                        'filetype': file_type[0],
+                                        'inode': file_inode,
+                                        })
+                            if sync_to_s3:
+                                # sync to s3 if option was selected.
+                                # use the file just added, since it's likely accessible
+                                # meta = pfu.parse_location_metadata(file_ref)
+                                sync_file_to_s3(file_ref[-1])
+                            if sync_to_local_drive:
+                                # TODO
+                                #
+                                #
+                                # Add a sync to another drive here
+                                #
+                                sync_to_another_drive(file_ref, local_target)
+                            # if file_stat.st_size > min_file_size:
+                        
+                            if WRITE_OUT_FLAT:
+                                temp_outfile = file_type.extension + FLAT_FILE_SUFFIX
+                                temp_outfile = os.path.join(FLAT_FILE_DATA_DIR, temp_outfile)
+                                if not os.path.exists(temp_outfile):
+                                    """create a header row if file doesn't exist
+                                    """
+                                    startFile = open(temp_outfile, 'w+')
+                                    startFile.write(
+                                            "Filename\t"
+                                            "Hash\t"
+                                            "FileSize\t"
+                                            "Date\t"
+                                            "FileType\t"
+                                            "inode\t"
+                                            "VolumeName\n")
+                                    startFile.close()
+                                
+                                with open(temp_outfile, 'a+') as out_put_file:
+                                    out_put_file.writelines(
+                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
+                                            str(path_tags[-1]),
+                                            filename,
+                                            file_hash,
+                                            file_size,
+                                            timestamp,
+                                            file_type[0],
+                                            file_inode,
+                                            volume_name,
+                                                )
+                                    )
 
 
 def get_class_var_attributes(cls:object):
