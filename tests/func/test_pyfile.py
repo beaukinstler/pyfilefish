@@ -2,9 +2,9 @@ import pytest
 from pyfi_util import pyfish_util as pfu
 
 @pytest.mark.pfile
-def test_pyfishfile_builder_valid_dict(pyfishfile):
-     x = {'filename': 'test.wav', 'md5FileHash': '',
-          'md5hash': '', 
+def test_pyfishfile_builder_valid_dict():
+     x = {'filename': 'test.wav', 'md5hash': '',
+          'remote_name_hash': '', 
           'tags': ['home', 'cloud_files', 'github', 'pyfilefish', 'tests', 'test_files', 'test.wav'],
           'full_path': 'tests/test_files/test.wav', 'volume': 'test2', 'drive': '',
           'file_size': 94.885, 'timestamp': '2005-05-07 13:38:20', 'filetype': '',
@@ -17,9 +17,9 @@ def test_pyfishfile_builder_valid_dict(pyfishfile):
      assert pf.md5Name is not None
 
 @pytest.mark.pfile
-def test_pyfishfile_builder_file_not_accessible(pyfishfile):
-     x = {'filename': 'test.wav', 'md5FileHash': '',
-          'md5hash': '', 
+def test_pyfishfile_builder_file_not_accessible():
+     x = {'filename': 'test.wav', 'md5hash': '',
+          'remote_name_hash': '', 
           'tags': ['home', 'cloud_files', 'github', 'pyfilefish', 'tests', 'test_files', 'test.wav'],
           'full_path': 'a_not_real_path/test.wav', 'volume': 'test2', 'drive': '',
           'file_size': 94.885, 'timestamp': '2005-05-07 13:38:20', 'filetype': '',
@@ -30,3 +30,83 @@ def test_pyfishfile_builder_file_not_accessible(pyfishfile):
      print(pf)
 
      assert pf.md5Name == ""
+
+
+
+@pytest.mark.pfile
+def test_add_pyfishfile_to_pfy_set():
+     pyfishfile = pfu.PyfishFile('test','tests/test_files/test.wav')
+     pset = pfu.PyfishFileSet()
+     pset.add(pyfishfile)
+
+     assert len(pset.list) == 1
+
+@pytest.mark.pfile
+def test_add_pyfishfile_twice_not_duplicated():
+     pyfishfile = pfu.PyfishFile('test','tests/test_files/test.wav')
+     pset = pfu.PyfishFileSet()
+     pset.add(pyfishfile)
+     pset.add(pyfishfile)
+     assert len(pset.list) == 1
+
+
+@pytest.mark.pfile
+def test_pset_made_with_list_works_with_new_PfishFiles(file_list):
+     pyfishfile = pfu.PyfishFile('test','tests/test_files/test.wav')
+     # print("\n")
+     # pp(type(file_list))
+     pset = pfu.PyfishFileSet()
+     pset.load_from_dict(file_list)
+     before_len = len(pset.list)
+     pset.add(pyfishfile)
+     after_len = len(pset.list)
+     assert before_len == after_len - 1
+
+@pytest.mark.pfileset
+def test_pset_loaded_from_json_same_len_as_json(file_list):
+     
+     pset = pfu.PyfishFileSet()
+     pset.load_from_dict(file_list)
+     assert len(pset.list) == len(file_list)
+
+
+@pytest.mark.pfileset
+def test_pset_lists_of_files_same_len_as_json_dict_items(file_list):
+     
+     pset = pfu.PyfishFileSet()
+     pset.load_from_dict(file_list)
+     for i in file_list:
+          assert len(file_list[i]) == len(pset.list[i])
+
+@pytest.mark.pfileset
+def test_pset_pyfish_file_added_correctly(file_list):
+     
+     pyfishfile = pfu.PyfishFile('test','tests/test_files/test.wav')
+     pyfishfile.open_and_get_info()
+     print("\n\n")
+     print(f"filehash: {pyfishfile.md5hash}")
+     pset = pfu.PyfishFileSet()
+     pset.load_from_dict(file_list)
+     print("\n\n")
+     print(pset.list.keys())
+     pset.add(pyfishfile)
+     print(pset.list.keys())
+     assert pyfishfile.md5hash in pset.list.keys()
+
+
+@pytest.mark.pfileset
+def test_get_a_file_list_from_only_one_volume(file_list):
+     pset = pfu.PyfishFileSet()
+     pset.load_from_dict(file_list)
+     x = pset.generate_cached_files_list_from_one_vol(volume='test')
+     y = pset.generate_cached_files_list_from_one_vol(volume='test2')
+     first_key = list(pset.list.keys())[0]
+     assert len(pset.cache_test[first_key]) + len(pset.cache_test2[first_key]) == len(pset.list[first_key])
+     
+
+
+
+
+     
+
+        
