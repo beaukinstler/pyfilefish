@@ -3,19 +3,21 @@ from pathlib import Path
 from datetime import datetime as dt
 from hashlib import md5
 from settings import HASH_KEY
+from settings import logger
 
 
-class PyfishFile():
+
+class PyfishFile(object):
 
     # implemented attributes
     _attributes = [
             'volume',
             'full_path',
-            'md5FileHash',
-            'md5Name',
+            'md5hash',
+            'remote_name_hash',
             'file_type',
-            'known_name',
-            'size_in_MB',
+            'filename',
+            'file_size',
             'keep',
             'encrypt_remote',
             'inode',
@@ -28,17 +30,17 @@ class PyfishFile():
 
 
     def __init__(self, volume, full_path,
-                 md5FileHash:str="", md5Name:str="", file_type:str="", known_name="",
-                 size_in_MB=0, keep=True, encrypt_remote=True, 
+                 md5hash:str="", remote_name_hash:str="", file_type:str="", filename="",
+                 file_size=0, keep=True, encrypt_remote=True, 
                  inode="", timestamp="", tags=[]):
         
         self.volume = volume
         self.full_path = full_path
-        self.md5FileHash = md5FileHash
-        self.md5Name = md5Name
+        self.md5hash = md5hash
+        self.remote_name_hash = remote_name_hash
         self.file_type = file_type
-        self.known_name = known_name
-        self.size_in_MB = size_in_MB
+        self.filename = filename
+        self.file_size = file_size
         self.keep = keep
         self.encrypt_remote = encrypt_remote
         self.inode = inode
@@ -47,13 +49,13 @@ class PyfishFile():
         self.drive = ""
         self.repr_cache = None
         self.refresh_repr = False
-        if md5FileHash:
-            self.repr_cache = {'filename': self.known_name, 
-                        'md5FileHash': self.md5FileHash,
-                        'md5hash': self.buildMd5Name(),
+        if md5hash:
+            self.repr_cache = {'filename': self.filename, 
+                        'md5hash': self.md5hash,
+                        'remote_name_hash': self.build_remote_name_hash(),
                         'tags': self.tags, 'full_path': self.full_path,
                         'volume': self.volume, 'drive':self.drive,
-                        'file_size': round(self.size_in_MB,3),
+                        'file_size': round(self.file_size,3),
                         'timestamp': str(self.timestamp), 'filetype': self.file_type.lower(),
                         'inode': self.inode, 'keep': self.keep,
                         'encrypt_remote': self.encrypt_remote}
@@ -61,36 +63,49 @@ class PyfishFile():
     def __repr__(self):
         if self.repr_cache == None or self.refresh_repr is True:
             self.open_and_get_info()
-            self.repr_cache = {'filename': self.known_name, 
-                    'md5FileHash': self.md5FileHash,
-                    'md5hash': self.md5Name,
+            self.repr_cache = {'filename': self.filename, 
+                    'md5hash': self.md5hash,
+                    'remote_name_hash': self.remote_name_hash,
                     'tags': self.tags, 'full_path': self.full_path,
                     'volume': self.volume, 'drive':self.drive,
-                    'file_size': round(self.size_in_MB,3),
+                    'file_size': round(self.file_size,3),
                     'timestamp': str(self.timestamp), 'filetype': self.file_type.lower(),
                     'inode': self.inode, 'keep': self.keep,
                     'encrypt_remote': self.encrypt_remote}
         return str(self.repr_cache)
 
-    def buildMd5Name(self):
-        if not self.md5Name:
-            return md5(bytearray(str.join(self.md5FileHash, HASH_KEY),'utf-8')).hexdigest()
-        else:
-            return self.md5Name
+    def __iter__(self):
+        if self.repr_cache == None or self.refresh_repr is True:
+            self.open_and_get_info()
+            self.repr_cache = {'filename': self.filename, 
+                    'md5hash': self.md5hash,
+                    'remote_name_hash': self.remote_name_hash,
+                    'tags': self.tags, 'full_path': self.full_path,
+                    'volume': self.volume, 'drive':self.drive,
+                    'file_size': round(self.file_size,3),
+                    'timestamp': str(self.timestamp), 'filetype': self.file_type.lower(),
+                    'inode': self.inode, 'keep': self.keep,
+                    'encrypt_remote': self.encrypt_remote}
+        return iter(self.repr_cache)
 
+    def build_remote_name_hash(self):
+        if not self.remote_name_hash:
+            return md5(bytearray(str.join(self.md5hash, HASH_KEY),'utf-8')).hexdigest()
+        else:
+            return self.remote_name_hash
 
     def open_and_get_info(self):
         absolute = Path(self.full_path).absolute()
         if absolute.exists():
             with absolute.open(mode='rb') as file_to_read:
-                self.md5FileHash = pfu.get_md5(file_to_read)
+                self.md5hash = pfu.get_md5(file_to_read)
                 self.tags = list(absolute.parts)[1:] if self.tags == [] else self.tags
-                self.size_in_MB = absolute.stat().st_size / 1024 / 1024
+                self.file_size = absolute.stat().st_size / 1024 / 1024
                 self.timestamp = dt.fromtimestamp(absolute.stat().st_mtime)
                 self.inode = absolute.stat().st_ino
-                self.known_name = absolute.name
+                self.filename = absolute.name
                 self.drive = absolute.drive
-                self.md5Name = self.buildMd5Name()
+                self.remote_name_hash = self.build_remote_name_hash()
         else:
             print("file doesn't exists, or isn't accessible in the current process")
 
@@ -116,7 +131,7 @@ class PyfishFileSet():
     def __init__(self, file_record:PyfishFile = None):
         self.list = {}
         if file_record:
-            self.list[file_record.md5FileHash] = [file_record]
+            self.list[file_record.md5hash] = [file_record]
 
 
     def add(self, file_record:PyfishFile):
