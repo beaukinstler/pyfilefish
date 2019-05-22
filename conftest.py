@@ -6,16 +6,31 @@ from dotenv import load_dotenv
 from os import getenv
 from collections import namedtuple
 from s3_integration.s3_tools import S3Connection
+from filetypes import FilePropertySet
 
 
 ACTIVE_BUCKET_NAME='backups.beaukinstler.com' ## TODO: create a test bucket and change this
 PYFI_S3_SALT='test'
 PYFI_S3_ENCRYPTION_KEY='T3stK3yF04Fun'
-SMALL_TEST_FILE='tests/test_files/test2.mp3'
+SMALL_TEST_FILE='tests/test_files/test.mp3'
 SMALL_TEST_FILE_KEY='tests/test.mp3'
 MED_TEST_FILE='tests/test_files/test.wav'
 MED_TEST_FILE_KEY='tests/test.wav'
 
+
+
+@pytest.fixture()
+def file_property_set(blank=False):
+    """primary data set and structure used in pyfi, at least in
+    active time. Basically a dict, loaded and saved to and from json
+    files
+    """
+    # import pdb; pdb.set_trace()
+
+    file_types = FilePropertySet()
+    if blank:
+            file_types.clear()
+    return file_types
 
 @pytest.fixture()
 def file_list():

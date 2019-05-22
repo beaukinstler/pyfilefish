@@ -14,7 +14,7 @@ def test_pyfishfile_builder_valid_dict():
 
      print(pf)
 
-     assert pf.md5Name is not None
+     assert pf.remote_name_hash is not None
 
 @pytest.mark.pfile
 def test_pyfishfile_builder_file_not_accessible():
@@ -29,7 +29,7 @@ def test_pyfishfile_builder_file_not_accessible():
 
      print(pf)
 
-     assert pf.md5Name == ""
+     assert pf.remote_name_hash == ""
 
 
 
@@ -72,11 +72,19 @@ def test_pset_loaded_from_json_same_len_as_json(file_list):
 
 @pytest.mark.pfileset
 def test_pset_lists_of_files_same_len_as_json_dict_items(file_list):
-     
+     total_file_list = 0
+     total_pset_list = 0
      pset = pfu.PyfishFileSet()
      pset.load_from_dict(file_list)
      for i in file_list:
-          assert len(file_list[i]) == len(pset.list[i])
+          files_list_files = file_list[i]
+          pset_files = pset.list[i]
+          total_file_list += len(files_list_files)
+          total_pset_list += len(pset_files)
+
+     assert total_file_list == total_pset_list
+          
+
 
 @pytest.mark.pfileset
 def test_pset_pyfish_file_added_correctly(file_list):

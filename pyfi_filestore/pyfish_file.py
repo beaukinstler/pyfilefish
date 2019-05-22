@@ -15,7 +15,7 @@ class PyfishFile(object):
             'full_path',
             'md5hash',
             'remote_name_hash',
-            'file_type',
+            'filetype',
             'filename',
             'file_size',
             'keep',
@@ -30,7 +30,7 @@ class PyfishFile(object):
 
 
     def __init__(self, volume, full_path,
-                 md5hash:str="", remote_name_hash:str="", file_type:str="", filename="",
+                 md5hash:str="", remote_name_hash:str="", filetype:str="", filename="",
                  file_size=0, keep=True, encrypt_remote=True, 
                  inode="", timestamp="", tags=[]):
         
@@ -38,7 +38,7 @@ class PyfishFile(object):
         self.full_path = full_path
         self.md5hash = md5hash
         self.remote_name_hash = remote_name_hash
-        self.file_type = file_type
+        self.filetype = filetype
         self.filename = filename
         self.file_size = file_size
         self.keep = keep
@@ -56,7 +56,7 @@ class PyfishFile(object):
                         'tags': self.tags, 'full_path': self.full_path,
                         'volume': self.volume, 'drive':self.drive,
                         'file_size': round(self.file_size,3),
-                        'timestamp': str(self.timestamp), 'filetype': self.file_type.lower(),
+                        'timestamp': str(self.timestamp), 'filetype': self.filetype.lower(),
                         'inode': self.inode, 'keep': self.keep,
                         'encrypt_remote': self.encrypt_remote}
 
@@ -69,7 +69,7 @@ class PyfishFile(object):
                     'tags': self.tags, 'full_path': self.full_path,
                     'volume': self.volume, 'drive':self.drive,
                     'file_size': round(self.file_size,3),
-                    'timestamp': str(self.timestamp), 'filetype': self.file_type.lower(),
+                    'timestamp': str(self.timestamp), 'filetype': self.filetype.lower(),
                     'inode': self.inode, 'keep': self.keep,
                     'encrypt_remote': self.encrypt_remote}
         return str(self.repr_cache)
@@ -83,7 +83,7 @@ class PyfishFile(object):
                     'tags': self.tags, 'full_path': self.full_path,
                     'volume': self.volume, 'drive':self.drive,
                     'file_size': round(self.file_size,3),
-                    'timestamp': str(self.timestamp), 'filetype': self.file_type.lower(),
+                    'timestamp': str(self.timestamp), 'filetype': self.filetype.lower(),
                     'inode': self.inode, 'keep': self.keep,
                     'encrypt_remote': self.encrypt_remote}
         return iter(self.repr_cache)
@@ -119,9 +119,9 @@ class PyfishFile(object):
         pass
 
     def get_file_type(self):
-        if self.file_type == "":
+        if self.filetype == "":
             self.open_and_get_info()
-        return self.file_type
+        return self.filetype
 
     def __eq__(self, value):
         return self.inode == value.inode and self.volume == value.volume

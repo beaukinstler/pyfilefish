@@ -89,45 +89,7 @@ def pyfi_file_builder(dict_record:dict):
     except KeyError as e:
         print("required fields weren't provided.  Will return a type of None")
 
-    return None if result is None else result
-
-# def pyfi_file_builder(dict_record:dict):
-#     try:
-#         md5hash = dict_record['md5hash']
-#         remote_name_hash = dict_record['remote_name_hash']
-#     except KeyError as e:
-#         print('File hash keys not present or not named correctly')
-#         md5hash = ""
-#         remote_name_hash = ""
-
-#     if md5hash:
-#         try:
-#             pfile = PyfishFile(
-#                     volume=dict_record['volume'],
-#                     full_path=dict_record['full_path'],
-#                     md5hash=dict_record['md5hash'],
-#                     remote_name_hash=dict_record['remote_name_hash'],
-#                     file_type=dict_record['file_type'],
-#                     known_name=dict_record['filename'],
-#                     size_in_MB=dict_record['file_size'],
-#                     inode=dict_record['inode'],
-#                     tags=dict_record['tags'],
-#                     timestamp=dict_record['timestamp'],
-#             )
-#         except KeyError as e:
-#             print("Format of dictionary isn't compatible")
-#     else:
-#         try:
-#             pfile = PyfishFile(
-#                     volume=dict_record['volume'],
-#                     full_path=dict_record['full_path'],
-#                     md5hash=dict_record['md5hash']
-#             )
-#         except KeyError as e:
-#             print(e)
-#             print("Format of dictionary isn't compatible")
-            
-
+    return None if result is None else result         
 
 def load_pyfish_data():
     file_list = _load_saved_file_list(JSON_FILE_PATH)
@@ -176,19 +138,25 @@ def get_files_missing_from_a_volume(file_list:dict, vol:str):
     set_minus_volume = [ i for i in unique_set if str(vol) not in i[1] ]
     return set_minus_volume
 
-def get_files_from_one_vol(file_list:dict, vol:str):
+def get_files_from_one_vol(file_list:dict, vol:str, file_types:FilePropertySet=None):
     new_data = {}
     data = file_list if file_list else load_pyfish_data()
     for md5 in data:
         for i in range(0,len(data[md5])):
-            if data[md5][i]['volume'] == vol:
-                try:
-                    new_data[md5].append(data[md5][i])
-                except KeyError:
-                    new_data[md5] = []
-                    new_data[md5].append(data[md5][i])
-
-
+            if file_types:
+                if data[md5][i]['volume'] == vol and file_types.find_extension(data[md5][i]['filetype']):
+                    try:
+                        new_data[md5].append(data[md5][i])
+                    except KeyError:
+                        new_data[md5] = []
+                        new_data[md5].append(data[md5][i])
+            else:
+                if data[md5][i]['volume'] == vol:
+                    try:
+                        new_data[md5].append(data[md5][i])
+                    except KeyError:
+                        new_data[md5] = []
+                        new_data[md5].append(data[md5][i])
     return new_data
 
 
@@ -515,7 +483,7 @@ def get_unique_volumes_from_data(data:list=None):
     return volumes
 
 
-def get_unique_files_totalsize(data=None, vol=""):
+def get_unique_files_totalsize(data=None, vol="", file_type=""):
     """return the sum of MB stored in a pyfish file list
 
     Arguments:
@@ -533,7 +501,7 @@ def get_unique_files_totalsize(data=None, vol=""):
 
     filelist = []
     if vol:
-        filelist = get_files_from_one_vol(data,vol)
+        filelist = get_files_from_one_vol(data,vol,file_type)
     else:
         filelist = data
 
