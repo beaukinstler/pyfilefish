@@ -92,3 +92,12 @@ def test_med_fileobj():
 def pyfishfile():
     return pfu.PyfishFile('test', 'tests/test_files/test.wav')
 
+@pytest.fixture()
+def pyfish_file_set():
+    test_file = pfu.PyfishFile('test', 'tests/test_files/test.wav')
+    test_file.open_and_get_info()
+    fs =  pfu.PyfishFileSet()
+    fs.add(test_file)
+    return fs
+
+
