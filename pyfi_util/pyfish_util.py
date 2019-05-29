@@ -207,19 +207,44 @@ def build_relative_destination_path(pyfish_file_ref):
 
     Arguments:
         pyfish_file_ref {[type]} -- [description]
+    
+    Returns:
+        [tuple] -- relative path to use for building a destination form the root of the store,
+                   file type,
+                   md5 name, for local storage, unencrypted storage.
     """
 
-    path = f"{pyfish_file_ref['filetype']}/{pyfish_file_ref['remote_name_hash']}/"
+    path = f"{pyfish_file_ref.filetype}/{pyfish_file_ref.md5hash}/"
 
-    return (path, pyfish_file_ref['filetype'], pyfish_file_ref['remote_name_hash'])
+    return (path, pyfish_file_ref.filetype, pyfish_file_ref.md5hash)
+
+
+def build_relative_destination_path_remote(pyfish_file_ref):
+    """form the path used to store the file, including shared sub
+    directories based on file_type. The files being synced from any
+    volume should be able to use this path to see if the file, named
+    as <remote_name_hashOfFile>.<extension> exists already.
+
+    Arguments:
+        pyfish_file_ref {[type]} -- [description]
+    
+    Returns:
+        [tuple] -- relative path to use for building a destination form the root of the store,
+                   file type,
+                   remote hash name, not the name of the hash.
+    """
+
+    path = f"{pyfish_file_ref.filetype}/{pyfish_file_ref.remote_name_hash}/"
+
+    return (path, pyfish_file_ref.filetype, pyfish_file_ref.remote_name_hash)
 
 
 def sync_to_another_drive(file_ref_to_add, target):
     """Copy file to a local drive.
 
     Arguments:
-        file_ref_to_add {dict} -- a referecne to a record (dict)
-        from the pyfile_file lsit.  This will be used to referece the file
+        file_ref_to_add {dict} -- a reference to a record (dict)
+        from the pyfile_file list.  This will be used to reference the file
         that must be coppied
     """
     # set the variables
