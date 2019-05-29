@@ -69,7 +69,8 @@ class PyfishFile(object):
                     'tags': self.tags, 'full_path': self.full_path,
                     'volume': self.volume, 'drive':self.drive,
                     'file_size': round(self.file_size,3),
-                    'timestamp': str(self.timestamp), 'filetype': self.filetype.lower(),
+                    'timestamp': str(self.timestamp),
+                    'filetype': self.filetype.lower(),
                     'inode': self.inode, 'keep': self.keep,
                     'encrypt_remote': self.encrypt_remote}
         return str(self.repr_cache)
@@ -83,7 +84,8 @@ class PyfishFile(object):
                     'tags': self.tags, 'full_path': self.full_path,
                     'volume': self.volume, 'drive':self.drive,
                     'file_size': round(self.file_size,3),
-                    'timestamp': str(self.timestamp), 'filetype': self.filetype.lower(),
+                    'timestamp': str(self.timestamp),
+                    'filetype': self.filetype.lower(),
                     'inode': self.inode, 'keep': self.keep,
                     'encrypt_remote': self.encrypt_remote}
         return iter(self.repr_cache)
