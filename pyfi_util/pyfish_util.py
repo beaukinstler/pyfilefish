@@ -213,7 +213,8 @@ def build_relative_destination_path(pyfish_file_ref):
                    file type,
                    md5 name, for local storage, unencrypted storage.
     """
-
+    if type(pyfish_file_ref) is dict:
+        pyfish_file_ref:PyfishFile = PyfishFile.from_dict(pyfish_file_ref)
     path = f"{pyfish_file_ref.filetype}/{pyfish_file_ref.md5hash}/"
 
     return (path, pyfish_file_ref.filetype, pyfish_file_ref.md5hash)
