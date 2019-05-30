@@ -31,9 +31,9 @@ class PyfishFile(object):
 
     def __init__(self, volume, full_path,
                  md5hash:str="", remote_name_hash:str="", filetype:str="", filename="",
-                 file_size=0, keep=True, encrypt_remote=True, 
+                 file_size=0, keep=True, encrypt_remote=True,
                  inode="", timestamp="", tags=[]):
-        
+
         self.volume = volume
         self.full_path = full_path
         self.md5hash = md5hash
@@ -50,7 +50,7 @@ class PyfishFile(object):
         self.repr_cache = None
         self.refresh_repr = False
         if md5hash:
-            self.repr_cache = {'filename': self.filename, 
+            self.repr_cache = {'filename': self.filename,
                         'md5hash': self.md5hash,
                         'remote_name_hash': self.build_remote_name_hash(),
                         'tags': self.tags, 'full_path': self.full_path,
@@ -59,11 +59,17 @@ class PyfishFile(object):
                         'timestamp': str(self.timestamp), 'filetype': self.filetype.lower(),
                         'inode': self.inode, 'keep': self.keep,
                         'encrypt_remote': self.encrypt_remote}
+    
+    @classmethod
+    def from_dict(cls, pfil_dict):
+        self = cls(volume=pfil_dict['volume'], full_path=pfil_dict['full_path'])
+        self.__dict__.update(pfil_dict)
+        return self
 
     def __repr__(self):
         if self.repr_cache == None or self.refresh_repr is True:
             self.open_and_get_info()
-            self.repr_cache = {'filename': self.filename, 
+            self.repr_cache = {'filename': self.filename,
                     'md5hash': self.md5hash,
                     'remote_name_hash': self.remote_name_hash,
                     'tags': self.tags, 'full_path': self.full_path,
@@ -78,7 +84,7 @@ class PyfishFile(object):
     def __iter__(self):
         if self.repr_cache == None or self.refresh_repr is True:
             self.open_and_get_info()
-            self.repr_cache = {'filename': self.filename, 
+            self.repr_cache = {'filename': self.filename,
                     'md5hash': self.md5hash,
                     'remote_name_hash': self.remote_name_hash,
                     'tags': self.tags, 'full_path': self.full_path,
@@ -104,6 +110,7 @@ class PyfishFile(object):
                 self.tags = list(absolute.parts)[1:] if self.tags == [] else self.tags
                 self.file_size = absolute.stat().st_size / 1024 / 1024
                 self.timestamp = dt.fromtimestamp(absolute.stat().st_mtime)
+                self.filetype = self.filename.split(".")[-1] if self.filetype is "" else self.filetype
                 self.inode = absolute.stat().st_ino
                 self.filename = absolute.name
                 self.drive = absolute.drive
@@ -137,7 +144,7 @@ class PyfishFileSet():
 
     def add(self, file_record:PyfishFile, volume=None):
         """add the file. If a volume is provided, first check if its a duplicate inode on the same volume
-        
+
         Arguments:
             file_record {PyfishFile} -- A file-representation in the form a PyfishFile
         """
@@ -146,7 +153,7 @@ class PyfishFileSet():
 
         # if a volume is provided, check to make sure the file isn't already on it using the inode
         # if a volume isn't provided, assume just load it into the list, and do not check for duplicated
-        # entries. 
+        # entries.
         if volume:
             inodes_found = self.get_list_inodes_of_a_file_location_for_one_volume(file_record, volume)
             if inodes_found:
@@ -161,7 +168,7 @@ class PyfishFileSet():
             except KeyError as e:
                 print("New item found, will add to the set")
                 self.list[file_record.md5hash] = [file_record]
-    
+
     def load_from_dict(self, external_dict):
         # clear the list
         self.list = {}
@@ -217,7 +224,7 @@ class PyfishFileSet():
             print(e)
             print("no existing cache was found")
 
-        
+
         if new_data:
             return new_data
         else:
@@ -234,6 +241,5 @@ class PyfishFileSet():
         return new_data
 
 
-    
 
-    
+
