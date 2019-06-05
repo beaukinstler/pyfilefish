@@ -27,6 +27,8 @@ JSON_MULTI_SUMMARY_FILE = os.path.join(DATA_FOLDER, getenv('JSON_MULTI_SUMMARY_F
 FLAT_FILE_DATA_DIR = getenv('FLAT_FILE_DATA_DIR')
 FLAT_FILE_SUFFIX = getenv('FLAT_FILE_SUFFIX')
 
+GPG_PUBLIC_ID=getenv("GPG_PUBLIC_ID")
+GPG_PASS=getenv('GPG_PASSPHRASE')
 PYFI_S3_SALT = bytes.fromhex(md5(bytearray(getenv('PYFI_S3_SALT'),'utf-8')).hexdigest())
 PYFI_S3_ENCRYPTION_KEY = bytearray(getenv('PYFI_S3_ENCRYPTION_KEY'),'utf-8')
 

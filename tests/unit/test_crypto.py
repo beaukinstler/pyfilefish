@@ -15,7 +15,20 @@ from hashlib import md5
 
 from settings import *
 from pyfi_util.pyfi_crypto import *
+from pyfi_util import pyfi_crypto_gpg as pfgpg
+
 import pytest
+
+import gpg
+from hashlib import sha3_512 as sha
+
+
+@pytest.mark.cryto_gpg
+def test_gpg_encrypt():
+    a_key = GPG_PUBLIC_ID
+    filename = 'tests/test_files/test.wav'
+    pfgpg.encrypt_file_with_gpg(file_name=filename, key=a_key)
+    assert Path(f"{filename}.asc").exists()
 
 @pytest.mark.crypto
 def test_basic_encryption():
