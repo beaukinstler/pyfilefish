@@ -39,7 +39,7 @@ def file_list():
     files
     """
     # import pdb; pdb.set_trace()
-    result = pfu._load_saved_file_list('tests/test_json_data.json')
+    result = pfu._load_saved_file_list('tests/test_files/test_json_data.json')
     return result
 
 @pytest.fixture()
@@ -49,7 +49,7 @@ def file_list_only_one_volume():
     files
     """
     # import pdb; pdb.set_trace()
-    result = pfu._load_saved_file_list('tests/test_json_data_one_vol.json')
+    result = pfu._load_saved_file_list('tests/test_files/test_json_data_one_vol.json')
     return result
 
 @pytest.fixture()
