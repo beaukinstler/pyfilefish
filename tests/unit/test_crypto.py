@@ -30,6 +30,14 @@ def test_gpg_encrypt():
     pfgpg.encrypt_file_with_gpg(file_name=filename, key=a_key)
     assert Path(f"{filename}.asc").exists()
 
+
+@pytest.mark.cryto_gpg
+def test_gpg_decrypt():
+    a_key = GPG_PUBLIC_ID
+    filename = 'tests/test_files/test.wav'
+    pfgpg.decrypt_file_with_gpg(file_name=filename, key=GPG_PASS)
+    assert Path(f"{filename}.asc").exists()
+
 @pytest.mark.crypto
 def test_basic_encryption():
     """Ensure basic test files and utilities are in place, attempt

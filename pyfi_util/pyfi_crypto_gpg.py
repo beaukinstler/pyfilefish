@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from os import getenv
 
 load_dotenv(dotenv_path=".env")
-GPG_PASS=getenv('GPG_PASSPHRASE')
+
 
 def encrypt_file_with_gpg(file_name, key):
     fl = Path(file_name)
@@ -22,10 +22,14 @@ def encrypt_file_with_gpg(file_name, key):
             bfile.write(ciphertext)
 
 
-def decrypt_file_with_gpg(file_name):
+def decrypt_file_with_gpg(file_name, key=""):
+    if not key:
+        pass
+        # TODO
+        # key = ui.prompt_for_key
     fl = Path(file_name)
     with open(f"{str(fl)}.asc", "rb") as cfile:
-        plaintext, result, verify_result = gpg.Context().decrypt(cfile,passphrase=GPG_PASS)
+        plaintext, result, verify_result = gpg.Context().decrypt(cfile, passphrase=GPG_PASS)
     with open(f"new--{str(fl)}", "wb") as dfile:
         dfile.write(plaintext)
     
