@@ -10,9 +10,16 @@ class ProgressMonitor:
 
     def __init__(self, filename):
         self.progress = 0
-        self.filename = filename.name
-        self._lock = threading.Lock()
+        
+        if type(filename) is str:
+            with open(filename, 'rb') as fl:
+                self.filename = fl.name
+        else:
+            self.filename = filename.name
+            
         self.size = os.stat(self.filename).st_size / 1024 / 1024
+        self._lock = threading.Lock()
+        
 
     def __call__(self,num:float):
         """used for callback of S3 boto3 client operations

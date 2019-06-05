@@ -349,7 +349,7 @@ def sync_file_to_s3(file_record:dict, meta=None):
     # in either case, upload the file
     s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
 
-def sync_file_to_s3_new(file_record:PyfishFile, meta=None):
+def sync_file_to_s3_new(file_record:PyfishFile, meta=None, encrypt_all=True):
     """take the object used by pyfish, and translate for S3 upload
 
     Arguments:
@@ -362,28 +362,29 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None):
         logger.info('Encrypting the remote file was requested')
     except KeyError as e:
         logger.info("File record doesn't have a 'encrypt_remote' directive")
-    
+    if encrypt_all:
+        # overide the file record setting and encrypt
+        use_encryption = True
+    else:
+        pass # use the preference of the file. 
+
     temp_folder = 'temp/'
     volume_name = file_record.volume
-    
-    if use_encryption:
-        pass
-    else:
-        file_path = file_record.full_path
+    tmp_file_path = file_record.full_path
+    filename = file_record.filename
+    extention = f"{file_record.filetype}"
+ 
+        
         # sub_path,extention,name_to_store = build_relative_destination_path(file_record)
         
-        extention = f"{file_record.file_type}"
-        name_to_store = f"{file_record.remote_name_hash}"
-        sub_path = f"{extention}/{name_to_store}"
-    
-    
-    
-    
-    # name_to_store = f"{file_record['remote_name_hash']}"
-    # extention = f"{file_record['filetype']}"
-    s3_key = f"{sub_path}{name_to_store}.{extention}"
+        
+    name_to_store = f"{file_record.remote_name_hash}"
+    sub_path = f"{extention}/{name_to_store}"
+
+    enc = ".encrypted" if use_encryption else ""
+    s3_key = f"{sub_path}/{name_to_store}.{extention}{enc}"
     s3_manifest_file = f"{name_to_store}.manifest.json"
-    s3_key_manifest = f"{sub_path}{s3_manifest_file}"
+    s3_key_manifest = f"{sub_path}/{s3_manifest_file}{enc}"
 
     # make sure the files is there, or upload it if not
     s3client = S3Connection()
@@ -393,53 +394,88 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None):
         utilLogger.warning(msg="key found in objects already. Will not upload by default")
     else:
         try:
-            s3client.upload_file(file_path, s3_key,
+            if use_encryption:
+                encrypt_file(file_record.full_path,temp_folder)
+                tmp_file_path = "".join([temp_folder,filename,".encrypted"])
+            else:
+                pass
+            s3client.upload_file(tmp_file_path, s3_key,
                     metadata=meta)
         except Exception as e:
             utilLogger.error(e)
 
-    # update or create a manifest to store as well
+    # update or create a manifest to store as well f"{s3_manifest_file}{enc}"
     if s3_key_manifest in s3client.get_keynames_from_objects(bucket_name):
         utilLogger.info(msg="manifest files exists. Will download, update, and upload")
-        s3client.download_file_to_temp(s3_manifest_file, s3_key_manifest, temp_folder)
-        decrypt_file(s3_manifest_file, temp_folder)
+        s3client.download_file_to_temp(f"{s3_manifest_file}{enc}", s3_key_manifest, temp_folder)
+        if use_encryption:
+            decrypt_file(f"{s3_manifest_file}{enc}", temp_folder)
         add_location_to_file_manifest(os.path.join(
-                temp_folder, s3_manifest_file),volume_name, file_record.full_path)
+                temp_folder, s3_manifest_file),volume_name, [file_record.full_path])
         # s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
     else:
         # no manifest found.  Create and upload it
-        temp_manifest = create_manifest(volume_name, file_record.full_path)
+        temp_manifest = create_manifest(volume_name, [file_record.full_path])
         with open(os.path.join(temp_folder,s3_manifest_file), 'w+') as temp_json:
             json.dump(temp_manifest, temp_json)
-        # s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
+        
     # in either case, upload the file
+    if use_encryption:
+            encrypt_file(os.path.join(temp_folder,s3_manifest_file),temp_folder)
+            s3_manifest_file = f"{s3_manifest_file}{enc}"
     s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
 
-def decrypt_file(file, source_folder, compression=True):
-    path = Path(source_folder).absolute()
-    full_path = path.joinpath(f"{file}.encrypted")
-    out_file = path.joinpath(file)
-    dcrypt_data = cr.convert_encrypted_file_into_decrypted_data(full_path, compression=compression)
-    with open(out_file, 'wb+') as manifest:
-        manifest.write(dcrypt_data)
-    os.remove(full_path)
+def decrypt_file(file, source_folder, dest_folder="", compression=True, remove_src=False):
+    dest_folder = dest_folder if dest_folder else source_folder
+    dest_path = Path(dest_folder).absolute()
+    src_path = Path(source_folder).absolute()
+    full_path = src_path.joinpath(f"{file}")
+    # the file may not end with the encrypted string, so check first
+    if str(file).endswith(".encrypted"):
+        file = "".join(str(file).split(".encrypted")[:-1])
+    out_file = dest_path.joinpath(file)
+    dcrypt_data = cr.convert_encrypted_file_into_decrypted_data(
+            full_path, compression=compression)
+    with open(out_file, 'wb+') as ofile:
+
+        ofile.write(dcrypt_data)
+    if remove_src:
+        os.remove(full_path)
+    
 
 def encrypt_file(file, dest_folder, compression=True):
-    path = Path(dest_folder).absolute()
-    full_path = path.joinpath(file)
-    out_file = path.joinpath(f"{file}.encrypted")
-    ncrypt_data = cr.convert_file_into_encrypted_data(full_path, compression=compression)
-    with open(out_file, 'wb+') as manifest:
-        manifest.write(ncrypt_data)
+
+    dest_path = Path(dest_folder).absolute()
+    full_path = Path(file).absolute()
+    file_name = full_path.name
+    out_file = dest_path.joinpath(f"{file_name}.encrypted")
+    ncrypt_data = cr.convert_file_into_encrypted_data(
+            full_path, compression=compression)
+    with open(out_file, 'wb+') as ofile:
+        ofile.write(ncrypt_data)
     
 
 
 def create_manifest(volume_name:str, locations, path=""):
-    """make a file that contains all known locations of a file.
-    To be stored with the file.
+    """make a dict that contains all known locations of a file.
+    To be stored with the file. Data will come from an existing record,
+    so this is just meant to format for the json file to store.
+    
+    Arguments:
+        volume_name {str} -- volume or drive where data is found
+        locations {[type]} -- ll the locations already known
+    
+    Keyword Arguments:
+        path {str} -- Path to join to each location. Will be relative if not provided. (default: {""})
+    
+    Returns:
+        [dict] -- dict of file locations, grouped by volume
+        
 
-
+    Returns: 
+        
     """
+    
     path_list = list(locations) #  if it's just one string, make it a list for the loop
     mainifest = {}
     volume_name = volume_name
@@ -462,7 +498,7 @@ def add_location_to_file_manifest(
     #     s3client.download_file_to_temp(
     #             manifest_file_data, os.path.join(manifest_path, manifest_file_name), 'temp')
     try:
-        with open(manifest_file_data, 'r') as tmpjson:
+        with open(manifest_file_data, 'rb') as tmpjson:
             manifest = json.load(tmpjson)
         try:
             for location_path in all_paths:

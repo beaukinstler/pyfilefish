@@ -24,22 +24,24 @@ def convert_encrypted_file_into_decrypted_data(encpryted_file_path="",
         backend=default_backend()
     )
     data = bytes()
-    compressed_data = bytes()
     with open(encpryted_file_path, 'rb') as file_to_read:
-        compressed_data = file_to_read.read()
-    if compression:
-        try:
-            data = gzip.decompress(compressed_data)
-        except OSError as e:
-            print('data not compressed')
-            print(e)
-            data = compressed_data
-    else:
-        data = compressed_data
+        data = file_to_read.read()
+    
     key = base64.urlsafe_b64encode(kdf.derive(password))
     f = Fernet(key)
     decrypted_data = f.decrypt(data)
-    return decrypted_data
+
+    return_data = bytes()
+    if compression:
+        try:
+            return_data = gzip.decompress(decrypted_data)
+        except OSError as e:
+            print('data not compressed')
+            print(e)
+            return_data = decrypted_data
+    else:
+        return_data = decrypted_data
+    return return_data
 
 def convert_encrypted_data_into_decrypted_data(bdata,
         salt=PYFI_S3_SALT, password=PYFI_S3_ENCRYPTION_KEY, message="",
