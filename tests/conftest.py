@@ -101,3 +101,102 @@ def pyfish_file_set():
     return fs
 
 
+
+
+####
+# FROM FLASK TUTORIAL
+###
+"""Copyright © 2010 by the Pallets team.
+
+Some rights reserved.
+
+Redistribution and use in source and binary forms of the software as
+well as documentation, with or without modification, are permitted
+provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE AND DOCUMENTATION IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE AND DOCUMENTATION, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE."""
+
+import os
+import tempfile
+
+import pytest
+
+from flaskr import create_app
+from flaskr.db import get_db
+from flaskr.db import init_db
+
+# read in SQL for populating test data
+with open(os.path.join(os.path.dirname(__file__), "flaskr/data.sql"), "rb") as f:
+    _data_sql = f.read().decode("utf8")
+
+
+@pytest.fixture
+def app():
+    """Create and configure a new app instance for each test."""
+    # create a temporary file to isolate the database for each test
+    db_fd, db_path = tempfile.mkstemp()
+    # create the app with common test config
+    app = create_app({"TESTING": True, "DATABASE": db_path})
+
+    # create the database and load test data
+    with app.app_context():
+        init_db()
+        get_db().executescript(_data_sql)
+
+    yield app
+
+    # close and remove the temporary database
+    os.close(db_fd)
+    os.unlink(db_path)
+
+
+@pytest.fixture
+def client(app):
+    """A test client for the app."""
+    return app.test_client()
+
+
+@pytest.fixture
+def runner(app):
+    """A test runner for the app's Click commands."""
+    return app.test_cli_runner()
+
+
+class AuthActions(object):
+    def __init__(self, client):
+        self._client = client
+
+    def login(self, username="test", password="test"):
+        return self._client.post(
+            "/auth/login", data={"username": username, "password": password}
+        )
+
+    def logout(self):
+        return self._client.get("/auth/logout")
+
+
+@pytest.fixture
+def auth(client):
+    return AuthActions(client)
