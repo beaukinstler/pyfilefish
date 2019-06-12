@@ -137,3 +137,4 @@ tests/test_files/big_mp3_un-encrypted
 tests/test_files/big_mp3.encrypted
 data.bak/
 tests/test_files/test.wav.asc
+*.sqlite
