@@ -18,11 +18,12 @@ from pyfi_util.pyfi_crypto import *
 from pyfi_util import pyfi_crypto_gpg as pfgpg
 
 import pytest
-
-import gpg
+import sys
+if sys.platform == 'linux':
+    import gpg
 from hashlib import sha3_512 as sha
 
-
+@pytest.mark.skipif(sys.platform != "linux", reason="only supported on linux")
 @pytest.mark.cryto_gpg
 def test_gpg_encrypt():
     a_key = GPG_PUBLIC_ID
@@ -32,6 +33,7 @@ def test_gpg_encrypt():
 
 
 @pytest.mark.cryto_gpg
+@pytest.mark.skipif(sys.platform != "linux", reason="only supported on linux")
 def test_gpg_decrypt():
     a_key = GPG_PUBLIC_ID
     filename = 'tests/test_files/test.wav'
