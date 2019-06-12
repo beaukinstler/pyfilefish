@@ -14,6 +14,9 @@ python-dotenv = "*"
 pytest = "*"
 encryption = "*"
 cryptography = "*"
-gpg = {version = "*", sys_platform = "== 'linux'"}
+flask = "*"
+# gpg = {version = "*", sys_platform = " == 'linux'"}
+
+
 [requires]
 python_version = "3.7"

@@ -19,7 +19,7 @@ try:
     import gpg
     from pyfi_util import pyfi_crypto_gpg as pfgpg
 except ImportError as e:
-    logger.warn(msg=str(e))
+    logger.warning(msg=str(e))
 import pytest
 import sys
 from hashlib import sha3_512 as sha
