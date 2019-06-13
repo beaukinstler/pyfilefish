@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Pyfi{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('blog.create') }}">New</a>
+  {% endif %}
+  <hr>
+{% endblock %}
+{% block content %}
+  {% for post in posts %}
+    <article class="post">
+      <h1>{{ post['filename'] }}</h1>
+      <div class="date">dated: {{ post['timestamp'] }}</div>
+      {% if 1 == 1 %}
+      <a class="action" href="{{ url_for('pyfi.send_file', md5hash=post['md5hash'], vol=post['volume']) }}">Get File</a>
+      {% endif %}
+      <p class="file_details">
+          <div>Full Path: {{ post['full_path'] }}</div>
+          <div>Type: {{ post['filetype'] }}</div>
+          <div>Volume: {{ post['volume'] }}</div>
+      </p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+
+    {% endif %}
+  {% endfor %}
+{% endblock %}
