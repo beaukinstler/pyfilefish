@@ -365,6 +365,7 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None, encrypt_all=True):
     if encrypt_all:
         # overide the file record setting and encrypt
         use_encryption = True
+        logger.info("'encrypt all' setting used, overriding file settings")
     else:
         pass # use the preference of the file. 
 
@@ -488,15 +489,12 @@ def create_manifest(volume_name:str, locations, path=""):
 
 def add_location_to_file_manifest(
         manifest_file_name, location_volume, location_paths):
-    """take details of a file, the location of it's manifest, download it,
-    update the details, and re-upload it.
+    """take details of a files location, the location of it's temporary  manifest, read the manifest
+    into a dict, update wih new location, and save a new version of the manifest.
     """
     manifest_file_data = manifest_file_name
     all_paths = list(location_paths)
     manifest = None
-    # if s3client:
-    #     s3client.download_file_to_temp(
-    #             manifest_file_data, os.path.join(manifest_path, manifest_file_name), 'temp')
     try:
         with open(manifest_file_data, 'rb') as tmpjson:
             manifest = json.load(tmpjson)
