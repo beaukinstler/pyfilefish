@@ -5,7 +5,7 @@ import pytest
 @pytest.mark.pyfish_web_gui
 def test_Pyfish_link_only_when_authenticated(client, auth):
     response = client.get("/")
-    assert b"Pyfish" not in response
+    assert b"Pyfish" not in response.data
     auth.login()
     response = client.get("/")
     assert b"Pyfish" in response.data
@@ -13,14 +13,15 @@ def test_Pyfish_link_only_when_authenticated(client, auth):
 @pytest.mark.pyfish_web_gui
 @pytest.mark.parametrize("path", ("/pyfi", ))
 def test_login_required(client, path):
-    response = client.post(path)
+    response = client.get(path)
+    assert b"Full Path" not in response.data
     assert response.headers["Location"] == "http://localhost/auth/login"
 
 @pytest.mark.pyfish_web_gui
 def test_pyfi_accesible_when_authenticated(client, auth):
+    auth.login()
     response = client.get("/pyfi")
     assert b"Full Path" in response.data
-    assert response.headers["Location"] == "http://localhost/pyfi"
 
 
 # def test_author_required(app, client, auth):

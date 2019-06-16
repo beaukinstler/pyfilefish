@@ -4,7 +4,6 @@ import os
 import logging
 from hashlib import md5
 
-load_dotenv()
 # set whether the app attempts to import previously stored json data from the JSON_FILE_PATH
 LOAD_EXTERNAL=True
 SYNC_TO_LOCAL=False
@@ -14,6 +13,15 @@ WRITE_OUT_DATA=True
 WRITE_OUT_STATS=True
 WRITE_OUT_MULTI=True
 WRITE_OUT_FLAT=True
+APPMODE= os.getenv('FLASK_ENV')
+if APPMODE == 'testing':
+    env_path = './tests/.env'
+    load_dotenv(dotenv_path=env_path, verbose=True)
+elif APPMODE == 'development':
+    load_dotenv(".env_dev", verbose=True)
+else:
+    load_dotenv(".env_production")
+    
 
 # local file paths from .env
 USER_PYFI_FILE_HASH_KEY = getenv('USER_PYFI_FILE_HASH_KEY') ## Set this string to something you will use for all files.  It will be used to match duplicate files, so it must be reused anytime this is being run, and any machine for volume that is writing to the same file storage location, to ensure duplicates are stored, but only logged in the manifests

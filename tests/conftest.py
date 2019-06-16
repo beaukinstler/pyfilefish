@@ -9,6 +9,7 @@ from s3_integration.s3_tools import S3Connection
 from filetypes import FilePropertySet
 
 
+
 ACTIVE_BUCKET_NAME='backups.beaukinstler.com' ## TODO: create a test bucket and change this
 PYFI_S3_SALT='test'
 PYFI_S3_ENCRYPTION_KEY='T3stK3yF04Fun'
@@ -138,14 +139,15 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE AND DOCUMENTATION, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE."""
 
-import os
 import tempfile
-
 import pytest
-
 from flaskr import create_app
 from flaskr.db import get_db
 from flaskr.db import init_db
+import os
+
+os.environ['FLASK_ENV'] = 'testing'
+
 
 # read in SQL for populating test data
 with open(os.path.join(os.path.dirname(__file__), "flaskr/data.sql"), "rb") as f:
