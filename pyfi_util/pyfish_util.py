@@ -15,6 +15,7 @@ from pathlib import Path
 import codecs
 from pyfi_util.system_check import is_fs_case_sensitive
 from pyfi_filestore.pyfish_file import PyfishFile, PyfishFileSet
+from collections import OrderedDict
 
 from pyfi_util import pyfi_crypto as cr
 ignore_dirs = IGNORE_DIRS
@@ -48,7 +49,7 @@ def _load_saved_file_list(json_file_path):
     """
     loads the json file that has previously found files
     """
-    external_file_list = {}
+    external_file_list = OrderedDict()
     try:
         with open(json_file_path, 'r') as json_data:
             external_file_list = json.load(json_data)
@@ -91,8 +92,24 @@ def pyfi_file_builder(dict_record:dict):
 
     return None if result is None else result         
 
-def load_pyfish_data():
+def load_pyfish_data(md5hash=""):
+    """Load all data from the JSON data file
+    
+    Keyword Arguments:
+        md5hash {str} -- If a hash is provided, us it to filter only for that file (default: {""})
+    
+    Returns:
+        dict -- The whole list of files
+    """
+
     file_list = _load_saved_file_list(JSON_FILE_PATH)
+    if md5hash:
+        try:
+            return file_list[md5hash]
+        except KeyError as e:
+            print(e.value)
+            print(f"MD5 value {md5hash} couldn't be found in data")
+            file_list = None
     return file_list
 
 
