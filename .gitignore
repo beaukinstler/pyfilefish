@@ -140,3 +140,4 @@ tests/test_files/test.wav.asc
 *.sqlite
 tests/test_files/test.manifest.json.encrypted
 .env*
+tests/test_files/new--test.wav
