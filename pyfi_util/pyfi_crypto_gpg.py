@@ -27,9 +27,10 @@ def decrypt_file_with_gpg(file_name, key=""):
         pass
         # TODO
         # key = ui.prompt_for_key
-    fl = Path(file_name)
-    with open(f"{str(fl)}.asc", "rb") as cfile:
+    encrypted_file = Path(file_name)
+    output_name = f"new--{encrypted_file.name}"
+    with open(f"{str(encrypted_file)}.asc", "rb") as cfile:
         plaintext, result, verify_result = gpg.Context().decrypt(cfile, passphrase=GPG_PASS)
-    with open(f"new--{str(fl)}", "wb") as dfile:
+    with open(encrypted_file.parent.joinpath(output_name), "wb") as dfile:
         dfile.write(plaintext)
     
