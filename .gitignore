@@ -139,3 +139,4 @@ data.bak/
 tests/test_files/test.wav.asc
 *.sqlite
 tests/test_files/test.manifest.json.encrypted
+.env*
