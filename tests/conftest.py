@@ -10,9 +10,9 @@ from filetypes import FilePropertySet
 
 
 
-ACTIVE_BUCKET_NAME='backups.beaukinstler.com' ## TODO: create a test bucket and change this
-PYFI_S3_SALT='test'
-PYFI_S3_ENCRYPTION_KEY='T3stK3yF04Fun'
+ACTIVE_BUCKET_NAME= getenv('ACTIVE_BUCKET_NAME')
+PYFI_S3_SALT = getenv('PYFI_S3_SALT')
+PYFI_S3_ENCRYPTION_KEY = getenv('PYFI_S3_ENCRYPTION_KEY')
 SMALL_TEST_FILE='tests/test_files/test.mp3'
 SMALL_TEST_FILE_KEY='tests/test.mp3'
 MED_TEST_FILE='tests/test_files/test.wav'
@@ -40,7 +40,7 @@ def file_list():
     files
     """
     # import pdb; pdb.set_trace()
-    result = pfu._load_saved_file_list('tests/test_files/test_json_data.json')
+    result = pfu._load_saved_file_list('tests/test_files/data/test_json_data.json')
     return result
 
 @pytest.fixture()
@@ -50,7 +50,7 @@ def file_list_only_one_volume():
     files
     """
     # import pdb; pdb.set_trace()
-    result = pfu._load_saved_file_list('tests/test_files/test_json_data_one_vol.json')
+    result = pfu._load_saved_file_list('tests/test_files/data/test_json_data_one_vol.json')
     return result
 
 @pytest.fixture()

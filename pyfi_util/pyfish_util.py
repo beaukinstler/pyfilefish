@@ -279,7 +279,7 @@ def sync_to_another_drive(file_ref_to_add, target):
     all_paths = sorted([ i['full_path'] for i in file_ref_to_add ])
 
     sub_path,extention,remote_name_hash = build_relative_destination_path(data_file_ref)
-    temp_folder = 'temp/'
+    temp_folder = TEMP_FOLDER
     os.makedirs(temp_folder, exist_ok=True)
     volume_name = f"{data_file_ref['volume']}"
     full_path = f"{data_file_ref['full_path']}"
@@ -329,7 +329,7 @@ def sync_file_to_s3(file_record:dict, meta=None):
     file_path = file_record['full_path']
 
     sub_path,extention,name_to_store = build_relative_destination_path(file_record)
-    temp_folder = 'temp/'
+    temp_folder = TEMP_FOLDER
     volume_name = f"{file_record['volume']}"
     full_path = f"{file_record['full_path']}"
     # name_to_store = f"{file_record['remote_name_hash']}"
@@ -386,7 +386,7 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None, encrypt_all=True):
     else:
         pass # use the preference of the file. 
 
-    temp_folder = 'temp/'
+    temp_folder = TEMP_FOLDER
     volume_name = file_record.volume
     tmp_file_path = file_record.full_path
     filename = file_record.filename
@@ -413,8 +413,8 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None, encrypt_all=True):
     else:
         try:
             if use_encryption:
-                encrypt_file(file_record.full_path,temp_folder)
-                tmp_file_path = "".join([temp_folder,filename,".encrypted"])
+                encrypt_file(file_record.full_path,TEMP_FOLDER)
+                tmp_file_path = "".join([TEMP_FOLDER,"/",filename,".encrypted"])
             else:
                 pass
             s3client.upload_file(tmp_file_path, s3_key,
@@ -425,21 +425,21 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None, encrypt_all=True):
     # update or create a manifest to store as well f"{s3_manifest_file}{enc}"
     if s3_key_manifest in s3client.get_keynames_from_objects(bucket_name):
         utilLogger.info(msg="manifest files exists. Will download, update, and upload")
-        s3client.download_file_to_temp(f"{s3_manifest_file}{enc}", s3_key_manifest, temp_folder)
+        s3client.download_file_to_temp(f"{s3_manifest_file}{enc}", s3_key_manifest, TEMP_FOLDER)
         if use_encryption:
-            decrypt_file(f"{s3_manifest_file}{enc}", temp_folder)
+            decrypt_file(f"{s3_manifest_file}{enc}", TEMP_FOLDER)
         add_location_to_file_manifest(os.path.join(
-                temp_folder, s3_manifest_file),volume_name, [file_record.full_path])
-        # s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
+                TEMP_FOLDER, s3_manifest_file),volume_name, [file_record.full_path])
+        # s3client.upload_file(os.path.join(TEMP_FOLDER,s3_manifest_file), s3_key_manifest)
     else:
         # no manifest found.  Create and upload it
         temp_manifest = create_manifest(volume_name, [file_record.full_path])
-        with open(os.path.join(temp_folder,s3_manifest_file), 'w+') as temp_json:
+        with open(os.path.join(TEMP_FOLDER,s3_manifest_file), 'w+') as temp_json:
             json.dump(temp_manifest, temp_json)
         
     # in either case, upload the file
     if use_encryption:
-            encrypt_file(os.path.join(temp_folder,s3_manifest_file),temp_folder)
+            encrypt_file(os.path.join(TEMP_FOLDER,s3_manifest_file),TEMP_FOLDER)
             s3_manifest_file = f"{s3_manifest_file}{enc}"
     s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
 

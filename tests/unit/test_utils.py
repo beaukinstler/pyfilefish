@@ -56,5 +56,5 @@ def test_create_a_manifest():
 
 @pytest.mark.utils
 def test_add_files_to_manifest():
-    test_manifest_decrypted = 'tests/test_files/test.manifest.json'
+    test_manifest_decrypted = 'tests/test_files/data/test.manifest.json'
     pfu.add_location_to_file_manifest(test_manifest_decrypted,'test',["made/up/path"])
