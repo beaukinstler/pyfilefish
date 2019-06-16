@@ -181,21 +181,23 @@ def prompt_user_for_run_mode():
     """sub routine to report on previous data
     """
 
-    prompt = "Would you like to see finding on previous data. Choose 0 for 'no' to just run the scanner?"
+    prompt = "Select an option. Choose 0 to just run the scanner, creating a list of files to act on later: "
     print(
         """
-        1) see unique file size totals. This roughly show the amount of disk space required to store all the files in the data
-        2) see the volumes currentinly captured in the data
-        3) Scan and find files, as well as sync to AWS S3 bucket.
-            (Note: you must already have your cli and bucket configured for this to work)
-        4) Scan and find files, and simultaneously copy them to a local target.
-        5) Sync previously scanned files to local target
-        6) Get the size of one volume, based on data previously captured.
-        7) TODO: Print Stats after scanning.
+        1)  see unique file size totals. This roughly show the amount of disk space required to store all the files in the data
+        2)  see the volumes currentinly captured in the data
+        3)  Scan and find files, as well as sync to AWS S3 bucket.
+             (Note: you must already have your cli and bucket configured for this to work)
+        4)  Scan and find files, and simultaneously copy them to a local target.
+        5)  Sync previously scanned files to local target
+        6)  Get the size of one volume, based on data previously captured.
+        7)  TODO: Print Stats after scanning.
+        11) EXIT
         0) Scan and find files for data, but do not sync to another location
         """)
     try:
         choice = int(input(prompt))
+        print('\n')
     except Exception as e:
         print(f"'not a valid choice': {e}")
         choice = 0
@@ -213,7 +215,7 @@ def prompt_user_for_run_mode():
             print("Getting Volume name...\n\n")
             prompt_user_for_size_one_volume()
         elif choice > 6:
-            choice = 0
+            choice = 999
         return choice
     else:
         return choice

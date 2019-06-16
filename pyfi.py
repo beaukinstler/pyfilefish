@@ -14,6 +14,11 @@ from settings import *
 import pyfi_ui as pui
 
 
+def say_goodbye():
+    print("\nExiting...\n")
+    print("Goodbye!\n")
+    exit(0)
+
 # MAIN FUNCTION
 def main():
     # det defaults and properties
@@ -42,13 +47,13 @@ def main():
         file_types = pui.get_file_types_from_user()
         target = pui.prompt_for_local_dest()
         pfu.only_sync_file(local_target=target, volume_name=volume_name, file_types=file_types)
-        exit(0)
+        say_goodbye()
 
 
 
 
-    elif run_mode >= 1:
-        exit(0)
+    elif run_mode >= 6:
+        say_goodbye()
 
     volume_name = pui.prompt_for_volume()
     folder = pui.prompt_folder_to_scan()
