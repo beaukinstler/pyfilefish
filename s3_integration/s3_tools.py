@@ -86,7 +86,10 @@ class S3Connection:
 
     def get_keynames_from_objects(self, bucket_name=""):
         obs = self._get_objects_from_bucket(bucket_name)
-        return [ item['Key'] for item in obs['Contents'] ]
+        if 'Contents' in obs.keys():
+            return [ item['Key'] for item in obs['Contents'] ]
+        else:
+            return []
 
     def print_all_buckets(self):
         buckets = self.get_buckets()
