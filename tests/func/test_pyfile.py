@@ -106,8 +106,8 @@ def test_pset_pyfish_file_added_correctly(file_list):
 def test_get_a_file_list_from_only_one_volume(file_list):
      pset = pfu.PyfishFileSet()
      pset.load_from_dict(file_list)
-     x = pset.generate_cached_files_list_from_one_vol(volume='test')
-     y = pset.generate_cached_files_list_from_one_vol(volume='test2')
+     pset.generate_cached_files_list_from_one_vol(volume='test')
+     pset.generate_cached_files_list_from_one_vol(volume='test2')
      first_key = list(pset.list.keys())[0]
      assert len(pset.cache_test[first_key]) + len(pset.cache_test2[first_key]) == len(pset.list[first_key])
      
