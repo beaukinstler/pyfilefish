@@ -20,13 +20,13 @@ def test_build_relative_destination_path_remote(pyfish_file_set):
     assert (path, ft, remote_name_hash) == (testpath, first_item.filetype, first_item.remote_name_hash)
 
 
-@pytest.mark.utils_dev
+@pytest.mark.s3_slow
 def test_sync_s3_new(pyfishfile:PyfishFile):
     pyfishfile.open_and_get_info()
     pyfishfile.encrypt_remote = True
     pfu.sync_file_to_s3_new(pyfishfile)
 
-@pytest.mark.utils_dev
+@pytest.mark.s3_slow
 def test_sync_s3_new_no_encrypt(pyfishfile:PyfishFile):
     pyfishfile.open_and_get_info()
     pyfishfile.encrypt_remote = False

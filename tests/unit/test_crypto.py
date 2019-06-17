@@ -25,7 +25,7 @@ import sys
 from hashlib import sha3_512 as sha
 
 @pytest.mark.skipif(sys.platform != "linux", reason="only supported on linux")
-@pytest.mark.cryto_gpg
+@pytest.mark.crypto
 def test_gpg_encrypt():
     a_key = GPG_PUBLIC_ID
     filename = 'tests/test_files/test.wav'
@@ -33,7 +33,7 @@ def test_gpg_encrypt():
     assert Path(f"{filename}.asc").exists()
 
 
-@pytest.mark.cryto_gpg
+@pytest.mark.crypto
 @pytest.mark.skipif(sys.platform != "linux", reason="only supported on linux")
 def test_gpg_decrypt():
     a_key = GPG_PUBLIC_ID
