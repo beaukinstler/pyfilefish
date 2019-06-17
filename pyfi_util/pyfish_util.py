@@ -493,6 +493,11 @@ def create_manifest(volume_name:str, locations, added_path=""):
     Returns: 
         
     """
+    path_list = []
+    if type(locations) is list:
+        path_list = locations
+    else:
+        path_list = list([locations]) #  if it's just one string, make it a list for the loop
     manifest = {}
     volume_name = volume_name
     manifest['locations'] = {}
