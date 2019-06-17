@@ -304,7 +304,7 @@ def sync_to_another_drive(file_ref_to_add, target):
             pass
 
     if os.path.exists(full_path_mainfest):
-        utilLogger.debug("file mainifest exists. will copy to local temp, update the paths, and copy back to destination")
+        utilLogger.debug("file manifest exists. will copy to local temp, update the paths, and copy back to destination")
         copyfile(full_path_mainfest, os.path.join(temp_folder, manifest_file_name))
         add_location_to_file_manifest(os.path.join(temp_folder, manifest_file_name),volume_name, all_paths)
         copyfile(os.path.join(temp_folder, manifest_file_name), full_path_mainfest)
@@ -474,7 +474,7 @@ def encrypt_file(file, dest_folder, compression=True):
     
 
 
-def create_manifest(volume_name:str, locations, path=""):
+def create_manifest(volume_name:str, locations, added_path=""):
     """make a dict that contains all known locations of a file.
     To be stored with the file. Data will come from an existing record,
     so this is just meant to format for the json file to store.
