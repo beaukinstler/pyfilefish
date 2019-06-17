@@ -493,15 +493,13 @@ def create_manifest(volume_name:str, locations, added_path=""):
     Returns: 
         
     """
-    
-    path_list = list(locations) #  if it's just one string, make it a list for the loop
-    mainifest = {}
+    manifest = {}
     volume_name = volume_name
-    mainifest['locations'] = {}
-    mainifest['locations'][volume_name] = []
+    manifest['locations'] = {}
+    manifest['locations'][volume_name] = []
     for file_name in path_list:
-        mainifest['locations'][volume_name].append(os.path.join(path, file_name))
-    return mainifest
+        manifest['locations'][volume_name].append(os.path.join(added_path, file_name))
+    return manifest
 
 
 def add_location_to_file_manifest(
