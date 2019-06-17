@@ -51,8 +51,10 @@ def test_gzip(pyfishfile:PyfishFile):
 @pytest.mark.utils
 def test_create_a_manifest():
     # test_manifest_decrypted = 'tests/test_files/test.manifest.json'
-    mainifest_data = pfu.create_manifest('test',['test_folder/1/not_real', 'test_folder/2/not_real'])
-    assert len(mainifest_data['locations']['test']) == 2
+    manifest_data = pfu.create_manifest('test',['test_folder/1/not_real', 'test_folder/2/not_real'])
+    assert len(manifest_data['locations']['test']) == 2
+    assert type(manifest_data['locations']['test']) is list
+    assert 'test_folder/1/not_real' in manifest_data['locations']['test']
 
 @pytest.mark.utils
 def test_add_files_to_manifest():
