@@ -765,7 +765,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
                                 # sync to s3 if option was selected.
                                 # use the file just added, since it's likely accessible
                                 # meta = pfu.parse_location_metadata(file_ref)
-                                sync_file_to_s3(file_ref[-1])
+                                sync_file_to_s3_new(file_ref[-1])
                             if sync_to_local_drive:
                                 # TODO
                                 #
