@@ -107,7 +107,7 @@ def load_pyfish_data(md5hash=""):
         try:
             return file_list[md5hash]
         except KeyError as e:
-            print(e.value)
+            print(e)
             print(f"MD5 value {md5hash} couldn't be found in data")
             file_list = None
     return file_list
