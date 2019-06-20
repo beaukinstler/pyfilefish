@@ -43,6 +43,7 @@ PYFI_S3_ENCRYPTION_KEY = bytearray(getenv('PYFI_S3_ENCRYPTION_KEY'),'utf-8')
 
 os.makedirs(DATA_FOLDER, exist_ok=True)
 os.makedirs(LOG_FOLDER, exist_ok=True)
+os.makedirs(TEMP_FOLDER, exist_ok=True)
 os.makedirs(FLAT_FILE_DATA_DIR, exist_ok=True)
 LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
 LOG_FILE_NAME = os.path.join(LOG_FOLDER, 'app_log.txt')
