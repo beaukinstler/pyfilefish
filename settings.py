@@ -15,7 +15,10 @@ WRITE_OUT_MULTI=True
 WRITE_OUT_FLAT=True
 APPMODE= os.getenv('FLASK_ENV')
 if APPMODE == 'testing':
-    env_path = './tests/.env_test'
+    if os.name is 'nt':
+        env_path = './tests/.env_test_nt'
+    else:
+        env_path = './tests/.env_test'
     load_dotenv(dotenv_path=env_path, verbose=True)
 elif APPMODE == 'development':
     load_dotenv(".env_dev", verbose=True)
