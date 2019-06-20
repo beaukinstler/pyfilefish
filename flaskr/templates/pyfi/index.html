@@ -9,7 +9,7 @@
       <h1>{{ post['filename'] }}</h1>
       <div class="date">dated: {{ post['timestamp'] }}</div>
       {% if 1 == 1 %}
-      <a class="action" href="{{ url_for('pyfi.send_file', md5hash=post['md5hash'], vol=post['volume']) }}">Get File</a>
+      <a class="action" href="{{ url_for('pyfi.send_file', md5hash=post['md5hash'], vol=post['volume'], extension=post['filetype']) }}">Get File</a>
       {% endif %}
       <p class="file_details">
           <div>Full Path: {{ post['full_path'] }}</div>

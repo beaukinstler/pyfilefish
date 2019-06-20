@@ -23,23 +23,9 @@ def test_pyfi_accesible_when_authenticated(client, auth):
     response = client.get("/pyfi")
     assert b"Full Path" in response.data
 
-
-# def test_author_required(app, client, auth):
-#     # change the post author to another user
-#     with app.app_context():
-#         db = get_db()
-#         db.execute("UPDATE post SET author_id = 2 WHERE id = 1")
-#         db.commit()
-
-#     auth.login()
-#     # current user can't modify other user's post
-#     assert client.post("/1/update").status_code == 403
-#     assert client.post("/1/delete").status_code == 403
-#     # current user doesn't see edit link
-#     assert b'href="/1/update"' not in client.get("/").data
-
-
-# @pytest.mark.parametrize("path", ("/2/update", "/2/delete"))
-# def test_exists_required(client, auth, path):
-#     auth.login()
-#     assert client.post(path).status_code == 404
+@pytest.mark.pyfish_web_gui
+def test_wav_file_found(client, auth):
+    auth.login()
+    response = client.get("/pyfi/test/3b01b3abec70519b00b9738b1336cddc.wav")
+    assert response.status_code == 200
+    assert response.content_type == 'audio/x-wav'

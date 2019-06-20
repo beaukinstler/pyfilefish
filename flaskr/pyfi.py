@@ -32,13 +32,13 @@ def pyfi():
     return render_template('pyfi/index.html', posts=posts)
 
 
-@bp.route('/pyfi/<vol>/<md5hash>')
+@bp.route('/pyfi/<vol>/<md5hash>.<extension>')
 @login_required
-def send_file(vol, md5hash):
+def send_file(vol, md5hash, extension):
     file_record = pfu.load_pyfish_data(md5hash)
     fullpath = [i['full_path'] for i in file_record if i['volume'] == vol][0]
     realdir = str(Path(fullpath).parent)
     name = str(Path(fullpath).name)
     print(realdir)
     print(name)
-    return send_from_directory(realdir, name)
+    return send_from_directory(realdir, name, as_attachment=False)
