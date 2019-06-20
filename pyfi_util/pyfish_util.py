@@ -373,6 +373,19 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None, encrypt_all=True):
         file_ref {dict} -- dictionary with details of the file
         that will need to checked and possibly uploaded
     """
+    if type(file_record) is dict:
+        try:
+            file_record = PyfishFile.from_dict(file_record)
+            file_record.open_and_get_info()
+        except TypeError as e:
+            logger(e)
+            logger.error("quiting due to type problem.  dict can't be converted")
+            logger.error(f"file {file_record.full_path} is not going to be synced to s3")
+    elif type(file_record) is not PyfishFile:
+        logger.critical(f"this is not good. attempt to use type {type(file_record)} as a PyfishFile. Something has gone very wrong")
+        raise TypeError(f"Attempted to use type of {type(file_record)} as a PyfishFile")
+    else:
+        file_record.open_and_get_info()
     use_encryption = False
     try:
         use_encryption = file_record.encrypt_remote
@@ -391,7 +404,7 @@ def sync_file_to_s3_new(file_record:PyfishFile, meta=None, encrypt_all=True):
     tmp_file_path = file_record.full_path
     filename = file_record.filename
     extention = f"{file_record.filetype}"
- 
+
         
         # sub_path,extention,name_to_store = build_relative_destination_path(file_record)
         
