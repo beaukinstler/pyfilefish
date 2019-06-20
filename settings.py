@@ -19,8 +19,10 @@ if APPMODE == 'testing':
     load_dotenv(dotenv_path=env_path, verbose=True)
 elif APPMODE == 'development':
     load_dotenv(".env_dev", verbose=True)
-else:
+elif APPMODE == 'production':
     load_dotenv(".env_production")
+else:
+    load_dotenv('example.env_dev')
     
 
 # local file paths from .env
