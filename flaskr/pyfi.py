@@ -39,6 +39,4 @@ def send_file(vol, md5hash, extension):
     fullpath = Path( [i['full_path'] for i in file_record if i['volume'] == vol][0] ).absolute()
     realdir = str(Path(fullpath).parent)
     name = str(Path(fullpath).name)
-    print(realdir)
-    print(name)
     return send_from_directory(realdir, name, as_attachment=False)
