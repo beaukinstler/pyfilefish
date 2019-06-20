@@ -12,6 +12,11 @@ pylint = "*"
 boto3 = "*"
 python-dotenv = "*"
 pytest = "*"
+encryption = "*"
+cryptography = "*"
+flask = "*"
+# gpg = {version = "*", sys_platform = " == 'linux'"}
+
 
 [requires]
 python_version = "3.7"
