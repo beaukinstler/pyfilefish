@@ -353,7 +353,7 @@ def sync_file_to_s3(file_record:dict, meta=None):
 
     # update or create a manifest to store as well
     if s3_key_manifest in s3client.get_keynames_from_objects(bucket_name):
-        utilLogger.info(msg="manifest files exsists. Will download, update, and upload")
+        utilLogger.info(msg="manifest files exists. Will download, update, and upload")
         s3client.download_file_to_temp(s3_manifest_file, s3_key_manifest, temp_folder)
         add_location_to_file_manifest(os.path.join(temp_folder, s3_manifest_file),volume_name, full_path)
         # s3client.upload_file(os.path.join(temp_folder,s3_manifest_file), s3_key_manifest)
