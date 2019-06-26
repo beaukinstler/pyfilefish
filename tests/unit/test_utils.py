@@ -66,5 +66,18 @@ def test_add_to_tbd_list(tbd_path, pyfish_file_set):
     first_key = list(pyfish_file_set.list.keys())[0]
     pfu.add_to_tbd_list(first_key)
     with open(tbd_path) as tbd_file:
-        hash_read = tbd_file.readline()
+        hash_read = tbd_file.readline().rstrip()
     assert hash_read == first_key
+
+@pytest.mark.tbd
+def test_add_multiple_to_tbd_list(tbd_path, pyfish_file_set_multiple):
+    test_list = list(pyfish_file_set_multiple.list.keys())
+    test_list.sort()
+    for i in range(2):
+        pfu.add_to_tbd_list(test_list[i])
+    with open(tbd_path) as tbd_file:
+        found_list = []
+        found_list.append(tbd_file.readline().rstrip())
+        found_list.append(tbd_file.readline().rstrip())
+    found_list.sort()
+    assert found_list == test_list
