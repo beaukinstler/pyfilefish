@@ -826,3 +826,17 @@ def get_class_var_attributes(cls:object):
     clsItems = cls._attributes
     # filtered_attributes = [ i[0] for i in clsItems if not i[0].startswith('__') and not callable(i[1]) ]
     return clsItems
+
+
+def add_to_tbd_list(hashsum):
+    lines = []
+    try:
+        with open(TBD_PATH, 'r') as textfile:
+            lines = textfile.readlines()
+    except FileExistsError as e:
+        logger.debug(e)
+    
+    lines.append(hashsum)
+    with open(TBD_PATH, 'w+') as outfile:
+        outfile.writelines(set(lines))
+    

@@ -18,6 +18,9 @@ SMALL_TEST_FILE_KEY='tests/test.mp3'
 MED_TEST_FILE='tests/test_files/test.wav'
 MED_TEST_FILE_KEY='tests/test.wav'
 
+from settings import TBD_PATH
+
+
 
 
 @pytest.fixture()
@@ -100,6 +103,11 @@ def pyfish_file_set():
     fs =  pfu.PyfishFileSet()
     fs.add(test_file)
     return fs
+
+@pytest.fixture()
+def tbd_path():
+    yield TBD_PATH
+    
 
 
 

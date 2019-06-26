@@ -60,3 +60,11 @@ def test_create_a_manifest():
 def test_add_files_to_manifest():
     test_manifest_decrypted = 'tests/test_files/data/test.manifest.json'
     pfu.add_location_to_file_manifest(test_manifest_decrypted,'test',["made/up/path"])
+
+@pytest.mark.tbd
+def test_add_to_tbd_list(tbd_path, pyfish_file_set):
+    first_key = list(pyfish_file_set.list.keys())[0]
+    pfu.add_to_tbd_list(first_key)
+    with open(tbd_path) as tbd_file:
+        hash_read = tbd_file.readline()
+    assert hash_read == first_key
