@@ -105,8 +105,24 @@ def pyfish_file_set():
     return fs
 
 @pytest.fixture()
+def pyfish_file_set_multiple():
+    test_file = pfu.PyfishFile('test', 'tests/test_files/test.wav')
+    test_file.open_and_get_info()
+    test_file2 = pfu.PyfishFile('test', 'tests/test_files/test.mp3')
+    test_file2.open_and_get_info()
+    fs =  pfu.PyfishFileSet()
+    fs.add(test_file)
+    fs.add(test_file2)
+    return fs
+
+@pytest.fixture()
 def tbd_path():
+    try:
+        os.remove(TBD_PATH)
+    except FileNotFoundError:
+        pass
     yield TBD_PATH
+    os.remove(TBD_PATH)
     
 
 
