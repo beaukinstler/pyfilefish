@@ -835,8 +835,10 @@ def add_to_tbd_list(hashsum):
             lines = textfile.readlines()
     except FileExistsError as e:
         logger.debug(e)
+    except FileNotFoundError as e:
+        logger.debug(e)
     
-    lines.append(hashsum)
+    lines.append(f"{hashsum}\n")
     with open(TBD_PATH, 'w+') as outfile:
         outfile.writelines(set(lines))
     
