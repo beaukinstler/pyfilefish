@@ -55,10 +55,10 @@ def _load_saved_file_list(json_file_path):
             external_file_list = json.load(json_data)
             utilLogger.info(f"found the json file and loaded saved data from {json_file_path}")
     except FileNotFoundError as e:
-        print(f"Warning: {e.strerror}")
-        print(f"warning: Missing {json_file_path}")
-        print("Info: This is normal, if this is a first run of the program.")
-        utilLogger.info(f"{json_file_path} was not found. A new file will be created")
+        logger.info(f"Warning: {e.strerror}")
+        logger.info(f"Info: Missing {json_file_path}")
+        logger.info("Info: This is normal, if this is a first run of the program.")
+        logger.info(f"{json_file_path} was not found. A new file will be created")
     return external_file_list
 
 
@@ -68,7 +68,7 @@ def pyfi_file_builder(dict_record:dict):
         md5hash = dict_record['md5hash']
         remote_name_hash = dict_record['remote_name_hash']
     except KeyError as e:
-        print('File hash keys not present or not named correctly')
+        logger.debug('File hash keys not present or not named correctly')
         md5hash = ""
         remote_name_hash = ""
 
@@ -81,14 +81,14 @@ def pyfi_file_builder(dict_record:dict):
                 if item in clsAttributes:
                     newPifiFile.__setattr__(str(item), dict_record[item])
             except KeyError as e:
-                print(f"Key not found.  Will skip :{e}")
+                logger.debug(f"Key not found.  Will skip :{e}")
             except TypeError as e:
-                print(f"Type in dictionary doesn't match the type the PyfishFile wants.  Will skip :{e}")
+                logger.debug(f"Type in dictionary doesn't match the type the PyfishFile wants.  Will skip :{e}")
         if not newPifiFile.md5hash or not newPifiFile.remote_name_hash:
             newPifiFile.open_and_get_info()
         result = newPifiFile
     except KeyError as e:
-        print("required fields weren't provided.  Will return a type of None")
+        logger.warn("required fields weren't provided.  Will return a type of None")
 
     return None if result is None else result         
 
@@ -107,8 +107,8 @@ def load_pyfish_data(md5hash=""):
         try:
             return file_list[md5hash]
         except KeyError as e:
-            print(e)
-            print(f"MD5 value {md5hash} couldn't be found in data")
+            logger.debug(e)
+            logger.debug(f"MD5 value {md5hash} couldn't be found in data")
             file_list = None
     return file_list
 
@@ -551,7 +551,8 @@ def add_location_to_file_manifest(
             json.dump(manifest, temp_out)
 
     except FileExistsError as e:
-        print(e)
+        logger.warn(e)
+        logger.warn("unable to access the file path provided")
 
 
 
@@ -704,6 +705,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
     scan a drive and location for files 
     """
     print(f"Start Time: {str(datetime.datetime.now().time())}")
+    logger.info(f"Start Time: {str(datetime.datetime.now().time())}")
 
     ## setup some environment stuff
     os.makedirs(FLAT_FILE_DATA_DIR, exist_ok=True)
