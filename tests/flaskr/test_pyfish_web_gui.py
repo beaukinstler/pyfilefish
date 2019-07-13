@@ -18,7 +18,7 @@ def test_login_required(client, path):
     assert response.headers["Location"] == "http://localhost/auth/login"
 
 @pytest.mark.pyfish_web_gui
-def test_pyfi_accesible_when_authenticated(client, auth):
+def test_pyfi_accessible_when_authenticated(client, auth):
     auth.login()
     response = client.get("/pyfi")
     assert b"Full Path" in response.data

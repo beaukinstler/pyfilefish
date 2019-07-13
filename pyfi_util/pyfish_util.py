@@ -196,7 +196,7 @@ def parse_location_metadata(file_ref):
         file_list items
 
     Returns:
-        dict -- converted defaultdict, grouped by voulme. Will have at least one
+        dict -- converted defaultdict, grouped by volume. Will have at least one
         full path name for the file on the volume, but could be a list of them per
         volume if there is more than one on a volume.
     """
@@ -733,7 +733,7 @@ def scan_for_files(pyfi_file_list:list, folder, file_types:FilePropertySet, volu
                         timestamp = str(modification_date(filename))
                         file_size = str(round(file_stat.st_size/(1024*1024.0),5))
                         file_inode = str(file_stat.st_ino)
-                        # account for slopy case sesitivity practices in windows
+                        # account for sloppy case sensitivity practices in windows
                         full_path_for_parts = str(os.path.realpath(file_to_hash.name)).lower() if not case_sensitive else str(os.path.realpath(file_to_hash.name))
                         full_path = str(os.path.realpath(file_to_hash.name))
                         # path_tags = [tag for tag in filter(None,full_path.split("/"))]

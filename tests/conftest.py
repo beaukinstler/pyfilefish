@@ -81,14 +81,12 @@ def s3conn():
 
 @pytest.fixture()
 def test_sm_fileobj():
-    data = None
     with open(SMALL_TEST_FILE, 'rb') as file_to_get:
         yield file_to_get
 
 
 @pytest.fixture()
 def test_med_fileobj():
-    data = None
     with open(MED_TEST_FILE, 'rb') as file_to_get:
         yield file_to_get
 
