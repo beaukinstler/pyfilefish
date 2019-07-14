@@ -1,26 +1,30 @@
-import s3_integration
+# import s3_integration
 from pyfi_util import pyfish_util as pfu
+from pyfi_filestore.pyfish_file import PyfishFileSet
 import pytest
-from pyfi_ui import pyfi_cli as pui
-from dotenv import load_dotenv
+
+# from pyfi_ui import pyfi_cli as pui
 from os import getenv
 from collections import namedtuple
 from s3_integration.s3_tools import S3Connection
 from filetypes import FilePropertySet
 
-
-
-ACTIVE_BUCKET_NAME= getenv('ACTIVE_BUCKET_NAME')
-PYFI_S3_SALT = getenv('PYFI_S3_SALT')
-PYFI_S3_ENCRYPTION_KEY = getenv('PYFI_S3_ENCRYPTION_KEY')
-SMALL_TEST_FILE='tests/test_files/test.mp3'
-SMALL_TEST_FILE_KEY='tests/test.mp3'
-MED_TEST_FILE='tests/test_files/test.wav'
-MED_TEST_FILE_KEY='tests/test.wav'
-
+import tempfile
+from flaskr import create_app
+from flaskr.db import get_db
+from flaskr.db import init_db
+import os
 from settings import TBD_PATH
 
+os.environ["FLASK_ENV"] = "testing"
 
+ACTIVE_BUCKET_NAME = getenv("ACTIVE_BUCKET_NAME")
+PYFI_S3_SALT = getenv("PYFI_S3_SALT")
+PYFI_S3_ENCRYPTION_KEY = getenv("PYFI_S3_ENCRYPTION_KEY")
+SMALL_TEST_FILE = "tests/test_files/test.mp3"
+SMALL_TEST_FILE_KEY = "tests/test.mp3"
+MED_TEST_FILE = "tests/test_files/test.wav"
+MED_TEST_FILE_KEY = "tests/test.wav"
 
 
 @pytest.fixture()
@@ -33,8 +37,9 @@ def file_property_set(blank=False):
 
     file_types = FilePropertySet()
     if blank:
-            file_types.clear()
+        file_types.clear()
     return file_types
+
 
 @pytest.fixture()
 def file_list():
@@ -43,8 +48,9 @@ def file_list():
     files
     """
     # import pdb; pdb.set_trace()
-    result = pfu._load_saved_file_list('tests/test_files/data/test_json_data.json')
+    result = pfu._load_saved_file_list("tests/test_files/data/test_json_data.json")
     return result
+
 
 @pytest.fixture()
 def file_list_only_one_volume():
@@ -53,23 +59,40 @@ def file_list_only_one_volume():
     files
     """
     # import pdb; pdb.set_trace()
-    result = pfu._load_saved_file_list('tests/test_files/data/test_json_data_one_vol.json')
+    result = pfu._load_saved_file_list(
+        "tests/test_files/data/test_json_data_one_vol.json"
+    )
     return result
+
 
 @pytest.fixture()
 def test_env():
     EnvBuilder = namedtuple(
-            "env", 
-            ['ACTIVE_BUCKET_NAME','PYFI_S3_SALT','PYFI_S3_ENCRYPTION_KEY',
-             'SMALL_TEST_FILE', 'SMALL_TEST_FILE_KEY', 'MED_TEST_FILE',
-             'MED_TEST_FILE_KEY']
-        )
+        "env",
+        [
+            "ACTIVE_BUCKET_NAME",
+            "PYFI_S3_SALT",
+            "PYFI_S3_ENCRYPTION_KEY",
+            "SMALL_TEST_FILE",
+            "SMALL_TEST_FILE_KEY",
+            "MED_TEST_FILE",
+            "MED_TEST_FILE_KEY",
+        ],
+    )
     env = EnvBuilder._make(
-            [ACTIVE_BUCKET_NAME,PYFI_S3_SALT,PYFI_S3_ENCRYPTION_KEY,
-             SMALL_TEST_FILE, SMALL_TEST_FILE_KEY, MED_TEST_FILE, MED_TEST_FILE_KEY]
-        )
+        [
+            ACTIVE_BUCKET_NAME,
+            PYFI_S3_SALT,
+            PYFI_S3_ENCRYPTION_KEY,
+            SMALL_TEST_FILE,
+            SMALL_TEST_FILE_KEY,
+            MED_TEST_FILE,
+            MED_TEST_FILE_KEY,
+        ]
+    )
 
     return env
+
 
 @pytest.fixture()
 def s3conn():
@@ -81,37 +104,41 @@ def s3conn():
 
 @pytest.fixture()
 def test_sm_fileobj():
-    with open(SMALL_TEST_FILE, 'rb') as file_to_get:
+    with open(SMALL_TEST_FILE, "rb") as file_to_get:
         yield file_to_get
 
 
 @pytest.fixture()
 def test_med_fileobj():
-    with open(MED_TEST_FILE, 'rb') as file_to_get:
+    with open(MED_TEST_FILE, "rb") as file_to_get:
         yield file_to_get
+
 
 @pytest.fixture()
 def pyfishfile():
-    return pfu.PyfishFile('test', 'tests/test_files/test.wav')
+    return pfu.PyfishFile("test", "tests/test_files/test.wav")
+
 
 @pytest.fixture()
 def pyfish_file_set():
-    test_file = pfu.PyfishFile('test', 'tests/test_files/test.wav')
+    test_file = pfu.PyfishFile("test", "tests/test_files/test.wav")
     test_file.open_and_get_info()
-    fs =  pfu.PyfishFileSet()
+    fs = PyfishFileSet()
     fs.add(test_file)
     return fs
 
+
 @pytest.fixture()
 def pyfish_file_set_multiple():
-    test_file = pfu.PyfishFile('test', 'tests/test_files/test.wav')
+    test_file = pfu.PyfishFile("test", "tests/test_files/test.wav")
     test_file.open_and_get_info()
-    test_file2 = pfu.PyfishFile('test', 'tests/test_files/test.mp3')
+    test_file2 = pfu.PyfishFile("test", "tests/test_files/test.mp3")
     test_file2.open_and_get_info()
-    fs =  pfu.PyfishFileSet()
+    fs = PyfishFileSet()
     fs.add(test_file)
     fs.add(test_file2)
     return fs
+
 
 @pytest.fixture()
 def tbd_path():
@@ -121,9 +148,6 @@ def tbd_path():
         pass
     yield TBD_PATH
     os.remove(TBD_PATH)
-    
-
-
 
 
 ####
@@ -160,15 +184,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE AND DOCUMENTATION, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE."""
-
-import tempfile
-import pytest
-from flaskr import create_app
-from flaskr.db import get_db
-from flaskr.db import init_db
-import os
-
-os.environ['FLASK_ENV'] = 'testing'
 
 
 # read in SQL for populating test data

@@ -14,10 +14,9 @@ def encrypt_file_with_gpg(file_name, key):
             text = afile.read()
         c = gpg.core.Context(armor=True)
         rkey = list(c.keylist(pattern=key, secret=False))
-        ciphertext, result, sign_result = c.encrypt(text, recipients=rkey,
-                                                    always_trust=True,
-                                                    add_encrypt_to=True,
-                                                    sign=False)
+        ciphertext, result, sign_result = c.encrypt(
+            text, recipients=rkey, always_trust=True, add_encrypt_to=True, sign=False
+        )
         with open("{0}.asc".format(file_name), "wb") as bfile:
             bfile.write(ciphertext)
 
@@ -30,7 +29,8 @@ def decrypt_file_with_gpg(file_name, key=""):
     encrypted_file = Path(file_name)
     output_name = f"new--{encrypted_file.name}"
     with open(f"{str(encrypted_file)}.asc", "rb") as cfile:
-        plaintext, result, verify_result = gpg.Context().decrypt(cfile, passphrase=GPG_PASS)
+        plaintext, result, verify_result = gpg.Context().decrypt(
+            cfile, passphrase=GPG_PASS
+        )
     with open(encrypted_file.parent.joinpath(output_name), "wb") as dfile:
         dfile.write(plaintext)
-    

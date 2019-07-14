@@ -1,8 +1,8 @@
-
 import os
 from filetypes import FilePropertySet
 from pyfi_util.pyfish_util import get_current_volumes, get_unique_files_totalsize
 from pathlib import Path
+
 
 def prompt_for_local_dest():
     prompt = """
@@ -13,7 +13,8 @@ def prompt_for_local_dest():
     dest = input(prompt)
     return dest
 
-def prompt_windows_folder(drive_ui:str='', folder_ui:str=''):
+
+def prompt_windows_folder(drive_ui: str = "", folder_ui: str = ""):
     print("Enter a drive leter and sub folder that you'd like to search.\n")
     print('ie. "C:\\"')
     konch = False
@@ -21,7 +22,7 @@ def prompt_windows_folder(drive_ui:str='', folder_ui:str=''):
     folder = ""
     while konch == False:
         if not drive_ui:
-            drive =input("Enter the drive letter you'd like to search: ")
+            drive = input("Enter the drive letter you'd like to search: ")
             drive = Path(str(drive) + ":/")
         else:
             konch = True
@@ -29,12 +30,16 @@ def prompt_windows_folder(drive_ui:str='', folder_ui:str=''):
             if drive.exists():
                 konch = True
             else:
-                print("That drive isn't mounted.  Please choose a drive that is available")
+                print(
+                    "That drive isn't mounted.  Please choose a drive that is available"
+                )
         except OSError:
-                print("That file system doens't seem to be valid. \
-                        Please ensure you can access the file system. Perhaps remount the drive if not.")
-                if drive_ui:
-                    raise ValueError
+            print(
+                "That file system doens't seem to be valid. \
+                        Please ensure you can access the file system. Perhaps remount the drive if not."
+            )
+            if drive_ui:
+                raise ValueError
 
     konch = False
     temp_folder = ""
@@ -43,34 +48,36 @@ def prompt_windows_folder(drive_ui:str='', folder_ui:str=''):
             folder = drive.joinpath(folder_ui)
             break
         else:
-            temp_folder = input('Please enter a subfolder (i.e "Users/sue"),\n \
-                            or just press [Enter] to use the whole drive: ')
+            temp_folder = input(
+                'Please enter a subfolder (i.e "Users/sue"),\n \
+                            or just press [Enter] to use the whole drive: '
+            )
             folder = drive.joinpath(temp_folder)
-        
+
         if folder.exists():
             konch = True
         else:
             print("\nSorry, that is not a valid path.  Please try again.")
-    
+
     return str(folder)
-     
+
 
 def prompt_folder_to_scan():
 
     # if os.name == 'nt':
     #     folder = prompt_windows_folder()
-    
+
     # elif os.name == 'posix':
-    
-    if os.name in ['posix', 'nt']:
-        print('OS is Mac/Linux or Windows NT')
+
+    if os.name in ["posix", "nt"]:
+        print("OS is Mac/Linux or Windows NT")
         folder = input("Enter the file path (Default is './tests/test_files': ")
-        if folder == '':
+        if folder == "":
             folder = "./tests/test_files"
 
     else:
         folder = None
-        
+
     return folder
 
 
@@ -81,20 +88,25 @@ def get_file_types_from_user():
     filePropList = FilePropertySet()
     file_type_input = ""
     while True:
-        if file_type_input == 'new':
+        if file_type_input == "new":
             # fileTypeList = []
             filePropList.clear()
         # fileTypeList.append(file_type_input)
-        prompt_text = "Please input file types to search for, but don't " + \
-            "add the period.\n  Or just press enter or type 'done' if satisfied with...\n" + \
-            ', '.join([ prop.extension for prop in filePropList.ft_list]) + "\n: "
+        prompt_text = (
+            "Please input file types to search for, but don't "
+            + "add the period.\n  Or just press enter or type 'done' if satisfied with...\n"
+            + ", ".join([prop.extension for prop in filePropList.ft_list])
+            + "\n: "
+        )
         prompt_text += "Or type 'new' to clear the list and start over\n"
         file_type_input = input(prompt_text)
-        if file_type_input in ['done', '']:
+        if file_type_input in ["done", ""]:
             break
-        if file_type_input != 'new':
-            print("Please enter a mininimum size in bytes."
-                    "(smaller files will be ignored.)")
+        if file_type_input != "new":
+            print(
+                "Please enter a mininimum size in bytes."
+                "(smaller files will be ignored.)"
+            )
             min_size = input("mininmum size: ")
             filePropList.add(filePropList.file_properties(file_type_input, min_size))
 
@@ -102,8 +114,7 @@ def get_file_types_from_user():
     return filePropList
 
 
-
-def _select_volume_from_list(previous_volumes:list, existing_only=False):
+def _select_volume_from_list(previous_volumes: list, existing_only=False):
     """present a list of volumes to choose from and over to enter a new one
     
     Arguments:
@@ -114,21 +125,29 @@ def _select_volume_from_list(previous_volumes:list, existing_only=False):
         str -- either a new volume name, or one from the list
     """
 
-    select_list = [ (key, previous_volumes[key-1]) for key in range(1,len(previous_volumes)+1) ]
-    result = ''
-    confirm = 'n'
-    new_volume_prompt = "HINT: Names should be unique, and help you know where the volume is.\n"
+    select_list = [
+        (key, previous_volumes[key - 1]) for key in range(1, len(previous_volumes) + 1)
+    ]
+    result = ""
+    confirm = "n"
+    new_volume_prompt = (
+        "HINT: Names should be unique, and help you know where the volume is.\n"
+    )
     new_volume_prompt += "i.e: 'Macbook Lucy/ HD01'\n"
-    new_volume_prompt += "Please enter a new name, but it should not match an existing name: "
+    new_volume_prompt += (
+        "Please enter a new name, but it should not match an existing name: "
+    )
     # we'll loop the prompt until the user is sure of their selection
     entry = 0
-    while confirm[0].lower() != 'y':
+    while confirm[0].lower() != "y":
         if previous_volumes:
             print("You can choose a volume/location found in the saved data\n")
-            for key,volume in select_list:
+            for key, volume in select_list:
                 print(f"press '{key}' for '{volume}'")
-            if not existing_only:   
-                entry = input("Type the number, or '0' to add a new volume and press Enter': ")
+            if not existing_only:
+                entry = input(
+                    "Type the number, or '0' to add a new volume and press Enter': "
+                )
             else:
                 entry = input("Type the number computer volume and press 'Enter': ")
         try:
@@ -136,46 +155,58 @@ def _select_volume_from_list(previous_volumes:list, existing_only=False):
         except:
             if not entry:
                 entry = 0
-        entry = str(input(new_volume_prompt)) if str(entry) == '0' else entry
-        prompt_entry = entry if type(entry) is str else previous_volumes[entry-1]
-        confirm = input(f"\nYou entered '{prompt_entry}'. Is that correct? (yes,no,cancel): ") if entry else 'n'
-        confirm = 'y' if confirm == '' else confirm
-        if confirm[0].lower() == 'c':
+        entry = str(input(new_volume_prompt)) if str(entry) == "0" else entry
+        prompt_entry = entry if type(entry) is str else previous_volumes[entry - 1]
+        confirm = (
+            input(f"\nYou entered '{prompt_entry}'. Is that correct? (yes,no,cancel): ")
+            if entry
+            else "n"
+        )
+        confirm = "y" if confirm == "" else confirm
+        if confirm[0].lower() == "c":
             print("You have canceled. Existing")
             exit()
         # get the text name if a previous volume slected.
         if type(entry) == int:
-            result = previous_volumes[entry-1]
+            result = previous_volumes[entry - 1]
         else:
             result = entry
             if result in previous_volumes:
                 print("SORRY, you can't use a name that's been used already\n")
-                confirm = 'n'
-                result = ''
+                confirm = "n"
+                result = ""
         # reset confirm if blank
         if not confirm:
-            confirm = 'n'
+            confirm = "n"
 
     # return the volume name to use
     return str(result)
 
+
 def prompt_for_volume(existing_only=False):
-    previous_volumes = [ vol for vol in get_current_volumes() ]
-    volume = _select_volume_from_list(previous_volumes,existing_only)
+    previous_volumes = [vol for vol in get_current_volumes()]
+    volume = _select_volume_from_list(previous_volumes, existing_only)
     if not existing_only:
-        volume_name = input(
-            "Name the volume you're searching" +
-            "(something distinct from other volumes): ") if not volume else volume
+        volume_name = (
+            input(
+                "Name the volume you're searching"
+                + "(something distinct from other volumes): "
+            )
+            if not volume
+            else volume
+        )
     else:
         volume_name = volume
     return volume_name
 
+
 def prompt_user_for_size_one_volume():
     print("Please choose a volume name to search for size")
     vol = prompt_for_volume(existing_only=True)
-    size = get_unique_files_totalsize(None,vol)
+    size = get_unique_files_totalsize(None, vol)
     print(f"\nVolume: {vol}\n")
     print(f"Size  : {size}\n")
+
 
 def prompt_user_for_run_mode():
     """sub routine to report on previous data
@@ -194,10 +225,11 @@ def prompt_user_for_run_mode():
         7)  TODO: Print Stats after scanning.
         11) EXIT
         0) Scan and find files for data, but do not sync to another location
-        """)
+        """
+    )
     try:
         choice = int(input(prompt))
-        print('\n')
+        print("\n")
     except Exception as e:
         print(f"'not a valid choice': {e}")
         choice = 0
@@ -206,12 +238,12 @@ def prompt_user_for_run_mode():
         if choice == 1:
             print(f"Total size of files stored in MB: {get_unique_files_totalsize()}")
         elif choice == 2:
-            print([ i for i in get_current_volumes() ] )
+            print([i for i in get_current_volumes()])
         elif choice == 4:
             print("local destination needed")
         elif choice == 5:
             print("local destination needed")
-        elif choice ==6:
+        elif choice == 6:
             print("Getting Volume name...\n\n")
             prompt_user_for_size_one_volume()
         elif choice > 6:
