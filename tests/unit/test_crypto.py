@@ -102,10 +102,14 @@ def test_encrypting_test_files():
     f2 = Fernet(key)
     # print(f2.decrypt(token))
 
-    with open("tests/test_files/test.wav_un-encrypted", "wb") as decrypt_file_to_write:
+    with open(
+        "tests/test_files/test.wav_un-encrypted", "wb"
+    ) as decrypt_file_to_write:
         decrypt_file_to_write.write(f2.decrypt(token))
 
-    with open("tests/test_files/test.wav_un-encrypted", "rb") as decrypt_file_to_read:
+    with open(
+        "tests/test_files/test.wav_un-encrypted", "rb"
+    ) as decrypt_file_to_read:
         data = decrypt_file_to_read.read()
         md5sAfter = md5(data).hexdigest()
 

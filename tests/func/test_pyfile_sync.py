@@ -9,4 +9,6 @@ def test_write_to_local_as_if_remote(pyfishfile: PyfishFile):
     remote_save_path = pfu.build_relative_destination_path_remote(
         pyfish_file_ref=pyfishfile
     )
-    local_save_path = pfu.build_relative_destination_path(pyfish_file_ref=pyfishfile)
+    local_save_path = pfu.build_relative_destination_path(
+        pyfish_file_ref=pyfishfile
+    )

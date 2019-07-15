@@ -1,6 +1,9 @@
 import os
 from filetypes import FilePropertySet
-from pyfi_util.pyfish_util import get_current_volumes, get_unique_files_totalsize
+from pyfi_util.pyfish_util import (
+    get_current_volumes,
+    get_unique_files_totalsize,
+)
 from pathlib import Path
 
 
@@ -71,7 +74,9 @@ def prompt_folder_to_scan():
 
     if os.name in ["posix", "nt"]:
         print("OS is Mac/Linux or Windows NT")
-        folder = input("Enter the file path (Default is './tests/test_files': ")
+        folder = input(
+            "Enter the file path (Default is './tests/test_files': "
+        )
         if folder == "":
             folder = "./tests/test_files"
 
@@ -108,7 +113,9 @@ def get_file_types_from_user():
                 "(smaller files will be ignored.)"
             )
             min_size = input("mininmum size: ")
-            filePropList.add(filePropList.file_properties(file_type_input, min_size))
+            filePropList.add(
+                filePropList.file_properties(file_type_input, min_size)
+            )
 
     # return fileTypeList
     return filePropList
@@ -126,13 +133,12 @@ def _select_volume_from_list(previous_volumes: list, existing_only=False):
     """
 
     select_list = [
-        (key, previous_volumes[key - 1]) for key in range(1, len(previous_volumes) + 1)
+        (key, previous_volumes[key - 1])
+        for key in range(1, len(previous_volumes) + 1)
     ]
     result = ""
     confirm = "n"
-    new_volume_prompt = (
-        "HINT: Names should be unique, and help you know where the volume is.\n"
-    )
+    new_volume_prompt = "HINT: Names should be unique, and help you know where the volume is.\n"
     new_volume_prompt += "i.e: 'Macbook Lucy/ HD01'\n"
     new_volume_prompt += (
         "Please enter a new name, but it should not match an existing name: "
@@ -149,16 +155,22 @@ def _select_volume_from_list(previous_volumes: list, existing_only=False):
                     "Type the number, or '0' to add a new volume and press Enter': "
                 )
             else:
-                entry = input("Type the number computer volume and press 'Enter': ")
+                entry = input(
+                    "Type the number computer volume and press 'Enter': "
+                )
         try:
             entry = int(entry)
         except:
             if not entry:
                 entry = 0
         entry = str(input(new_volume_prompt)) if str(entry) == "0" else entry
-        prompt_entry = entry if type(entry) is str else previous_volumes[entry - 1]
+        prompt_entry = (
+            entry if type(entry) is str else previous_volumes[entry - 1]
+        )
         confirm = (
-            input(f"\nYou entered '{prompt_entry}'. Is that correct? (yes,no,cancel): ")
+            input(
+                f"\nYou entered '{prompt_entry}'. Is that correct? (yes,no,cancel): "
+            )
             if entry
             else "n"
         )
@@ -236,7 +248,9 @@ def prompt_user_for_run_mode():
 
     if choice:
         if choice == 1:
-            print(f"Total size of files stored in MB: {get_unique_files_totalsize()}")
+            print(
+                f"Total size of files stored in MB: {get_unique_files_totalsize()}"
+            )
         elif choice == 2:
             print([i for i in get_current_volumes()])
         elif choice == 4:

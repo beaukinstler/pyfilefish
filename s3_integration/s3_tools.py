@@ -40,7 +40,9 @@ class S3Connection:
     def __init__(self):
         self.active_bucket_name = ""
         self.s3 = ""  # intended to store a boto3.client
-        self.s3Resource = ""  # intended to store a boto3.resource, as an alternative
+        self.s3Resource = (
+            ""
+        )  # intended to store a boto3.resource, as an alternative
         self.cached_bucket_names = (
             ""
         )  # store bucket names so calls to AWS aren't always needed.
@@ -203,7 +205,9 @@ class S3Connection:
             self.choose_bucket()
         return response
 
-    def download_file_to_temp(self, filepath, s3_file_name_key, temp_location="temp/"):
+    def download_file_to_temp(
+        self, filepath, s3_file_name_key, temp_location="temp/"
+    ):
         """Use s3.client.download_fileobj to get a binary file like object.
 
         Arguments:
@@ -215,7 +219,9 @@ class S3Connection:
         """
         try:
             self.s3.download_file(
-                self.active_bucket_name, s3_file_name_key, join(temp_location, filepath)
+                self.active_bucket_name,
+                s3_file_name_key,
+                join(temp_location, filepath),
             )
         except Exception as e:
             print("File not found")
@@ -232,5 +238,7 @@ class S3Connection:
             temp_location {string} -- temp folder location (default: {'temp/'})
         """
         data = None
-        self.s3.client.download_fileobj(self.active_bucket_name, s3_file_name_key, data)
+        self.s3.client.download_fileobj(
+            self.active_bucket_name, s3_file_name_key, data
+        )
         return data

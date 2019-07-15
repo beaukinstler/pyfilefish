@@ -18,7 +18,9 @@ def test_upload_sm_fileobj(test_sm_fileobj, test_env, s3conn: S3Connection):
     # GIVEN: a fileobj and a connection to and S3 bucket
     # WHEN: a fileobj is uploaded
     # THEN: no errors occur
-    result = s3conn.upload_fileobj(test_sm_fileobj, test_env.SMALL_TEST_FILE_KEY)
+    result = s3conn.upload_fileobj(
+        test_sm_fileobj, test_env.SMALL_TEST_FILE_KEY
+    )
     assert result is None
 
 

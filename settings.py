@@ -25,14 +25,16 @@ else:
 # local file paths from .env
 USER_PYFI_FILE_HASH_KEY = getenv(
     "USER_PYFI_FILE_HASH_KEY"
-)  ## Set this string to something you will use for all files.  It will be used to match duplicate files, so it must be reused anytime this is being run, and any machine for volume that is writing to the same file storage location, to ensure duplicates are stored, but only logged in the manifests
-HASH_KEY = USER_PYFI_FILE_HASH_KEY or "DEFAULT_KEY"  ##
+)  # Set this string to something you will use for all files.  It will be used to match duplicate files, so it must be reused anytime this is being run, and any machine for volume that is writing to the same file storage location, to ensure duplicates are stored, but only logged in the manifests
+HASH_KEY = USER_PYFI_FILE_HASH_KEY or "DEFAULT_KEY"
 DATA_FOLDER = getenv("DATA_FOLDER")
 LOG_FOLDER = getenv("LOG_FOLDER")
 JSON_FILE_PATH = os.path.join(DATA_FOLDER, getenv("JSON_FILE_PATH"))
 JSON_FILE_PATH_TEMP = os.path.join(DATA_FOLDER, getenv("JSON_FILE_PATH_TEMP"))
 JSON_STATS_PATH = os.path.join(DATA_FOLDER, getenv("JSON_STATS_PATH"))
-JSON_MULTI_SUMMARY_FILE = os.path.join(DATA_FOLDER, getenv("JSON_MULTI_SUMMARY_FILE"))
+JSON_MULTI_SUMMARY_FILE = os.path.join(
+    DATA_FOLDER, getenv("JSON_MULTI_SUMMARY_FILE")
+)
 FLAT_FILE_DATA_DIR = getenv("FLAT_FILE_DATA_DIR")
 FLAT_FILE_SUFFIX = getenv("FLAT_FILE_SUFFIX")
 TEMP_FOLDER = getenv("TEMP_FOLDER")
@@ -51,7 +53,9 @@ os.makedirs(TEMP_FOLDER, exist_ok=True)
 os.makedirs(FLAT_FILE_DATA_DIR, exist_ok=True)
 LOG_FORMAT = "%(levelname)s %(asctime)s - %(message)s"
 LOG_FILE_NAME = os.path.join(LOG_FOLDER, "app_log.txt")
-logging.basicConfig(filename=LOG_FILE_NAME, level=logging.INFO, format=LOG_FORMAT)
+logging.basicConfig(
+    filename=LOG_FILE_NAME, level=logging.INFO, format=LOG_FORMAT
+)
 logger = logging.getLogger()
 
 # ignore directories

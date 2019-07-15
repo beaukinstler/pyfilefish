@@ -39,7 +39,9 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = (
-            get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
+            get_db()
+            .execute("SELECT * FROM user WHERE id = ?", (user_id,))
+            .fetchone()
         )
 
 
@@ -61,7 +63,9 @@ def register():
         elif not password:
             error = "Password is required."
         elif (
-            db.execute("SELECT id FROM user WHERE username = ?", (username,)).fetchone()
+            db.execute(
+                "SELECT id FROM user WHERE username = ?", (username,)
+            ).fetchone()
             is not None
         ):
             error = "User {0} is already registered.".format(username)

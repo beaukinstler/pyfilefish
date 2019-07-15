@@ -112,7 +112,9 @@ def pyfi_file_builder(dict_record: dict):
             newPifiFile.open_and_get_info()
         result = newPifiFile
     except KeyError:
-        logger.warn("required fields weren't provided.  Will return a type of None")
+        logger.warn(
+            "required fields weren't provided.  Will return a type of None"
+        )
 
     return None if result is None else result
 
@@ -189,7 +191,9 @@ def get_files_from_one_vol(
     for hashsum in data:
         for i in range(0, len(data[hashsum])):
             if file_types:
-                if data[hashsum][i]["volume"] == vol and file_types.find_extension(
+                if data[hashsum][i][
+                    "volume"
+                ] == vol and file_types.find_extension(
                     data[hashsum][i]["filetype"]
                 ):  # noqa
                     try:
@@ -245,7 +249,9 @@ def parse_location_metadata(file_ref):
             result = {"Metadata": {"Locations": locations}}
 
     except KeyError as e:
-        logger.error(f"Encountered error parsing location metadata. Error: {e}")
+        logger.error(
+            f"Encountered error parsing location metadata. Error: {e}"
+        )
         result = None
     return result
 
@@ -350,17 +356,27 @@ def sync_to_another_drive(file_ref_to_add, target):
             "file manifest exists. will copy to local temp, update \
                       the paths, and copy back to destination"
         )
-        copyfile(full_path_mainfest, os.path.join(temp_folder, manifest_file_name))
-        add_location_to_file_manifest(
-            os.path.join(temp_folder, manifest_file_name), volume_name, all_paths
+        copyfile(
+            full_path_mainfest, os.path.join(temp_folder, manifest_file_name)
         )
-        copyfile(os.path.join(temp_folder, manifest_file_name), full_path_mainfest)
+        add_location_to_file_manifest(
+            os.path.join(temp_folder, manifest_file_name),
+            volume_name,
+            all_paths,
+        )
+        copyfile(
+            os.path.join(temp_folder, manifest_file_name), full_path_mainfest
+        )
         os.remove(os.path.join(temp_folder, manifest_file_name))
     else:
         temp_manifest = create_manifest(volume_name, all_paths)
-        with open(os.path.join(temp_folder, manifest_file_name), "w+") as temp_json:
+        with open(
+            os.path.join(temp_folder, manifest_file_name), "w+"
+        ) as temp_json:
             json.dump(temp_manifest, temp_json)
-        copyfile(os.path.join(temp_folder, manifest_file_name), full_path_mainfest)
+        copyfile(
+            os.path.join(temp_folder, manifest_file_name), full_path_mainfest
+        )
         os.remove(os.path.join(temp_folder, manifest_file_name))
 
 
@@ -374,7 +390,9 @@ def sync_file_to_s3(file_record: dict, meta=None):
 
     file_path = file_record["full_path"]
 
-    sub_path, extention, name_to_store = build_relative_destination_path(file_record)
+    sub_path, extention, name_to_store = build_relative_destination_path(
+        file_record
+    )
     temp_folder = TEMP_FOLDER
     volume_name = f"{file_record['volume']}"
     full_path = f"{file_record['full_path']}"
@@ -389,7 +407,9 @@ def sync_file_to_s3(file_record: dict, meta=None):
     bucket_name = os.getenv("ACTIVE_BUCKET_NAME")
     s3client.set_active_bucket(bucket_name)
     if s3_key in s3client.get_keynames_from_objects(bucket_name):
-        logger.warning(msg="key found in objects already. Will not upload by default")
+        logger.warning(
+            msg="key found in objects already. Will not upload by default"
+        )
     else:
         try:
             s3client.upload_file(file_path, s3_key, metadata=meta)
@@ -398,18 +418,26 @@ def sync_file_to_s3(file_record: dict, meta=None):
 
     # update or create a manifest to store as well
     if s3_key_manifest in s3client.get_keynames_from_objects(bucket_name):
-        logger.info(msg="manifest files exists. Will download, update, and upload")
-        s3client.download_file_to_temp(s3_manifest_file, s3_key_manifest, temp_folder)
+        logger.info(
+            msg="manifest files exists. Will download, update, and upload"
+        )
+        s3client.download_file_to_temp(
+            s3_manifest_file, s3_key_manifest, temp_folder
+        )
         add_location_to_file_manifest(
             os.path.join(temp_folder, s3_manifest_file), volume_name, full_path
         )
     else:
         # no manifest found.  Create and upload it
         temp_manifest = create_manifest(volume_name, full_path)
-        with open(os.path.join(temp_folder, s3_manifest_file), "w+") as temp_json:
+        with open(
+            os.path.join(temp_folder, s3_manifest_file), "w+"
+        ) as temp_json:
             json.dump(temp_manifest, temp_json)
     # in either case, upload the file
-    s3client.upload_file(os.path.join(temp_folder, s3_manifest_file), s3_key_manifest)
+    s3client.upload_file(
+        os.path.join(temp_folder, s3_manifest_file), s3_key_manifest
+    )
 
 
 def sync_file_to_s3_new(file_record: PyfishFile, meta=None, encrypt_all=True):
@@ -425,7 +453,9 @@ def sync_file_to_s3_new(file_record: PyfishFile, meta=None, encrypt_all=True):
             file_record.open_and_get_info()
         except TypeError as e:
             logger(e)
-            logger.error("quiting due to type problem.  dict can't be converted")
+            logger.error(
+                "quiting due to type problem.  dict can't be converted"
+            )
             logger.error(
                 f"file {file_record.full_path} is not going \
                     to be synced to s3"
@@ -436,7 +466,9 @@ def sync_file_to_s3_new(file_record: PyfishFile, meta=None, encrypt_all=True):
                 {type(file_record)} as a PyfishFile. \
                 Something has gone very wrong"
         )
-        raise TypeError(f"Attempted to use type of {type(file_record)} as a PyfishFile")
+        raise TypeError(
+            f"Attempted to use type of {type(file_record)} as a PyfishFile"
+        )
     else:
         file_record.open_and_get_info()
     use_encryption = False
@@ -480,7 +512,9 @@ def sync_file_to_s3_new(file_record: PyfishFile, meta=None, encrypt_all=True):
         try:
             if use_encryption:
                 encrypt_file(file_record.full_path, TEMP_FOLDER)
-                tmp_file_path = "".join([TEMP_FOLDER, "/", filename, ".encrypted"])
+                tmp_file_path = "".join(
+                    [TEMP_FOLDER, "/", filename, ".encrypted"]
+                )
             else:
                 pass  # no encryption
             s3client.upload_file(tmp_file_path, s3_key, metadata=meta)
@@ -506,14 +540,18 @@ def sync_file_to_s3_new(file_record: PyfishFile, meta=None, encrypt_all=True):
     else:
         # no manifest found.  Create and upload it
         temp_manifest = create_manifest(volume_name, [file_record.full_path])
-        with open(os.path.join(TEMP_FOLDER, s3_manifest_file), "w+") as temp_json:
+        with open(
+            os.path.join(TEMP_FOLDER, s3_manifest_file), "w+"
+        ) as temp_json:
             json.dump(temp_manifest, temp_json)
 
     # in either case, upload the file
     if use_encryption:
         encrypt_file(os.path.join(TEMP_FOLDER, s3_manifest_file), TEMP_FOLDER)
         s3_manifest_file = f"{s3_manifest_file}{enc}"
-    s3client.upload_file(os.path.join(temp_folder, s3_manifest_file), s3_key_manifest)
+    s3client.upload_file(
+        os.path.join(temp_folder, s3_manifest_file), s3_key_manifest
+    )
 
 
 def decrypt_file(
@@ -580,11 +618,15 @@ def create_manifest(volume_name, locations, added_path=""):
     manifest["locations"] = {}
     manifest["locations"][volume_name] = []
     for file_name in path_list:
-        manifest["locations"][volume_name].append(os.path.join(added_path, file_name))
+        manifest["locations"][volume_name].append(
+            os.path.join(added_path, file_name)
+        )
     return manifest
 
 
-def add_location_to_file_manifest(manifest_file_name, location_volume, location_paths):
+def add_location_to_file_manifest(
+    manifest_file_name, location_volume, location_paths
+):
     """take details of a files location, the location of it's temporary  manifest, read the manifest
     into a dict, update wih new location, and save a new version of the manifest.
     """
@@ -700,7 +742,10 @@ def only_sync_file(local_target="temp", volume_name="", file_types=[]):
     # fill a new  file list with only records with the chosen volume and types
     for md5 in file_list:
         for record in file_list[md5]:
-            if record["volume"] == volume_name and record["filetype"] in file_type_list:
+            if (
+                record["volume"] == volume_name
+                and record["filetype"] in file_type_list
+            ):
                 try:
                     new_file_list[md5].append(record)
                 except KeyError:
@@ -715,7 +760,9 @@ def build_file_reference():
     pass
 
 
-def write_data_to_json_log(pyfi_file_list: list, json_file_path=JSON_FILE_PATH_TEMP):
+def write_data_to_json_log(
+    pyfi_file_list: list, json_file_path=JSON_FILE_PATH_TEMP
+):
     """dump the file list to a file
 
     Arguments:
@@ -727,7 +774,9 @@ def write_data_to_json_log(pyfi_file_list: list, json_file_path=JSON_FILE_PATH_T
         will not be lost (default: {JSON_FILE_PATH_TEMP})
     """
     with codecs.open(json_file_path, "w+", encoding="utf-8") as json_out:
-        json_out.write(json.dumps(pyfi_file_list, sort_keys=True, ensure_ascii=False))
+        json_out.write(
+            json.dumps(pyfi_file_list, sort_keys=True, ensure_ascii=False)
+        )
 
 
 def get_match_details(file_ref):
@@ -747,7 +796,9 @@ def get_match_details(file_ref):
     existing = []
     for i in file_ref:
         try:
-            existing.append((i["tags"], i["volume"], i["inode"], file_ref.index(i)))
+            existing.append(
+                (i["tags"], i["volume"], i["inode"], file_ref.index(i))
+            )
         except KeyError:
             existing.append((i["tags"], i["volume"], -1, file_ref.index(i)))
 
@@ -797,7 +848,9 @@ def scan_for_files(
                         file_hash = get_md5(file_to_hash)
                         file_stat = os.stat(filename)
                         timestamp = str(modification_date(filename))
-                        file_size = str(round(file_stat.st_size / (1024 * 1024.0), 5))
+                        file_size = str(
+                            round(file_stat.st_size / (1024 * 1024.0), 5)
+                        )
                         file_inode = str(file_stat.st_ino)
                         # account for sloppy case sensitivity practices in
                         # windows
@@ -809,7 +862,10 @@ def scan_for_files(
                         full_path = str(os.path.realpath(file_to_hash.name))
                         # path_tags = [tag for tag in filter(None,full_path.split("/"))]
                         path_tags = [
-                            tag for tag in filter(None, Path(full_path_for_parts).parts)
+                            tag
+                            for tag in filter(
+                                None, Path(full_path_for_parts).parts
+                            )
                         ]
                         if (
                             float(file_type.min_size) / (1024 * 1024.0)
@@ -835,7 +891,8 @@ def scan_for_files(
                                 missing_inode_indexes = [
                                     index
                                     for tags, volume, inode, index in existing
-                                    if path_tags == tags and volume_name == volume
+                                    if path_tags == tags
+                                    and volume_name == volume
                                 ]
                             else:
                                 # don't bother if no data in file_ref
@@ -881,7 +938,9 @@ def scan_for_files(
                             # if file_stat.st_size > min_file_size:
 
                             if WRITE_OUT_FLAT:
-                                temp_outfile = file_type.extension + FLAT_FILE_SUFFIX
+                                temp_outfile = (
+                                    file_type.extension + FLAT_FILE_SUFFIX
+                                )
                                 temp_outfile = os.path.join(
                                     FLAT_FILE_DATA_DIR, temp_outfile
                                 )

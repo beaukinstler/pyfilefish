@@ -50,5 +50,7 @@ def test_file_type_filter_from_one_volume(file_list):
     file_types = FilePropertySet()
     file_types.clear()
     file_types.add(file_types.file_properties("single", 0))
-    files = pfu.get_files_from_one_vol(file_list, vol="test3", file_types=file_types)
+    files = pfu.get_files_from_one_vol(
+        file_list, vol="test3", file_types=file_types
+    )
     assert len(files) == 1

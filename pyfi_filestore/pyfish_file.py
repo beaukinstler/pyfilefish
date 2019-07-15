@@ -78,7 +78,9 @@ class PyfishFile(object):
     @classmethod
     def from_dict(cls, pfil_dict):
         self = 1
-        self = cls(volume=pfil_dict["volume"], full_path=pfil_dict["full_path"])
+        self = cls(
+            volume=pfil_dict["volume"], full_path=pfil_dict["full_path"]
+        )
         self.__dict__.update(pfil_dict)
         return self
 
@@ -262,7 +264,9 @@ class PyfishFileSet:
             return new_data
         else:
             data = (
-                self.list if self.list else self.load_from_dict(pfu.load_pyfish_data())
+                self.list
+                if self.list
+                else self.load_from_dict(pfu.load_pyfish_data())
             )  # noqa
             for hashsum in data:
                 for i in range(0, len(data[hashsum])):

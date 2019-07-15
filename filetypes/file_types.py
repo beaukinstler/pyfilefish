@@ -20,7 +20,9 @@ class FilePropertySet(object):
 
     def __init__(self):  # , file_type_properties=[PNG, ISO, JPG]):
         self.ft_list = []
-        self.file_properties = namedtuple("file_type_properties", "extension, min_size")
+        self.file_properties = namedtuple(
+            "file_type_properties", "extension, min_size"
+        )
 
         # add defaults
         file_properties = self.file_properties

@@ -1,5 +1,12 @@
-from flask import Blueprint, flash, g, redirect, render_template, request, \
-    url_for
+from flask import (
+    Blueprint,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask import send_from_directory
 from pathlib import Path
 from werkzeug.exceptions import abort

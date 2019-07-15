@@ -48,7 +48,9 @@ def file_list():
     files
     """
     # import pdb; pdb.set_trace()
-    result = pfu._load_saved_file_list("tests/test_files/data/test_json_data.json")
+    result = pfu._load_saved_file_list(
+        "tests/test_files/data/test_json_data.json"
+    )
     return result
 
 
@@ -187,7 +189,9 @@ SUCH DAMAGE."""
 
 
 # read in SQL for populating test data
-with open(os.path.join(os.path.dirname(__file__), "flaskr/data.sql"), "rb") as f:
+with open(
+    os.path.join(os.path.dirname(__file__), "flaskr/data.sql"), "rb"
+) as f:
     _data_sql = f.read().decode("utf8")
 
 

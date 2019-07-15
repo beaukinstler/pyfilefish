@@ -1,15 +1,17 @@
-# Purpose: get all files ending with a given extension in a drive or folder
-
-import os
-
-# from hashlib import md5
-# import datetime
+# Purpose: Run a program to utilize the PyfileFish libraries,
+#           Looking for files, syncing to a local share, or
+#           Remote system like S3
+#
 import json
 import codecs
-from pprint import pprint
-import logging
+# from pprint import pprint
+# import logging
 from pyfi_util import pyfish_util as pfu
-from settings import *
+# from settings import *
+from settings import logger, SYNC_TO_S3, SYNC_TO_LOCAL, LOAD_EXTERNAL, \
+    JSON_FILE_PATH, JSON_STATS_PATH, JSON_MULTI_SUMMARY_FILE, \
+    FLAT_FILE_DATA_DIR, IGNORE_DIRS, WRITE_OUT_DATA, WRITE_OUT_STATS, \
+    WRITE_OUT_MULTI
 import pyfi_ui as pui
 
 
@@ -82,13 +84,17 @@ def main():
     """
     if WRITE_OUT_DATA:
         with codecs.open(json_file_path, "w+", encoding="utf-8") as json_out:
-            json_out.write(json.dumps(file_list, sort_keys=True, ensure_ascii=False))
+            json_out.write(
+                json.dumps(file_list, sort_keys=True, ensure_ascii=False)
+            )
 
     """dump out the stats to a file
     """
     if WRITE_OUT_STATS:
         with codecs.open(json_stats_path, "w+", encoding="utf-8") as json_out:
-            json_out.write(json.dumps(stats, sort_keys=True, ensure_ascii=False))
+            json_out.write(
+                json.dumps(stats, sort_keys=True, ensure_ascii=False)
+            )
 
     multiple_files_collection = pfu.build_multiple_dict(file_list)
     if WRITE_OUT_MULTI:
@@ -98,7 +104,9 @@ def main():
             ) as json_out:
                 json_out.write(
                     json.dumps(
-                        multiple_files_collection, sort_keys=True, ensure_ascii=False
+                        multiple_files_collection,
+                        sort_keys=True,
+                        ensure_ascii=False,
                     )
                 )
 
