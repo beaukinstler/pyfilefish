@@ -35,7 +35,8 @@ def main():
     target = None
     # get cli user input
     run_mode = pui.prompt_user_for_run_mode()
-
+    if run_mode in [1, 2]:
+        say_goodbye()
     if run_mode == 3:
         sync_to_s3 = True
     if run_mode == 4:
