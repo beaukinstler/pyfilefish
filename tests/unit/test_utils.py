@@ -115,3 +115,24 @@ def test_get_files():
     assert filefile.exists() is True
     assert linkfile.exists() is False
     assert filefile.is_file() is True
+
+
+@pytest.mark.vhd_support
+def test_find_vhd_list():
+    # given a test path with many files but two that end in vhd
+    path = 'tests/test_files'
+
+    # when calling the funciton to get the vhd list
+    vhd_list = pfu.get_vhd_list(path)
+
+    # then
+    # the list will return two strings
+    assert len(vhd_list) == 2
+
+    # one ends in vhd
+    vhds = [v for v in vhd_list if '.vhd' == v.suffix]
+    assert len(vhds) == 1
+
+    # one ends in vhdx
+    vhdxs = [v for v in vhd_list if '.vhdx' == v.suffix]
+    assert len(vhdxs) == 1
