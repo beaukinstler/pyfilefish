@@ -39,7 +39,7 @@ ignore_dirs = IGNORE_DIRS
 # logger = logger
 
 
-def get_all_files_from_target(target_folder="test"):
+def get_all_files_from_target(target_folder="tests/test_files"):
     """A new method of gathering all the files, instead of os.walk. Will only
     find names of files with a period in the name.
     TODO: find a way to use this to speed up the scan functions

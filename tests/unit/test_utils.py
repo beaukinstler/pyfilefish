@@ -104,3 +104,14 @@ def test_add_multiple_to_tbd_list(tbd_path, pyfish_file_set_multiple):
         found_list.append(tbd_file.readline().rstrip())
     found_list.sort()
     assert found_list == test_list
+
+
+@pytest.mark.utils
+def test_get_files():
+    path = 'tests/test_files'
+    files = pfu.get_all_files_from_target(path)
+    linkfile = [f for f in files if 'link' in f.name][0]
+    filefile = [f for f in files if linkfile.name.split(".")[0] in f.name][0]
+    assert filefile.exists() is True
+    assert linkfile.exists() is False
+    assert filefile.is_file() is True
