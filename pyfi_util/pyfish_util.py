@@ -54,7 +54,7 @@ def get_all_files_from_target(target_folder="tests/test_files"):
         each file found.
     """
     if not target_folder:
-        target_folder = "test"
+        target_folder = "tests/test_files"
     result = []
     result = list(Path(target_folder).glob("**/*.*"))
     return result
