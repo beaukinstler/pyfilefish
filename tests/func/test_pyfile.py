@@ -1,6 +1,7 @@
 import pytest
 from pyfi_util import pyfish_util as pfu
-from pyfi_filestore.pyfish_file import PyfishFileSet
+from pyfi_filestore.pyfish_file import PyfishFileSet, PyfishFile
+from filetypes import file_types
 
 
 @pytest.mark.pfile
@@ -98,6 +99,23 @@ def test_pset_made_with_list_works_with_new_PfishFiles(file_list):
     pset.add(pyfishfile)
     after_len = len(pset.list)
     assert before_len == after_len - 1
+
+
+@pytest.mark.pfile
+def test_PyfishFile_from_dict(file_list):
+    first_key = list(file_list.keys())[0]
+    test_file = PyfishFile.from_dict(file_list[first_key][0])
+    assert "PyfishFile" in str(type(test_file))
+
+
+@pytest.mark.pfile
+def test_file_types_in_mb():
+    test_types = file_types.FilePropertySet('mb')
+    ext = test_types.find_extension('wav')
+    assert round(ext.min_size) in range(9, 11)
+    test_types = file_types.FilePropertySet('b')
+    ext = test_types.find_extension('wav')
+    assert ext.min_size >= 10000
 
 
 @pytest.mark.pfileset
