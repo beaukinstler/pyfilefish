@@ -4,63 +4,65 @@ from collections import namedtuple
 class FilePropertySet(object):
     """
     A list of file types and their min size for relevance
-    in searching and storing.  
-    Intended to be used for potentially deciding on 
-    whether a file is needed based on the type, and the 
+    in searching and storing.
+    Intended to be used for potentially deciding on
+    whether a file is needed based on the type, and the
     size that is relevant for that type
 
     output: a list of named tuples with 'extention' and 'min_size'
 
-    use 
+    use
         x = FilePropertySet()
         x.list_all() -- shows all predefined types
         x.add('extension', <min_size>) -- create a new one
         x.clear() -- delete all predefined types
     """
 
-    def __init__(self):  # , file_type_properties=[PNG, ISO, JPG]):
+    def __init__(self, default_divisor='b'):
+        KB = 1024.0
+        MB = KB * 1024.0
+        DEFAULT_MEASURE_OPTIONS = {'kb': KB, 'mb': KB * 1024}
         self.ft_list = []
         self.file_properties = namedtuple(
             "file_type_properties", "extension, min_size"
         )
-
+        self.divisor = DEFAULT_MEASURE_OPTIONS.get(default_divisor.lower())
         # add defaults
         file_properties = self.file_properties
         self.add(
             [
-                file_properties("png", 5000),
-                file_properties("bmp", 5000),
-                file_properties("gif", 5000),
-                file_properties("jpg", 5000),
-                file_properties("jpeg", 5000),
-                file_properties("pdf", 1000000),
-                file_properties("mp3", 100),
-                file_properties("wav", 10000),
-                file_properties("aif", 1000),
-                file_properties("iff", 1000),
+                file_properties("png", MB),
+                file_properties("bmp", MB),
+                file_properties("gif", MB),
+                file_properties("jpg", MB),
+                file_properties("jpeg", MB),
+                file_properties("pdf", MB),
+                file_properties("mp3", MB),
+                file_properties("wav", 10 * MB),
+                file_properties("aif", MB),
+                file_properties("iff", MB),
                 file_properties("m3u", 1024),
-                file_properties("mpa", 1000),
-                file_properties("m4a", 1000),
-                file_properties("wma", 1000),
-                file_properties("oog", 1000),
-                file_properties("flac", 1000),
-                file_properties("mp4", 50000),
-                file_properties("mov", 50000),
-                file_properties("mpg", 50000),
-                file_properties("rm", 50000),
-                file_properties("3g2", 50000),
-                file_properties("3gp", 50000),
-                file_properties("asf", 50000),
-                file_properties("avi", 50000),
-                file_properties("flv", 50000),
-                file_properties("m4v", 50000),
-                file_properties("srt", 50000),
-                file_properties("swf", 50000),
-                file_properties("vob", 50000),
-                file_properties("wmv", 50000),
-                file_properties("m4v", 50000),
+                file_properties("mpa", MB),
+                file_properties("wma", MB),
+                file_properties("oog", MB),
+                file_properties("flac", 5 * MB),
+                file_properties("mp4", 5 * MB),
+                file_properties("mov", 10 * MB),
+                file_properties("mpg", 10 * MB),
+                file_properties("rm", 10 * MB),
+                file_properties("3g2", 10 * MB),
+                file_properties("3gp", 10 * MB),
+                file_properties("asf", 10 * MB),
+                file_properties("avi", 10 * MB),
+                file_properties("flv", 10 * MB),
+                file_properties("m4v", 10 * MB),
+                file_properties("srt", 10 * MB),
+                file_properties("swf", 10 * MB),
+                file_properties("vob", 10 * MB),
+                file_properties("wmv", 10 * MB),
+                file_properties("m4v", 10 * MB),
                 # file_properties('iso', 100000),
-                # file_properties('vhd', 500000000),
+                file_properties('vhd', 1000 * MB),
                 # file_properties('vdi', 500000000),
                 # file_properties('img', 500000000),
                 # file_properties('deb', 500000000),
@@ -90,14 +92,14 @@ class FilePropertySet(object):
             self.ft_list.append(properties)
 
     def find_extension(self, ext: str):
-        """input an extension, or a filename with an extention, and return 
+        """input an extension, or a filename with an extention, and return
         the file type in the property set, with it's min size, if it exists.
-        
+
         Arguments:
             ext {string} -- a file name 'test.mp3' or an ext 'mp3'
 
         Returns:
-            file_propeties {named_tuple} -- a nameed tuple (extension, min_size)
+            file_properties {named_tuple} -- a named tuple (extension, min_size)
         """
 
         result = [
@@ -105,6 +107,16 @@ class FilePropertySet(object):
             for file_prop in self.get_all()
             if file_prop.extension == ext.lower().split(".")[-1]
         ]
+
+        # alter the result if there is a divisor present
+        if self.divisor:
+            if result:
+                divided_result = self.file_properties(
+                        result[0].extension, result[0].min_size / self.divisor
+                        )
+                result = [divided_result]
+        # should only need the first one in the list, since there should
+        # be only one file type in the set
         return (
             result[0] if result else result
-        )  # should only need the first one in the list, since there should be only one file type in the set
+        )

@@ -133,7 +133,7 @@ class PyfishFile(object):
                 self.timestamp = dt.fromtimestamp(absolute.stat().st_mtime)
                 self.filetype = (
                     self.filename.split(".")[-1]
-                    if self.filetype is ""
+                    if self.filetype == ""
                     else self.filetype
                 )  # noqa
                 self.inode = absolute.stat().st_ino
@@ -183,7 +183,7 @@ class PyfishFileSet:
         # if a volume isn't provided, assume just load it into
         # the list, and do not check for duplicated entries.
         if volume:
-            inodes_found = self.get_list_inodes_of_a_file_location_for_one_volume(
+            inodes_found = self.get_list_inodes_of_a_file_location_for_one_volume(  # noqa
                 file_record, volume
             )  # noqa
             if inodes_found:

@@ -54,7 +54,7 @@ def get_all_files_from_target(target_folder="tests/test_files"):
         each file found.
     """
     if not target_folder:
-        target_folder = "test"
+        target_folder = "tests/test_files"
     result = []
     result = list(Path(target_folder).glob("**/*.*"))
     return result
@@ -993,3 +993,8 @@ def add_to_tbd_list(hashsum):
     lines.append(f"{hashsum}\n")
     with open(TBD_PATH, "w+") as outfile:
         outfile.writelines(set(lines))
+
+
+def get_vhd_list(path):
+    vhdlist = [v for v in get_all_files_from_target(path) if 'vhd' in v.suffix.lower()]
+    return vhdlist
