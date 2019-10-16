@@ -3,6 +3,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
 # from pyfi_util.pyfish_util import get_md5
 from hashlib import md5
 import base64
@@ -13,20 +14,24 @@ import gzip
 from settings import *
 
 
-def convert_encrypted_file_into_decrypted_data(encpryted_file_path="",
-        salt=PYFI_S3_SALT, password=PYFI_S3_ENCRYPTION_KEY, message="",
-        compression=False):
+def convert_encrypted_file_into_decrypted_data(
+    encpryted_file_path="",
+    salt=PYFI_S3_SALT,
+    password=PYFI_S3_ENCRYPTION_KEY,
+    message="",
+    compression=False,
+):
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
         iterations=100000,
-        backend=default_backend()
+        backend=default_backend(),
     )
     data = bytes()
-    with open(encpryted_file_path, 'rb') as file_to_read:
+    with open(encpryted_file_path, "rb") as file_to_read:
         data = file_to_read.read()
-    
+
     key = base64.urlsafe_b64encode(kdf.derive(password))
     f = Fernet(key)
     decrypted_data = f.decrypt(data)
@@ -36,22 +41,27 @@ def convert_encrypted_file_into_decrypted_data(encpryted_file_path="",
         try:
             return_data = gzip.decompress(decrypted_data)
         except OSError as e:
-            print('data not compressed')
+            print("data not compressed")
             print(e)
             return_data = decrypted_data
     else:
         return_data = decrypted_data
     return return_data
 
-def convert_encrypted_data_into_decrypted_data(bdata,
-        salt=PYFI_S3_SALT, password=PYFI_S3_ENCRYPTION_KEY, message="",
-        compression=False):
+
+def convert_encrypted_data_into_decrypted_data(
+    bdata,
+    salt=PYFI_S3_SALT,
+    password=PYFI_S3_ENCRYPTION_KEY,
+    message="",
+    compression=False,
+):
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
         iterations=100000,
-        backend=default_backend()
+        backend=default_backend(),
     )
     decrypted_data = bytes()
     data = bytes()
@@ -64,7 +74,7 @@ def convert_encrypted_data_into_decrypted_data(bdata,
         try:
             data = gzip.decompress(decrypted_data)
         except OSError as e:
-            print('data not compressed')
+            print("data not compressed")
             print(e)
             data = decrypted_data
     else:
@@ -72,9 +82,13 @@ def convert_encrypted_data_into_decrypted_data(bdata,
     return data
 
 
-def convert_file_into_encrypted_data(file_path_to_encrypt="", salt=PYFI_S3_SALT,
-        password=PYFI_S3_ENCRYPTION_KEY, message="",
-        compression=False):
+def convert_file_into_encrypted_data(
+    file_path_to_encrypt="",
+    salt=PYFI_S3_SALT,
+    password=PYFI_S3_ENCRYPTION_KEY,
+    message="",
+    compression=False,
+):
     """Encrypt a file
     
     Keyword Arguments:
@@ -91,24 +105,29 @@ def convert_file_into_encrypted_data(file_path_to_encrypt="", salt=PYFI_S3_SALT,
         length=32,
         salt=salt,
         iterations=100000,
-        backend=default_backend()
+        backend=default_backend(),
     )
 
     data = bytes()
-    with open(file_path_to_encrypt, 'rb') as file_to_read:
+    with open(file_path_to_encrypt, "rb") as file_to_read:
         if compression:
             data = gzip.compress(file_to_read.read())
         else:
             data = file_to_read.read()
-    
+
     key = base64.urlsafe_b64encode(kdf.derive(password))
     f = Fernet(key)
     encrypted_data = f.encrypt(data)
     return encrypted_data
 
-def convert_bdata_into_encrypted_data(bdata, salt=PYFI_S3_SALT,
-        password=PYFI_S3_ENCRYPTION_KEY, message="",
-        compression=False):
+
+def convert_bdata_into_encrypted_data(
+    bdata,
+    salt=PYFI_S3_SALT,
+    password=PYFI_S3_ENCRYPTION_KEY,
+    message="",
+    compression=False,
+):
     """Encrypt binary data
     
     Keyword Arguments:
@@ -125,7 +144,7 @@ def convert_bdata_into_encrypted_data(bdata, salt=PYFI_S3_SALT,
         length=32,
         salt=salt,
         iterations=100000,
-        backend=default_backend()
+        backend=default_backend(),
     )
     if compression:
         data = gzip.compress(bdata)

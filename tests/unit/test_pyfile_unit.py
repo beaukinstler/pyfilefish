@@ -1,6 +1,8 @@
 from pyfi_filestore.pyfish_file import PyfishFile
 import pytest
+
 # from filetypes import FilePropertySet
+
 
 @pytest.mark.pyfile
 def test_new_from_dict(pyfish_file_set):
@@ -12,8 +14,6 @@ def test_new_from_dict(pyfish_file_set):
     assert type(tmp_dict) is dict
     # test the creation of the PyfishFise using the dict object
 
-    myPyfile:PyfishFile = PyfishFile.from_dict(tmp_dict)
+    myPyfile: PyfishFile = PyfishFile.from_dict(tmp_dict)
     myPyfile.open_and_get_info()
-    assert myPyfile.md5hash == tmp_dict['md5hash']
-
-    
+    assert myPyfile.md5hash == tmp_dict["md5hash"]
