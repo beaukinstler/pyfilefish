@@ -5,22 +5,28 @@ import logging
 from hashlib import md5
 
 # set whether the app attempts to import previously stored json data from the JSON_FILE_PATH
-LOAD_EXTERNAL = True
-SYNC_TO_LOCAL = False
-SYNC_TO_S3 = False
-ALL_SIZES = True
-WRITE_OUT_DATA = True
-WRITE_OUT_STATS = True
-WRITE_OUT_MULTI = True
-WRITE_OUT_FLAT = True
-APPMODE = os.getenv("FLASK_ENV")
-if APPMODE == "testing":
-    env_path = "./tests/.env_test"
+LOAD_EXTERNAL=True
+SYNC_TO_LOCAL=False
+SYNC_TO_S3=False
+ALL_SIZES=True
+WRITE_OUT_DATA=True
+WRITE_OUT_STATS=True
+WRITE_OUT_MULTI=True
+WRITE_OUT_FLAT=True
+APPMODE= os.getenv('FLASK_ENV')
+if APPMODE == 'testing':
+    if os.name is 'nt':
+        env_path = './tests/.env_test_nt'
+    else:
+        env_path = './tests/.env_test'
     load_dotenv(dotenv_path=env_path, verbose=True)
 elif APPMODE == "development":
     load_dotenv(".env_dev", verbose=True)
-else:
+elif APPMODE == 'production':
     load_dotenv(".env_production")
+else:
+    load_dotenv('example.env_dev')
+    
 
 # local file paths from .env
 USER_PYFI_FILE_HASH_KEY = getenv(

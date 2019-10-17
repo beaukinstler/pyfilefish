@@ -7,7 +7,8 @@ log*.test
 log*.mac
 log*.old
 logs.*/
-data/
+data/*
+dev/data/*
 
 tsv*
 # IDE files
@@ -141,3 +142,6 @@ tests/test_files/test.wav.asc
 tests/test_files/test.manifest.json.encrypted
 .env*
 tests/test_files/new--test.wav
+.pytest_cache/v/cache/lastfailed
+.pytest_cache/v/cache/nodeids
+.pytest_cache/v/cache/stepwise
