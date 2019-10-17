@@ -147,3 +147,5 @@ tests/test_files/new--test.wav
 .pytest_cache/v/cache/nodeids
 .pytest_cache/v/cache/stepwise
 tests/test_files/decrypted/*
+tests/test_files/data/
+test_localstore/
