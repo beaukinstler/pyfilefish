@@ -1,7 +1,8 @@
 import pytest
 from pyfi_util import pyfish_util as pfu
 from pyfi_filestore.pyfish_file import PyfishFile
-
+import os
+DATA_FOLDER = "data" if os.name != 'nt' else "data_nt"
 
 @pytest.mark.utils
 def test_build_relative_destination_path(pyfish_file_set):
@@ -77,7 +78,7 @@ def test_create_a_manifest():
 
 @pytest.mark.utils
 def test_add_files_to_manifest():
-    test_manifest_decrypted = "tests/test_files/data/test.manifest.json"
+    test_manifest_decrypted = f"tests/test_files/{DATA_FOLDER}/test.manifest.json"
     pfu.add_location_to_file_manifest(
         test_manifest_decrypted, "test", ["made/up/path"]
     )

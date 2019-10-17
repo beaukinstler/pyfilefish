@@ -25,6 +25,7 @@ SMALL_TEST_FILE = "tests/test_files/test.mp3"
 SMALL_TEST_FILE_KEY = "tests/test.mp3"
 MED_TEST_FILE = "tests/test_files/test.wav"
 MED_TEST_FILE_KEY = "tests/test.wav"
+DATA_FOLDER = "data" if os.name != 'nt' else "data_nt"
 
 
 @pytest.fixture()
@@ -49,7 +50,7 @@ def file_list():
     """
     # import pdb; pdb.set_trace()
     result = pfu._load_saved_file_list(
-        "tests/test_files/data/test_json_data.json"
+        f"tests/test_files/{DATA_FOLDER}/test_json_data.json"
     )
     return result
 
@@ -62,7 +63,7 @@ def file_list_only_one_volume():
     """
     # import pdb; pdb.set_trace()
     result = pfu._load_saved_file_list(
-        "tests/test_files/data/test_json_data_one_vol.json"
+        f"tests/test_files/{DATA_FOLDER}/test_json_data_one_vol.json"
     )
     return result
 
