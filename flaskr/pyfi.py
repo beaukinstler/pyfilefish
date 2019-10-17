@@ -33,35 +33,42 @@ def pyfi():
 
     # for pagination
     search = False
-    q = request.args.get('q')
-    if q:
+    filetype,volume = request.args.get('filetype'),request.args.get('volume')
+    if filetype:
         search = True
     page = request.args.get(get_page_parameter(), type=int, default=1)
     
     for md5 in file_set:
         for file_list in file_set[md5]:
-            posts.append(
-                {
-                    "filename": file_list["filename"],
-                    "full_path": file_list["full_path"],
-                    "timestamp": file_list["timestamp"],
-                    "volume": file_list["volume"],
-                    "filetype": file_list["filetype"],
-                    "md5hash": file_list["md5hash"],
-                }
-            )
+            if (not filetype or str(file_list["filetype"]).lower() == str(filetype).lower()) \
+                and (not volume or str(file_list["volume"]).lower() == str(volume).lower()):
+                posts.append(
+                    {
+                        "filename": file_list["filename"],
+                        "full_path": file_list["full_path"],
+                        "timestamp": file_list["timestamp"],
+                        "volume": file_list["volume"],
+                        "filetype": file_list["filetype"],
+                        "md5hash": file_list["md5hash"],
+                    }
+                )
     
     pagination = Pagination(
             page=page,
-            total=len(file_set.keys()),
+            total=len(posts),
             search=search,
             record_name='Posts',
-            er_page_parameter=2,
+            found= len(posts),
         )
 
     posts2 = posts[pagination.skip:pagination.total-1] \
             if page == pagination.total_pages \
             else posts[pagination.skip:pagination.skip+pagination.per_page]
+
+    # if str(filetype).lower() == 'mp3':
+    #     posts2 = [ post for post in posts2 if post['filetype'].lower() == 'png']
+    #     pagination.found = len(posts2)
+
     return render_template("pyfi/index.html", Posts=posts2, pagination=pagination)
 
 
