@@ -1,9 +1,18 @@
 <!doctype html>
-
-<div class=wrapper>
+<head>
 <title>{% block title %}{% endblock %} - Flaskr</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<!-- Bootstrap -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" media="screen">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery.js"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<div class=wrapper>
+  <nav>
   <h1><a href="{{ url_for('index') }}">Flaskr</a></h1>
   <ul>
     {% if g.user %}
@@ -21,8 +30,9 @@
     {% block header %}{% endblock %}
   </header>
   {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
+  <div class="flash">{{ message }}</div>
   {% endfor %}
   {% block content %}{% endblock %}
 </section>
 </div>
+</body>
