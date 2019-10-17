@@ -8,6 +8,7 @@ autopep8 = "*"
 flake8 = "*"
 pylint = "*"
 pep8 = "*"
+mypy = "*"
 
 [packages]
 boto3 = "*"
@@ -17,6 +18,8 @@ encryption = "*"
 cryptography = "*"
 flask = "*"
 # gpg = {version = "*", sys_platform = " == 'linux'"}
+watchdog = "*"
+flask-paginate = "*"
 
 [requires]
 python_version = "3.7"

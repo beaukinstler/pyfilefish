@@ -149,3 +149,5 @@ tests/test_files/new--test.wav
 tests/test_files/decrypted/*
 tests/test_files/data/
 test_localstore/
+
+.mypy_cache

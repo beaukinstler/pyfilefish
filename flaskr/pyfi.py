@@ -15,6 +15,7 @@ from flaskr.auth import login_required
 from flaskr.db import get_db
 from pyfi_util import pyfish_util as pfu
 from settings import APPMODE
+from flask_paginate import Pagination, get_page_parameter
 
 bp = Blueprint("pyfi", __name__)
 
@@ -26,6 +27,13 @@ def pyfi():
     file_set = pfu.load_pyfish_data()
     posts = []
 
+    # for pagination
+    search = False
+    q = request.args.get('q')
+    if q:
+        search = True
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    
     for md5 in file_set:
         for file_list in file_set[md5]:
             posts.append(
@@ -38,7 +46,19 @@ def pyfi():
                     "md5hash": file_list["md5hash"],
                 }
             )
-    return render_template("pyfi/index.html", posts=posts)
+    
+    pagination = Pagination(
+            page=page,
+            total=len(file_set.keys()),
+            search=search,
+            record_name='Posts',
+            er_page_parameter=2,
+        )
+
+    posts2 = posts[pagination.skip:pagination.total-1] \
+            if page == pagination.total_pages \
+            else posts[pagination.skip:pagination.skip+pagination.per_page]
+    return render_template("pyfi/index.html", Posts=posts2, pagination=pagination)
 
 
 @bp.route("/pyfi/<vol>/<md5hash>.<extension>")
