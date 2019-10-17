@@ -19,6 +19,10 @@ from flask_paginate import Pagination, get_page_parameter
 
 bp = Blueprint("pyfi", __name__)
 
+@bp.route("/volumes")
+@login_required
+def volumes():
+    return render_template("pyfi/volumes.html", volumes=pfu.get_current_volumes())
 
 @bp.route("/pyfi")
 @login_required
