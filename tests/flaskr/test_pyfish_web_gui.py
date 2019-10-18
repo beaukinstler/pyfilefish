@@ -33,3 +33,20 @@ def test_wav_file_found(client, auth):
     response = client.get("/pyfi/test/3b01b3abec70519b00b9738b1336cddc.wav")
     assert response.status_code == 200
     assert response.content_type in [ 'audio/x-wav', 'audio/wav' ]
+
+@pytest.mark.pyfish_web_gui
+def test_nav_links_present(client, auth):
+    response = client.get("/")
+    assert b"Pyfish" not in response.data
+    auth.login()
+    response = client.get("/")
+    assert b"Pyfish" in response.data
+    assert b"Volumes" in response.data
+
+@pytest.mark.pyfish_web_gui
+def test_volumes_page_has_test_volume(client, auth):
+    response = client.get("/volumes")
+    assert b"Volume:" not in response.data
+    auth.login()
+    response = client.get("/volumes")
+    assert b"Volume:" in response.data
