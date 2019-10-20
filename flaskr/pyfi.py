@@ -50,6 +50,7 @@ def pyfi():
                         "volume": file_list["volume"],
                         "filetype": file_list["filetype"],
                         "md5hash": file_list["md5hash"],
+                        "file_size": file_list["file_size"],
                     }
                 )
     

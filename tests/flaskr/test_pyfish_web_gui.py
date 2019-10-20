@@ -50,3 +50,9 @@ def test_volumes_page_has_test_volume(client, auth):
     auth.login()
     response = client.get("/volumes")
     assert b"Volume:" in response.data
+
+@pytest.mark.pyfish_web_gui
+def test_pyfi_webgui_shows_files_size(client, auth):
+    auth.login()
+    response = client.get("/pyfi")
+    assert b"File size:" in response.data
