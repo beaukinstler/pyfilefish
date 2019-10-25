@@ -816,6 +816,7 @@ def scan_for_files(
     sync_to_local_drive,
     load_external: bool = LOAD_EXTERNAL,
     local_target=None,
+    type_of_volume=(1,'attached'),
 ):
     """
     scan a drive and location for files
@@ -921,6 +922,7 @@ def scan_for_files(
                                         "timestamp": timestamp,
                                         "filetype": file_type[0],
                                         "inode": file_inode,
+                                        "type_of_volume": f"{type_of_volume}",
                                     }
                                 )
                             if sync_to_s3:
@@ -950,18 +952,20 @@ def scan_for_files(
                                     startFile = open(temp_outfile, "w+")
                                     startFile.write(
                                         "Filename\t"
+                                        "Path\t"
                                         "Hash\t"
                                         "FileSize\t"
                                         "Date\t"
                                         "FileType\t"
                                         "inode\t"
+                                        "TypeOfVolume\t"
                                         "VolumeName\n"
                                     )
                                     startFile.close()
 
                                 with open(temp_outfile, "a+") as out_put_file:
                                     out_put_file.writelines(
-                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
+                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t\n".format(
                                             str(path_tags[-1]),
                                             filename,
                                             file_hash,
@@ -969,6 +973,7 @@ def scan_for_files(
                                             timestamp,
                                             file_type[0],
                                             file_inode,
+                                            f"{type_of_volume}",
                                             volume_name,
                                         )
                                     )

@@ -58,6 +58,7 @@ def main():
         say_goodbye()
 
     volume_name = pui.prompt_for_volume()
+    type_of_volume = pui.prompt_volume_type()
     folder = pui.prompt_folder_to_scan()
     file_types = pui.get_file_types_from_user()
     file_list = {} if not load_external else pfu.load_pyfish_data()
@@ -70,6 +71,7 @@ def main():
         sync_to_local_drive=sync_to_another_drive,
         load_external=LOAD_EXTERNAL,
         local_target=target,
+        type_of_volume=type_of_volume,
     )
 
     print(f"End Time: {str(pfu.datetime.datetime.now().time())}")

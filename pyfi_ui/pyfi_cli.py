@@ -1,5 +1,6 @@
 import os
 from filetypes import FilePropertySet
+from settings import VOLUME_TYPES
 from pyfi_util.pyfish_util import (
     get_current_volumes,
     get_unique_files_totalsize,
@@ -212,6 +213,29 @@ def prompt_for_volume(existing_only=False):
     return volume_name
 
 
+       
+
+
+
+def prompt_volume_type():
+    """ prompt user for type of volume
+    
+    Returns:
+        tuple(int,str) -- Number chosen and  description
+    """
+    option_list = [ vt.description for vt in VOLUME_TYPES ]
+
+    print_numbered_options(option_list)
+    
+    choice = 0
+    while choice not in range(1,len(option_list)):
+        try:
+            choice = int(input("Make choice from a number in the list above: "))        
+        except ValueError as e:
+            print("Please enter a number.\nPlease try again.\n")
+        # print("That entry wasn't something we can work with.\nPlease try again.\n")
+    return (choice, VOLUME_TYPES[ choice - 1 ])
+
 def prompt_user_for_size_one_volume():
     print("Please choose a volume name to search for size")
     vol = prompt_for_volume(existing_only=True)
@@ -219,13 +243,8 @@ def prompt_user_for_size_one_volume():
     print(f"\nVolume: {vol}\n")
     print(f"Size  : {size}\n")
 
-
-def prompt_user_for_run_mode():
-    """sub routine to report on previous data
-    """
-
-    prompt = "Select an option. Choose 0 to just run the scanner, creating a list of files to act on later: "
-    print(
+def get_options_list():
+    return(
         """
         1)  see unique file size totals. This roughly show the amount of disk space required to store all the files in the data
         2)  see the volumes currentinly captured in the data
@@ -239,6 +258,13 @@ def prompt_user_for_run_mode():
         0) Scan and find files for data, but do not sync to another location
         """
     )
+
+def prompt_user_for_run_mode():
+    """sub routine to report on previous data
+    """
+    print(get_options_list())
+    prompt = "Select an option. Choose 0 to just run the scanner, creating a list of files to act on later: "
+    
     try:
         choice = int(input(prompt))
         print("\n")
@@ -265,3 +291,16 @@ def prompt_user_for_run_mode():
         return choice
     else:
         return choice
+
+
+
+def print_numbered_options(list_of_options:list, indent=" "*4, sep=")  "):
+    """prints out a list with numbers to choose
+    
+    Arguments:
+        list_of_options {list} -- [description]
+    """
+    for count, item in enumerate(list_of_options, start=1):
+        print(f"{indent}{count}{sep}{item}")
+
+    
