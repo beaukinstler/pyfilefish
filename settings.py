@@ -3,6 +3,7 @@ from os import getenv
 import os
 import logging
 from hashlib import md5
+from pyfi_filestore.pyfish_volume_types import VolumeType
 
 # set whether the app attempts to import previously stored json data from the JSON_FILE_PATH
 LOAD_EXTERNAL=True
@@ -19,7 +20,7 @@ if APPMODE == 'testing':
         env_path = './tests/.env_test_nt'
     else:
         env_path = './tests/.env_test'
-    load_dotenv(dotenv_path=env_path, verbose=True)
+    load_dotenv(dotenv_path=env_path, verbose=True, override=True)
 elif APPMODE == "development":
     load_dotenv(".env_dev", verbose=True)
 elif APPMODE == 'production':
@@ -105,3 +106,11 @@ IGNORE_DIRS = [
     "dotfiles",
     "test_skip_dir",
 ]
+
+
+
+VOLUME_TYPES = [
+        VolumeType('attached', 'Physical hard drive linked and always running on this system.'),
+        VolumeType('external', 'An external drive plugged in or mounted on a network'),
+        VolumeType('file','A virtual hard drive / filesystem mounted temporarily'),
+    ]
