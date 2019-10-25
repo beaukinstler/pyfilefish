@@ -117,3 +117,4 @@ def main():
 if __name__ == "__main__":
     logger.info(f"{__name__} has started. Logging to {logger.name}")
     main()
+    logger.info(f"{__name__} the main() function has returned and will end.{logger.name}")
