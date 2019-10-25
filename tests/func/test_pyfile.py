@@ -112,7 +112,7 @@ def test_PyfishFile_from_dict(file_list):
 def test_file_types_in_mb():
     test_types = file_types.FilePropertySet('mb')
     ext = test_types.find_extension('wav')
-    assert round(ext.min_size) in range(9, 11)
+    assert round(ext.min_size) in range(0,2)
     test_types = file_types.FilePropertySet('b')
     ext = test_types.find_extension('wav')
     assert ext.min_size >= 10000
