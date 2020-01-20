@@ -808,7 +808,7 @@ def get_match_details(file_ref):
 
 
 def scan_for_files(
-    pyfi_file_list: list,
+    pyfi_file_list: dict,
     folder,
     file_types: FilePropertySet,
     volume_name,
@@ -831,9 +831,6 @@ def scan_for_files(
     # loop over the designated folder, and but stop to remove dirs that are
     # not to be searched.
     for (paths, dirs, files) in os.walk(folder, topdown=True):
-        if file_list_changed:
-            write_data_to_json_log(pyfi_file_list=pyfi_file_list)
-            file_list_changed = False
         for ignore_dir in ignore_dirs:
             if ignore_dir in dirs:
                 dirs.remove(ignore_dir)
@@ -977,7 +974,9 @@ def scan_for_files(
                                             volume_name,
                                         )
                                     )
-
+        if file_list_changed:
+            write_data_to_json_log(pyfi_file_list=pyfi_file_list)
+            file_list_changed = False
 
 def get_class_var_attributes(cls: object):
     clsItems = cls._attributes
