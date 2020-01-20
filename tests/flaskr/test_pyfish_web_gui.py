@@ -30,7 +30,7 @@ def test_pyfi_accessible_when_authenticated(client, auth):
 @pytest.mark.pyfish_web_gui
 def test_wav_file_found(client, auth):
     auth.login()
-    response = client.get("/pyfi/test/3b01b3abec70519b00b9738b1336cddc.wav")
+    response = client.get("/pyfi/Pytest_Test_Files/3b01b3abec70519b00b9738b1336cddc.wav")
     assert response.status_code == 200
     assert response.content_type in [ 'audio/x-wav', 'audio/wav' ]
 

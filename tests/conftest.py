@@ -16,16 +16,38 @@ from flaskr.db import init_db
 import os
 from settings import TBD_PATH
 
-os.environ["FLASK_ENV"] = "testing"
 
+os.environ["FLASK_ENV"] = "testing"
+FISHING_FOLDER  = str(os.getenv('FISHING_FOLDER'))
 ACTIVE_BUCKET_NAME = getenv("ACTIVE_BUCKET_NAME")
 PYFI_S3_SALT = getenv("PYFI_S3_SALT")
 PYFI_S3_ENCRYPTION_KEY = getenv("PYFI_S3_ENCRYPTION_KEY")
-SMALL_TEST_FILE = "tests/test_files/test.mp3"
-SMALL_TEST_FILE_KEY = "tests/test.mp3"
-MED_TEST_FILE = "tests/test_files/test.wav"
-MED_TEST_FILE_KEY = "tests/test.wav"
+SMALL_TEST_FILE = f"{FISHING_FOLDER}/test.mp3"
+SMALL_TEST_FILE_KEY = f"{FISHING_FOLDER}/test.mp3"
+MED_TEST_FILE = f"{FISHING_FOLDER}/test.wav"
+MED_TEST_FILE_KEY = f"{FISHING_FOLDER}/test.wav"
 DATA_FOLDER = "data" if os.name != 'nt' else "data_nt"
+
+assert os.path.exists(SMALL_TEST_FILE)
+assert os.path.exists(SMALL_TEST_FILE_KEY)
+assert os.path.exists(MED_TEST_FILE)
+assert os.path.exists(MED_TEST_FILE_KEY)
+assert os.path.exists(FISHING_FOLDER)
+
+try:
+    result = pfu._load_saved_file_list(
+            f"tests/test_files/{DATA_FOLDER}/test_json_data.json"
+        )
+    assert len(result) > 0
+except AssertionError as e:
+    print("Problem: data file not found.  \
+            Will attempt to build it by scanning designated fishing folder.")
+    try:
+        from tests.setup_testing_data import setup_tests
+        setup_tests()
+    except:
+        print("Problem settings up tests")
+
 
 
 @pytest.fixture()
@@ -119,12 +141,12 @@ def test_med_fileobj():
 
 @pytest.fixture()
 def pyfishfile():
-    return pfu.PyfishFile("test", "tests/test_files/test.wav")
+    return pfu.PyfishFile("test", f"{FISHING_FOLDER}/test.wav")
 
 
 @pytest.fixture()
 def pyfish_file_set():
-    test_file = pfu.PyfishFile("test", "tests/test_files/test.wav")
+    test_file = pfu.PyfishFile("test", f"{FISHING_FOLDER}/test.wav")
     test_file.open_and_get_info()
     fs = PyfishFileSet()
     fs.add(test_file)
@@ -133,9 +155,9 @@ def pyfish_file_set():
 
 @pytest.fixture()
 def pyfish_file_set_multiple():
-    test_file = pfu.PyfishFile("test", "tests/test_files/test.wav")
+    test_file = pfu.PyfishFile("test", f"{FISHING_FOLDER}/test.wav")
     test_file.open_and_get_info()
-    test_file2 = pfu.PyfishFile("test", "tests/test_files/test.mp3")
+    test_file2 = pfu.PyfishFile("test", f"{FISHING_FOLDER}/test.mp3")
     test_file2.open_and_get_info()
     fs = PyfishFileSet()
     fs.add(test_file)
