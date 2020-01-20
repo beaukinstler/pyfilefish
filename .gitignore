@@ -148,6 +148,7 @@ tests/test_files/new--test.wav
 .pytest_cache/v/cache/stepwise
 tests/test_files/decrypted/*
 tests/test_files/data/
+tests/test_files/data_nt
 test_localstore/
 
 .mypy_cache
