@@ -114,3 +114,13 @@ VOLUME_TYPES = [
         VolumeType('external', 'An external drive plugged in or mounted on a network'),
         VolumeType('file','A virtual hard drive / filesystem mounted temporarily'),
     ]
+
+PYFISH_FIELDS = [
+        'filename',
+        'full_path',
+        'timestamp',
+        'volume',
+        'filetype',
+        'md5hash',
+        'file_size',
+    ]

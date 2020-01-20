@@ -14,7 +14,7 @@ from werkzeug.exceptions import abort
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from pyfi_util import pyfish_util as pfu
-from settings import APPMODE
+from settings import APPMODE, PYFISH_FIELDS
 from flask_paginate import Pagination, get_page_parameter
 
 bp = Blueprint("pyfi", __name__)
@@ -42,17 +42,21 @@ def pyfi():
         for file_list in file_set[md5]:
             if (not filetype or str(file_list["filetype"]).lower() == str(filetype).lower()) \
                 and (not volume or str(file_list["volume"]).lower() == str(volume).lower()):
-                posts.append(
-                    {
-                        "filename": file_list["filename"],
-                        "full_path": file_list["full_path"],
-                        "timestamp": file_list["timestamp"],
-                        "volume": file_list["volume"],
-                        "filetype": file_list["filetype"],
-                        "md5hash": file_list["md5hash"],
-                        "file_size": file_list["file_size"],
-                    }
-                )
+                post_dict ={}
+                for field in PYFISH_FIELDS:
+                    post_dict[field] = file_list[field]
+                
+                posts.append(post_dict)
+                    # {
+                    #     "filename": file_list["filename"],
+                    #     "full_path": file_list["full_path"],
+                    #     "timestamp": file_list["timestamp"],
+                    #     "volume": file_list["volume"],
+                    #     "filetype": file_list["filetype"],
+                    #     "md5hash": file_list["md5hash"],
+                    #     "file_size": file_list["file_size"],
+                    # }
+                # )
     
     pagination = Pagination(
             page=page,
