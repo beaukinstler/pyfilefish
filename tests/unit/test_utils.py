@@ -50,8 +50,8 @@ def test_sync_s3_new_no_encrypt(pyfishfile: PyfishFile):
 def test_gzip(pyfishfile: PyfishFile):
     pyfishfile.open_and_get_info()
     fl = pyfishfile.full_path
-    before: bytes = None
-    after: bytes = None
+    before: bytes = b''
+    after: bytes = b''
     with open(fl, "rb") as data:
         before = data.read()
     with open(fl, "rb") as data:
