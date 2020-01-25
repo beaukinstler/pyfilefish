@@ -6,28 +6,34 @@ import codecs
 import json
 
 def setup_tests():
+    
+    test_volume_names = ['Pytest_Test_Files','test','test2']
     previous_env = os.environ["FLASK_ENV"]
+
+    
     try:
-        #this may be set in the environment
-        # but setting here to be sure
-        os.environ["FLASK_ENV"] = "testing"
-        volume_name = 'Pytest_Test_Files'
-        # use the first option in the settings
-        type_of_volume = VOLUME_TYPES[0]
-        folder = getenv('FISHING_FOLDER')
-        file_types = FilePropertySet()
         file_list:dict = {} # if not load_external else pfu.load_pyfish_data()
-        pfu.scan_for_files(
-            file_list,
-            folder=folder,
-            file_types=file_types,
-            volume_name=volume_name,
-            sync_to_s3=False,
-            sync_to_local_drive=False,
-            load_external=False,
-            local_target= None,
-            type_of_volume=type_of_volume,
-        )
+        for vol in test_volume_names:
+            #this may be set in the environment
+            # but setting here to be sure
+            os.environ["FLASK_ENV"] = "testing"
+            volume_name = vol
+            # use the first option in the settings
+            type_of_volume = VOLUME_TYPES[0]
+            folder = getenv('FISHING_FOLDER')
+            file_types = FilePropertySet()
+            file_types.add_from_details('single',0)
+            pfu.scan_for_files(
+                file_list,
+                folder=folder,
+                file_types=file_types,
+                volume_name=volume_name,
+                sync_to_s3=False,
+                sync_to_local_drive=False,
+                load_external=False,
+                local_target= None,
+                type_of_volume=type_of_volume,
+            )
 
         with codecs.open(JSON_FILE_PATH, "w+", encoding="utf-8") as json_out:
             json_out.write(
@@ -61,3 +67,6 @@ def setup_tests():
     finally:
         # after this is all done, set the env back
         os.environ["FLASK_ENV"] = previous_env
+
+if __name__ == 'main':
+    setup_tests()

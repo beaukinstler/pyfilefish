@@ -11,7 +11,7 @@ def test_filtering_with_non_existant_name_gets_all(file_list):
 
 def test_filtering_out_the_only_volume_in_data(file_list_only_one_volume):
     list_with_no_data = pfu.get_files_missing_from_a_volume(
-        file_list_only_one_volume, "test"
+        file_list_only_one_volume, "Pytest_Test_Files"
     )
     assert len(list_with_no_data) == 0
 
