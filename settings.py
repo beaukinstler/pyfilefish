@@ -45,7 +45,10 @@ JSON_MULTI_SUMMARY_FILE = os.path.join(
 FLAT_FILE_DATA_DIR = getenv("FLAT_FILE_DATA_DIR")
 FLAT_FILE_SUFFIX = getenv("FLAT_FILE_SUFFIX")
 TEMP_FOLDER = getenv("TEMP_FOLDER")
-TBD_PATH = os.path.join(DATA_FOLDER, getenv("TBD_LIST"))
+try:
+    TBD_PATH = os.path.join(DATA_FOLDER, getenv("TBD_LIST"))
+except Exception as e:
+    print("Error:", e)
 
 GPG_PUBLIC_ID = getenv("GPG_PUBLIC_ID")
 GPG_PASS = getenv("GPG_PASSPHRASE")
