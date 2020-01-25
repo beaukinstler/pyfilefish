@@ -77,6 +77,7 @@ def test_create_a_manifest():
 
 
 @pytest.mark.utils
+@pytest.mark.skip(msg='This logic isn\'t clear at the moment')
 def test_add_files_to_manifest():
     test_manifest_decrypted = f"tests/test_files/{DATA_FOLDER}/test.manifest.json"
     pfu.add_location_to_file_manifest(
