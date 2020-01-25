@@ -268,13 +268,8 @@ class PyfishFileSet:
                 if self.list
                 else self.load_from_dict(pfu.load_pyfish_data())
             )  # noqa
-            for hashsum in data:
-                for i in range(0, len(data[hashsum])):
-                    if data[hashsum][i].volume == volume:
-                        try:
-                            new_data[hashsum].append(data[hashsum][i])
-                        except KeyError:
-                            new_data[hashsum] = []
-                            new_data[hashsum].append(data[hashsum][i])
+            for hashsum in data.keys():
+                new_data[hashsum] = [ files for files in data[hashsum]  if files.volume == volume ]
+
         self.__setattr__(f"cache_{volume}", new_data)
         return new_data
