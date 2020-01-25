@@ -91,6 +91,23 @@ class FilePropertySet(object):
         else:
             self.ft_list.append(properties)
 
+    def add_from_details(self, type_name, type_size=0):
+        """add file types from simple input values.  Takes the values
+        used in the FilePropertySet.file_properties named tuple, creates
+        the 'file_properties' tuple, and passes to the primary 'add' function
+
+        Arguments:
+            type_name {string} -- the extension the filetype will need to be
+                                  in order for the scanner to find it
+
+        Keyword Arguments:
+            type_size {int} -- size in MB that the scan should use as the 
+                               minimum. (default: 0)
+        """
+        if type_name is not None:
+            properties = self.file_properties(type_name, type_size)
+            self.add(properties)
+
     def find_extension(self, ext: str):
         """input an extension, or a filename with an extention, and return
         the file type in the property set, with it's min size, if it exists.
