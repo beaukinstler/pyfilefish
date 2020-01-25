@@ -47,16 +47,6 @@ def pyfi():
                     post_dict[field] = file_list[field]
                 
                 posts.append(post_dict)
-                    # {
-                    #     "filename": file_list["filename"],
-                    #     "full_path": file_list["full_path"],
-                    #     "timestamp": file_list["timestamp"],
-                    #     "volume": file_list["volume"],
-                    #     "filetype": file_list["filetype"],
-                    #     "md5hash": file_list["md5hash"],
-                    #     "file_size": file_list["file_size"],
-                    # }
-                # )
     
     pagination = Pagination(
             page=page,
@@ -69,10 +59,6 @@ def pyfi():
     posts2 = posts[pagination.skip:pagination.total-1] \
             if page == pagination.total_pages \
             else posts[pagination.skip:pagination.skip+pagination.per_page]
-
-    # if str(filetype).lower() == 'mp3':
-    #     posts2 = [ post for post in posts2 if post['filetype'].lower() == 'png']
-    #     pagination.found = len(posts2)
 
     return render_template("pyfi/index.html", Posts=posts2, pagination=pagination)
 
