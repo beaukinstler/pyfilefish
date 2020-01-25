@@ -21,6 +21,6 @@ def test_filter_out_one_volume_should_result_in_one_less(file_list):
         pfu.get_files_missing_from_a_volume(file_list, "x")
     )  # since there is no vol x, total number
     filter_should_make_one_less = len(
-        pfu.get_files_missing_from_a_volume(file_list, "test3")
+        pfu.get_files_missing_from_a_volume(file_list, "Pytest_Test_Files")
     )
-    assert total_count - filter_should_make_one_less == 2
+    assert total_count - filter_should_make_one_less == 4
