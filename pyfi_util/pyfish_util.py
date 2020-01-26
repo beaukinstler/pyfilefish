@@ -962,7 +962,7 @@ def scan_for_files(
                                         "timestamp": timestamp,
                                         "filetype": file_type[0],
                                         "inode": file_inode,
-                                        "type_of_volume": f"{type_of_volume}",
+                                        "type_of_volume": f"{type_of_volume.name}",
                                     }
                                 )
                             if sync_to_s3:
@@ -1013,7 +1013,7 @@ def scan_for_files(
                                             timestamp,
                                             file_type[0],
                                             file_inode,
-                                            f"{type_of_volume}",
+                                            f"{type_of_volume.name}",
                                             volume_name,
                                         )
                                     )
