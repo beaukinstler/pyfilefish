@@ -138,3 +138,15 @@ def test_find_vhd_list():
     # one ends in vhdx
     vhdxs = [v for v in vhd_list if '.vhdx' == v.suffix]
     assert len(vhdxs) == 1
+
+
+@pytest.mark.filehash
+def test_filehash(pyfishfile: PyfishFile):
+    pyfishfile.open_and_get_info()
+    fl = pyfishfile.full_path
+    with open(fl, "rb") as data:
+        result = pfu.get_hashes(data)
+    # make sure there are two values
+    assert len(result.keys()) == 2
+    # make sure the values are the right len for both.  So 2 results should 
+    assert len([ val for val in result.values() if len(val) in [64,32]  ])

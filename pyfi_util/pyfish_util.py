@@ -19,7 +19,7 @@ from settings import (
     TBD_PATH,
     LOAD_EXTERNAL,
 )
-from hashlib import md5
+from hashlib import md5, sha256
 import datetime
 from filetypes.file_types import FilePropertySet
 from shutil import copyfile
@@ -727,6 +727,49 @@ def get_md5(fileObjectToHash, block_size=40960):
         file_hash.update(data)
     # hex digest is better than digest, for standart use.
     return file_hash.hexdigest()
+
+def get_sha256(fileObjectToHash, block_size=40960):
+    """A wrapper around the hashlib md5 functions. This is
+    used to read and hash a block at a time, in the event of
+    a very large file being checked.
+
+    Arguments:
+        fileObjectToHash {fp} -- File-like object data.
+
+    Keyword Arguments:
+        block_size {int} -- [description] (default: {2048*20})
+
+    Returns:
+        str -- sha256 sum of the file as a string
+    """
+
+    file_hash = sha256()
+    while True:
+        data = fileObjectToHash.read(block_size)
+        if not data:
+            break
+        file_hash.update(data)
+    # hex digest is better than digest, for standart use.
+    return file_hash.hexdigest()
+
+
+
+def get_hashes(fileObjectToHash,bocksize=40960):
+    """Get a dict of both types of hashes
+    
+    Arguments:
+        fileObjectToHash {file like data object} -- open with rb 
+    
+    Keyword Arguments:
+        bocksize {int} -- bocksize to use when hashing (default: {40960})
+    
+    Returns:
+        dict -- k,v pairs of type and hash value of file
+    """
+
+    result265 = get_sha256(fileObjectToHash=fileObjectToHash, block_size=bocksize)
+    resultMd5 = get_md5(fileObjectToHash=fileObjectToHash, block_size=bocksize)
+    return {"sha256":result265, "md5":resultMd5}
 
 
 def modification_date(filename):
