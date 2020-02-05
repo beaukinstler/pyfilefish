@@ -11,7 +11,7 @@ def test_get_volumes_from_data(file_list):
 @pytest.mark.data_parse
 def test_create_stats(file_list):
     stats = pfu.build_stats_dict(file_list)
-    assert stats["edc900745c5d15d773fbcdc0b376f00c"]["copies"] == 1
+    assert stats["28e0ad05a7b95446bf59e77deb14d1ca"]["copies"] == 3
 
 
 @pytest.mark.data_parse
@@ -33,9 +33,9 @@ def test_create_multiples_filters_out_singles(file_list):
 
 @pytest.mark.data_parse
 def test_sum_file_size(file_list):
-    value = pfu.get_unique_files_totalsize(file_list, vol="test3")
-    val_in_MB = round(value, 2)
-    assert val_in_MB == 1
+    value = pfu.get_unique_files_totalsize(file_list, vol="Pytest_Test_Files")
+    val_in_MB = round(value, 0)
+    assert val_in_MB == 96
 
 
 @pytest.mark.data_parse
@@ -51,6 +51,6 @@ def test_file_type_filter_from_one_volume(file_list):
     file_types.clear()
     file_types.add(file_types.file_properties("single", 0))
     files = pfu.get_files_from_one_vol(
-        file_list, vol="test3", file_types=file_types
+        file_list, vol="Pytest_Test_Files", file_types=file_types
     )
     assert len(files) == 1

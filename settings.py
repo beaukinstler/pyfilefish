@@ -45,7 +45,10 @@ JSON_MULTI_SUMMARY_FILE = os.path.join(
 FLAT_FILE_DATA_DIR = getenv("FLAT_FILE_DATA_DIR")
 FLAT_FILE_SUFFIX = getenv("FLAT_FILE_SUFFIX")
 TEMP_FOLDER = getenv("TEMP_FOLDER")
-TBD_PATH = os.path.join(DATA_FOLDER, getenv("TBD_LIST"))
+try:
+    TBD_PATH = os.path.join(DATA_FOLDER, getenv("TBD_LIST"))
+except Exception as e:
+    print("Error:", e)
 
 GPG_PUBLIC_ID = getenv("GPG_PUBLIC_ID")
 GPG_PASS = getenv("GPG_PASSPHRASE")
@@ -113,4 +116,14 @@ VOLUME_TYPES = [
         VolumeType('attached', 'Physical hard drive linked and always running on this system.'),
         VolumeType('external', 'An external drive plugged in or mounted on a network'),
         VolumeType('file','A virtual hard drive / filesystem mounted temporarily'),
+    ]
+
+PYFISH_FIELDS = [
+        'filename',
+        'full_path',
+        'timestamp',
+        'volume',
+        'filetype',
+        'md5hash',
+        'file_size',
     ]

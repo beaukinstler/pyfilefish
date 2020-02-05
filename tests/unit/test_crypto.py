@@ -29,6 +29,7 @@ from hashlib import sha3_512 as sha
 
 @pytest.mark.skipif(sys.platform != "linux", reason="only supported on linux")
 @pytest.mark.crypto
+@pytest.mark.skip(msg="pfgpg not installed")
 def test_gpg_encrypt():
     a_key = GPG_PUBLIC_ID
     filename = "tests/test_files/test.wav"
@@ -38,6 +39,7 @@ def test_gpg_encrypt():
 
 @pytest.mark.crypto
 @pytest.mark.skipif(sys.platform != "linux", reason="only supported on linux")
+@pytest.mark.skip(msg="pfgpg not installed")
 def test_gpg_decrypt():
     a_key = GPG_PUBLIC_ID
     filename = "tests/test_files/test.wav"

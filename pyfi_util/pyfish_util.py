@@ -19,7 +19,7 @@ from settings import (
     TBD_PATH,
     LOAD_EXTERNAL,
 )
-from hashlib import md5
+from hashlib import md5, sha256
 import datetime
 from filetypes.file_types import FilePropertySet
 from shutil import copyfile
@@ -728,6 +728,49 @@ def get_md5(fileObjectToHash, block_size=40960):
     # hex digest is better than digest, for standart use.
     return file_hash.hexdigest()
 
+def get_sha256(fileObjectToHash, block_size=40960):
+    """A wrapper around the hashlib md5 functions. This is
+    used to read and hash a block at a time, in the event of
+    a very large file being checked.
+
+    Arguments:
+        fileObjectToHash {fp} -- File-like object data.
+
+    Keyword Arguments:
+        block_size {int} -- [description] (default: {2048*20})
+
+    Returns:
+        str -- sha256 sum of the file as a string
+    """
+
+    file_hash = sha256()
+    while True:
+        data = fileObjectToHash.read(block_size)
+        if not data:
+            break
+        file_hash.update(data)
+    # hex digest is better than digest, for standart use.
+    return file_hash.hexdigest()
+
+
+
+def get_hashes(fileObjectToHash,bocksize=40960):
+    """Get a dict of both types of hashes
+    
+    Arguments:
+        fileObjectToHash {file like data object} -- open with rb 
+    
+    Keyword Arguments:
+        bocksize {int} -- bocksize to use when hashing (default: {40960})
+    
+    Returns:
+        dict -- k,v pairs of type and hash value of file
+    """
+
+    result265 = get_sha256(fileObjectToHash=fileObjectToHash, block_size=bocksize)
+    resultMd5 = get_md5(fileObjectToHash=fileObjectToHash, block_size=bocksize)
+    return {"sha256":result265, "md5":resultMd5}
+
 
 def modification_date(filename):
     time_of_mod = os.path.getmtime(filename)
@@ -808,7 +851,7 @@ def get_match_details(file_ref):
 
 
 def scan_for_files(
-    pyfi_file_list: list,
+    pyfi_file_list: dict,
     folder,
     file_types: FilePropertySet,
     volume_name,
@@ -831,9 +874,6 @@ def scan_for_files(
     # loop over the designated folder, and but stop to remove dirs that are
     # not to be searched.
     for (paths, dirs, files) in os.walk(folder, topdown=True):
-        if file_list_changed:
-            write_data_to_json_log(pyfi_file_list=pyfi_file_list)
-            file_list_changed = False
         for ignore_dir in ignore_dirs:
             if ignore_dir in dirs:
                 dirs.remove(ignore_dir)
@@ -922,7 +962,7 @@ def scan_for_files(
                                         "timestamp": timestamp,
                                         "filetype": file_type[0],
                                         "inode": file_inode,
-                                        "type_of_volume": f"{type_of_volume}",
+                                        "type_of_volume": f"{type_of_volume.name}",
                                     }
                                 )
                             if sync_to_s3:
@@ -973,11 +1013,13 @@ def scan_for_files(
                                             timestamp,
                                             file_type[0],
                                             file_inode,
-                                            f"{type_of_volume}",
+                                            f"{type_of_volume.name}",
                                             volume_name,
                                         )
                                     )
-
+        if file_list_changed:
+            write_data_to_json_log(pyfi_file_list=pyfi_file_list)
+            file_list_changed = False
 
 def get_class_var_attributes(cls: object):
     clsItems = cls._attributes
