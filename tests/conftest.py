@@ -18,7 +18,8 @@ from settings import TBD_PATH
 
 
 os.environ["FLASK_ENV"] = "testing"
-FISHING_FOLDER  = str(os.getenv('FISHING_FOLDER'))
+FISHING_FOLDER  = 'tests/test_files/files_to_fish' if os.getenv('FISHING_FOLDER') is None \
+        else str(os.getenv('FISHING_FOLDER'))
 ACTIVE_BUCKET_NAME = getenv("ACTIVE_BUCKET_NAME")
 PYFI_S3_SALT = getenv("PYFI_S3_SALT")
 PYFI_S3_ENCRYPTION_KEY = getenv("PYFI_S3_ENCRYPTION_KEY")
