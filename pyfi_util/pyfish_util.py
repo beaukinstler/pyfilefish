@@ -18,6 +18,7 @@ from settings import (
     JSON_FILE_PATH_TEMP,
     TBD_PATH,
     LOAD_EXTERNAL,
+    VOLUME_TYPES,
 )
 from hashlib import md5, sha256
 import datetime
@@ -859,7 +860,7 @@ def scan_for_files(
     sync_to_local_drive,
     load_external: bool = LOAD_EXTERNAL,
     local_target=None,
-    type_of_volume=(1,'attached'),
+    type_of_volume=(1,VOLUME_TYPES[0]),
 ):
     """
     scan a drive and location for files
@@ -962,7 +963,7 @@ def scan_for_files(
                                         "timestamp": timestamp,
                                         "filetype": file_type[0],
                                         "inode": file_inode,
-                                        "type_of_volume": f"{type_of_volume.name}",
+                                        "type_of_volume": f"{type_of_volume[1].name}",
                                     }
                                 )
                             if sync_to_s3:
@@ -1013,7 +1014,7 @@ def scan_for_files(
                                             timestamp,
                                             file_type[0],
                                             file_inode,
-                                            f"{type_of_volume.name}",
+                                            f"{type_of_volume[1].name}",
                                             volume_name,
                                         )
                                     )
