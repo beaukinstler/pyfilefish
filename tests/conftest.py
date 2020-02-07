@@ -15,6 +15,7 @@ from flaskr.db import get_db
 from flaskr.db import init_db
 import os
 from settings import TBD_PATH
+from pathlib import Path
 
 
 os.environ["FLASK_ENV"] = "testing"
@@ -174,6 +175,12 @@ def tbd_path():
         pass
     yield TBD_PATH
     os.remove(TBD_PATH)
+
+
+@pytest.fixture()
+def test_med_path():
+    pur_path = Path(MED_TEST_FILE).resolve()
+    yield pur_path
 
 
 ####

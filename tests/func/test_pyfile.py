@@ -75,7 +75,6 @@ def test_add_pyfishfile_to_pfy_set():
     pyfishfile = pfu.PyfishFile("test", "tests/test_files/test.wav")
     pset = PyfishFileSet()
     pset.add(pyfishfile)
-
     assert len(pset.list) == 1
 
 
@@ -106,16 +105,6 @@ def test_PyfishFile_from_dict(file_list):
     first_key = list(file_list.keys())[0]
     test_file = PyfishFile.from_dict(file_list[first_key][0])
     assert "PyfishFile" in str(type(test_file))
-
-
-@pytest.mark.pfile
-def test_file_types_in_mb():
-    test_types = file_types.FilePropertySet('mb')
-    ext = test_types.find_extension('wav')
-    assert round(ext.min_size) in range(0,2)
-    test_types = file_types.FilePropertySet('b')
-    ext = test_types.find_extension('wav')
-    assert ext.min_size >= 10000
 
 
 @pytest.mark.pfileset
@@ -165,3 +154,22 @@ def test_get_a_file_list_from_only_one_volume(file_list):
     pset.generate_cached_files_list_from_one_vol(volume="test2")
     first_key = list(pset.list.keys())[0]
     assert len(pset.cache_test[first_key]) == len(pset.cache_test2[first_key]) 
+
+
+@pytest.mark.filepropertyset
+def test_file_types_in_mb():
+    test_types = file_types.FilePropertySet('mb')
+    ext = test_types.find_extension('wav')
+    assert round(ext.min_size) in range(0,2)
+    test_types = file_types.FilePropertySet('b')
+    ext = test_types.find_extension('wav')
+    assert ext.min_size >= 10000
+
+@pytest.mark.filepropertyset
+def test_file_prop_set_check_approved(test_med_path):
+    # given a stat-able Path object
+    # when its extension and size are allowed
+    # then classmethod check_approved function returns True
+    test_types = file_types.FilePropertySet.check_approved(test_med_path)
+    assert test_types is True
+    
