@@ -2,6 +2,8 @@ import pytest
 from pyfi_util import pyfish_util as pfu
 from pyfi_filestore.pyfish_file import PyfishFileSet, PyfishFile
 from filetypes import file_types
+import os
+from collections import Counter
 
 
 @pytest.mark.pfile
@@ -172,4 +174,19 @@ def test_file_prop_set_check_approved(test_med_path):
     # then classmethod check_approved function returns True
     test_types = file_types.FilePropertySet.check_approved(test_med_path)
     assert test_types is True
+
+@pytest.mark.filepropertyset
+def test_fixture_for_new_scan_logic(new_scan_results):
+    # GIVEN fixture using logic to test new scanning methods
+    # WHEN: evaluated and allow to scan current home dir 
+    # THEN:there a file found, and some filtered, and exclusions lists, along with a list of the
+    # locations that were scanned
+    some_files ,all_files, destinations, excludes = new_scan_results
+
+    # all items in the some_list should be in the all list
+    c = Counter(all_files)
+    # count all the items, then check each item in the some_list to make sure it's there
+    assert len([ item for item in some_files if c[item] < 1 ]) == 0
+    assert 'Documents' in str(destinations)
+    assert  len(str(excludes[0])) > 0
     
