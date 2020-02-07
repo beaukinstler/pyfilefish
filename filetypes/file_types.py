@@ -1,4 +1,5 @@
 from collections import namedtuple
+from pathlib import Path
 
 
 class FilePropertySet(object):
@@ -137,3 +138,22 @@ class FilePropertySet(object):
         return (
             result[0] if result else result
         )
+
+
+    @classmethod
+    def check_approved(cls, p :Path):
+        """Return true if the path passed is a file with
+        and extension in the list, and a size greater 
+        or equal to the min size defined in the class
+        
+        Arguments:
+            p {Path} -- A stat-able file path object
+        
+        Returns:
+            [bool] -- true if the file is big enough and matches 
+                      an extension
+        """
+        pstat = p.stat()
+        fps = cls()
+        fp = fps.find_extension(p.suffix)
+        return True if fp and pstat.st_size >= fp.min_size else False
