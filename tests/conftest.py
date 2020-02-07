@@ -16,6 +16,8 @@ from flaskr.db import init_db
 import os
 from settings import TBD_PATH
 from pathlib import Path
+from itertools import chain
+from filetypes.file_types import FilePropertySet as fps
 
 
 os.environ["FLASK_ENV"] = "testing"
@@ -181,6 +183,22 @@ def tbd_path():
 def test_med_path():
     pur_path = Path(MED_TEST_FILE).resolve()
     yield pur_path
+
+
+@pytest.fixture
+def new_scan_results():
+    common = ['Downloads', 'Documents', 'Desktop']
+    target_folder = Path.home()
+    excludes = [Path.cwd().parent.resolve()]
+    destinations = [ target_folder.joinpath(dest) for dest in common ]
+    # get a list of generators to be scanned
+    scan  = [ Path(target).glob("**/*.*") for target in destinations ]
+    all_files = [ [file_found for file_found in path_generator ] for path_generator in scan ]
+    scan  = [ Path(target).glob("**/*.*") for target in destinations ]
+    some_files = [ [file_found for file_found in path_generator if fps.check_approved(file_found) ] for path_generator in scan ]
+    some_files = list(chain(*some_files))
+    all_files = list(chain(*all_files))
+    return some_files ,all_files, destinations, excludes
 
 
 ####
